@@ -1,4 +1,4 @@
-function [expData,rawExpData,adaptData] = loadSubject(info,eventClass)
+function [expData, rawExpData, adaptData] = loadSubject(info, eventClass)
 % loadSubject  Load, organize, process, and save experimental session
 %   data from C3D files into labTools data objects.
 %
@@ -127,39 +127,40 @@ if datlogExist || info.perceptualTasks == 1
             datlog{trial} = {};             % set as empty cell
         end
     end
-    % creates 'experimentMetaData' object, which contains information about
-    % the number of trials, their descriptions, notes, and trial #'s
-    expMD = experimentMetaData(info.ExpDescription,expDate, ...
-        info.experimenter,info.exp_obs,strtrim(info.conditionNames), ...
-        info.conditionDescriptions,info.trialnums,info.numoftrials, ...
-        info.schenleyLab,info.perceptualTasks,datlog);
+    % Creates 'experimentMetaData' object, which contains information about
+    % the number of trials, their descriptions, notes, and trial numbers.
+    expMD = experimentMetaData(info.ExpDescription, expDate, ...
+        info.experimenter, info.exp_obs, strtrim(info.conditionNames), ...
+        info.conditionDescriptions, info.trialnums, info.numoftrials, ...
+        info.schenleyLab, info.perceptualTasks, datlog);
 else
-    expMD = experimentMetaData(info.ExpDescription,expDate, ...
-        info.experimenter,info.exp_obs,strtrim(info.conditionNames), ...
-        info.conditionDescriptions,info.trialnums,info.numoftrials, ...
-        info.schenleyLab,info.perceptualTasks);
+    expMD = experimentMetaData(info.ExpDescription, expDate, ...
+        info.experimenter, info.exp_obs, strtrim(info.conditionNames), ...
+        info.conditionDescriptions, info.trialnums, info.numoftrials, ...
+        info.schenleyLab, info.perceptualTasks);
     % Constructor(ID,date,experimenter,obs,conds,desc,trialLst,Ntrials);
 end
-rawExpData = experimentData(expMD,subData,rawTrialData);
+rawExpData = experimentData(expMD, subData, rawTrialData);
 
-% FIXME: close all figures and remove intermediate variables to free up
-% some memory in matlab.
-% There seems to be a memory issue since summer 2025. During c3d2mat, the
-% PC will run out of memory which is shown as OutOfMemory, OutOfHeapSpace,
+% FIXME: close all figures and remove intermediate variables to free
+% up some memory in MATLAB.
+% There seems to be a memory issue since summer 2025. During c3d2mat,
+% the PC will run out of memory, shown as OutOfMemory, OutOfHeapSpace,
 % or png file failed to write errors. A better solution is needed to
-% identify why we are running out of memory or do we have a memory leak.
-% Since we do not know the cause now, will try close the figures and
-% remove variables to make the code run for now.
-close all; clc;
+% identify why we are running out of memory or if there is a memory
+% leak. Since the cause is not yet known, closing figures and removing
+% variables is a temporary workaround to allow the code to run.
+close('all');
+clc();
 clearvars -except info eventClass rawExpData datlogExist;
 
-% synch data logs if the 'datlog' files exist for all trials and the forces
-% exist within those files
-if datlogExist          % if there are data log files, ...
+% Synchronize data logs if datlog files exist for all trials and the
+% forces exist within those files.
+if datlogExist                          % if there are data log files, ...
     rawExpData = SyncDatalog(rawExpData, ...
         [info.save_folder filesep 'DatlogSyncRes' filesep]);
 end
-save([info.save_folder filesep info.ID 'RAW.mat'],'rawExpData','-v7.3');
+save([info.save_folder filesep info.ID 'RAW.mat'], 'rawExpData', '-v7.3');
 
 %% Process Data
 expData   = rawExpData.process(eventClass);
