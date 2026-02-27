@@ -3,10 +3,10 @@ function [expData, rawExpData, adaptData] = loadSubject(info, eventClass)
 %   data from C3D files into labTools data objects.
 %
 %   Reads raw trial data from the .c3d files specified by info, constructs
-% labTools data objects (experimentData, subjectData), detects gait
-% events, computes adaptation parameters, and saves the results to disk.
-% If datlog files are present for all trials, data logs are synchronized
-% prior to processing.
+% labTools data objects (experimentData, subjectData), detects gait events,
+% computes adaptation parameters, and saves the results to disk. If datlog
+% files are present for all trials, data logs are synchronized prior to
+% processing.
 %
 %   Inputs:
 %     info       - Struct of session information returned by GetInfoGUI,
@@ -35,8 +35,10 @@ arguments
 end
 
 %% Initialize Diary to Save All Information Displayed during Loading
+% onCleanup guarantees diary is closed even if an error is thrown
 diaryFileName = fullfile(info.save_folder, [info.ID 'loading.log']);
 diary(diaryFileName);
+cleanupDiary  = onCleanup(@() diary('off'));
 
 %% Determine Experiment Date
 % 'labDate' is a 'labTools' repository class
@@ -176,8 +178,6 @@ if contains(erase(info.ExpDescription, ' '), 'SpinalAdaptation')
     [expData, adaptData] = SepCondsInExpByAudioCue(expData, ...
         info.save_folder, info.ID, eventClass, info.ExpDescription);
 end
-
-diary('off');
 
 end
 
