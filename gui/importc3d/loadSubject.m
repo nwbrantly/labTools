@@ -29,8 +29,9 @@ function [expData, rawExpData, adaptData] = loadSubject(info, eventClass)
 %   See also: GetInfoGUI, c3d2mat, getTrialMetaData, loadTrials,
 %     experimentData, experimentData.process, SyncDatalog
 
-if nargin < 2 || isempty(eventClass)    % if no gait event method input,...
-    eventClass = '';                    % use default method
+arguments
+    info       (1,1) struct
+    eventClass (1,:) char   = ''
 end
 
 %% Initialize Diary to Save All Information Displayed during Loading
