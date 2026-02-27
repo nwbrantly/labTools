@@ -35,7 +35,7 @@ arguments
 end
 
 %% Initialize Diary to Save All Information Displayed during Loading
-diaryFileName = [info.save_folder filesep info.ID 'loading.log'];
+diaryFileName = fullfile(info.save_folder, [info.ID 'loading.log']);
 diary(diaryFileName);
 
 %% Determine Experiment Date
@@ -159,16 +159,17 @@ clearvars -except info eventClass rawExpData datlogExist;
 % forces exist within those files.
 if datlogExist                          % if there are data log files, ...
     rawExpData = SyncDatalog(rawExpData, ...
-        [info.save_folder filesep 'DatlogSyncRes' filesep]);
+        [fullfile(info.save_folder, 'DatlogSyncRes') filesep]);
 end
-save([info.save_folder filesep info.ID 'RAW.mat'], 'rawExpData', '-v7.3');
+save(fullfile(info.save_folder, [info.ID 'RAW.mat']), ...
+    'rawExpData', '-v7.3');
 
 %% Process Data
 expData   = rawExpData.process(eventClass);
-% save processed data object
-save([info.save_folder filesep info.ID '.mat'], 'expData', '-v7.3');
-% create 'adaptationData' object, and save 'params' file
-adaptData = expData.makeDataObj([info.save_folder filesep info.ID]);
+% Save processed data object
+save(fullfile(info.save_folder, [info.ID '.mat']), 'expData', '-v7.3');
+% Create 'adaptationData' object, and save 'params' file
+adaptData = expData.makeDataObj(fullfile(info.save_folder, info.ID));
 
 %% Handle Experiments Requiring Special Trial Splitting from Data Logs
 if contains(erase(info.ExpDescription, ' '), 'SpinalAdaptation')
