@@ -1,17 +1,33 @@
 function [expData,rawExpData,adaptData] = loadSubject(info,eventClass)
-%loadSubject  Load, organize, process, and save data from .c3d files as a
-%             subject's .mat file
+% loadSubject  Load, organize, process, and save experimental session
+%   data from C3D files into labTools data objects.
 %
-%INPUTS:
-%'info' is the structured array output from 'GetInfoGUI'
-%'eventClass' can be a string value: '' or 'kin' or 'force'   it
-%specifies the method to determine gait events. When in doubt, use ''.
+%   Reads raw trial data from the .c3d files specified by info, constructs
+% labTools data objects (experimentData, subjectData), detects gait
+% events, computes adaptation parameters, and saves the results to disk.
+% If datlog files are present for all trials, data logs are synchronized
+% prior to processing.
 %
-%OUTPUTS:
-%expData: a processed instance of the 'experimentData' class
-%rawExpData: an unprocessed instance of the 'experimentData' class
+%   Inputs:
+%     info       - Struct of session information returned by GetInfoGUI,
+%                  containing participant demographics, file paths, trial
+%                  and condition assignments, and EMG channel labels
+%     eventClass - (optional) String specifying the gait event detection
+%                  method. Defaults to '' if omitted or empty:
+%                    ''      - default (forces for TM, kinematics for OG)
+%                    'kin'   - strictly from kinematics (OG trials)
+%                    'force' - strictly from forces (TM trials)
 %
-%See also: getTrialMetaData, experimentData, experimentData.process
+%   Outputs:
+%     expData    - Processed experimentData object
+%     rawExpData - Unprocessed experimentData object
+%     adaptData  - adaptationData object with computed adaptation params
+%
+%   Toolbox Dependencies:
+%     None
+%
+%   See also: GetInfoGUI, c3d2mat, getTrialMetaData, loadTrials,
+%     experimentData, experimentData.process, SyncDatalog
 
 if nargin < 2 || isempty(eventClass)    % if no gait event method input,...
     % use default method (choose 'force' - TM trials, 'kin' - OG trials)
