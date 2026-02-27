@@ -29,7 +29,7 @@ function [expData,rawExpData,adaptData] = loadSubject(info,eventClass)
 %   See also: GetInfoGUI, c3d2mat, getTrialMetaData, loadTrials,
 %     experimentData, experimentData.process, SyncDatalog
 
-if nargin < 2 || isempty(eventClass)    % if no gait event method input,
+if nargin < 2 || isempty(eventClass)    % if no gait event method input,...
     eventClass = '';                    % use default method
 end
 
@@ -55,37 +55,37 @@ expDate = labDate(info.day, info.month, info.year);
 %   1) the leg on the fast belt is the dominant leg
 %   2) info.domleg is either 'left' or 'right'
 %   3) the reference leg is the leg on the slow belt
-if isfield(info,'fastLeg')                  % if fast leg specified, ...
-    if strcmpi(info.fastLeg,'right')
+if isfield(info, 'fastLeg')                 % if fast leg specified, ...
+    if strcmpi(info.fastLeg, 'right')
         info.refLeg = 'L';
-    elseif strcmpi(info.fastLeg,'left')
+    elseif strcmpi(info.fastLeg, 'left')
         info.refLeg = 'R';
     else
         warning(['Reference leg could not be determined from ' ...
-            'information given. Make sure info.fastLeg is either '''...
+            'information given. Make sure info.fastLeg is either ' ...
             '''Left'' or ''Right''.']);
     end
-elseif isfield(info,'isStroke') && info.isStroke == 1   % if stroke, ...
-    % reference leg is affected side when leg / belt speed is not provided
+elseif isfield(info, 'isStroke') && info.isStroke == 1  % if stroke, ...
+    % Reference leg is the affected side when belt speed is not given.
     % TODO: add condition in case fast leg field does not exist
-    if strcmpi(info.affectedSide,'right')
-        info.refLeg = 'R';
+    if strcmpi(info.affectedSide, 'right')
+        info.refLeg  = 'R';
         info.fastLeg = 'Left';
-    elseif strcmpi(info.affectedSide,'left')
-        info.refLeg = 'L';
+    elseif strcmpi(info.affectedSide, 'left')
+        info.refLeg  = 'L';
         info.fastLeg = 'Right';
     else
         warning(['Reference leg could not be determined from ' ...
-            'information given. Make sure info.affectedSide is either ' ...
-            '''Left'' or ''Right''.']);
+            'information given. Make sure info.affectedSide is ' ...
+            'either ''Left'' or ''Right''.']);
     end
 else                                                    % otherwise, ...
-    % assume reference leg is non-dominant leg when information not given
-    if strcmpi(info.domleg,'right')
-        info.refLeg = 'L';
+    % Assume reference leg is non-dominant when information not given
+    if strcmpi(info.domleg, 'right')
+        info.refLeg  = 'L';
         info.fastLeg = 'Right';
-    elseif strcmpi(info.domleg,'left')
-        info.refLeg = 'R';
+    elseif strcmpi(info.domleg, 'left')
+        info.refLeg  = 'R';
         info.fastLeg = 'Left';
     else
         warning(['Reference leg could not be determined from ' ...
@@ -94,34 +94,34 @@ else                                                    % otherwise, ...
     end
 end
 
-DOB = labDate(info.DOBday,info.DOBmonth,info.DOByear);
-% compute age at time of experimental session to nearest month
-% TODO: why not compute age to the nearest day?
-ageInMonths = round(expDate.timeSince(DOB));    % round to closest month
-age = ageInMonths / 12;
+DOB         = labDate(info.DOBday, info.DOBmonth, info.DOByear);
+% Compute age at time of experimental session to nearest month
+% TODO: why not compute age to the nearest day? Privacy concern?
+ageInMonths = round(expDate.timeSince(DOB));
+age         = ageInMonths / 12;
 
-if ~isfield(info,'isStroke') || info.isStroke == 0  % if no stroke, ...
-    subData = subjectData(DOB,info.gender,info.domleg, ...
-        info.domhand,info.height,info.weight,age,info.ID,info.fastLeg);
-else                                                % otherwise, stroke
+if ~isfield(info, 'isStroke') || info.isStroke == 0    % if no stroke, ...
+    subData = subjectData(DOB, info.gender, info.domleg, info.domhand, ...
+        info.height, info.weight, age, info.ID, info.fastLeg);
+else                                                    % otherwise, ...
     % TODO: add date of stroke to participant data object
-    subData = strokeSubjectData(DOB,info.gender,info.domleg, ...
-        info.domhand,info.height,info.weight,age,info.ID,info.fastLeg, ...
-        info.affectedSide);
+    subData = strokeSubjectData(DOB, info.gender, info.domleg, ...
+        info.domhand, info.height, info.weight, age, info.ID, ...
+        info.fastLeg, info.affectedSide);
 end
 
 %% Process Trial Data
-% generate meta data for each trial in experimental session
-[trialMD,fileList,secFileList,datlogExist] = getTrialMetaData(info);
-rawTrialData = loadTrials(trialMD,fileList,secFileList,info);
+% Generate meta data for each trial in the experimental session
+[trialMD, fileList, secFileList, datlogExist] = getTrialMetaData(info);
+rawTrialData = loadTrials(trialMD, fileList, secFileList, info);
 
-% the below code block is most likely redundant, but keep for now
-% the code will always have datlog = true when perceptual task = 1
+% The below code block is most likely redundant, but keep for now;
+% the code will always have datlog = true when perceptual task = 1.
 if datlogExist || info.perceptualTasks == 1
     datlog = {{}};
     for trial = 1:length(rawTrialData)      % for each trial, ...
         if ~isempty(rawTrialData{trial})    % if trial data available, ...
-            % extract trial data logs from meta data
+            % Extract trial data logs from trial meta data
             datlog{trial} = rawTrialData{trial}.metaData.datlog;
         else                                % otherwise, ...
             datlog{trial} = {};             % set as empty cell
