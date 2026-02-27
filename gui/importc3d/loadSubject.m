@@ -29,9 +29,8 @@ function [expData,rawExpData,adaptData] = loadSubject(info,eventClass)
 %   See also: GetInfoGUI, c3d2mat, getTrialMetaData, loadTrials,
 %     experimentData, experimentData.process, SyncDatalog
 
-if nargin < 2 || isempty(eventClass)    % if no gait event method input,...
-    % use default method (choose 'force' - TM trials, 'kin' - OG trials)
-    eventClass = '';
+if nargin < 2 || isempty(eventClass)    % if no gait event method input,
+    eventClass = '';                    % use default method
 end
 
 %% Initialize Diary to Save All Information Displayed during Loading
@@ -40,21 +39,21 @@ diary(diaryFileName);
 
 %% Determine Experiment Date
 % 'labDate' is a 'labTools' repository class
-expDate = labDate(info.day,info.month,info.year);
+expDate = labDate(info.day, info.month, info.year);
 
 %% Experiment Information
-% creates 'experimentMetaData' object, which houses information about the
-% number of trials, their descriptions, notes, and trial #'s
-% expMD = experimentMetaData(info.ExpDescription,expDate, ...
-%     info.experimenter,info.exp_obs,strtrim(info.conditionNames), ...
-%     info.conditionDescriptions,info.trialnums,info.numoftrials, ...
-%     info.schenleyLab,info.perceptualTasks);
-% Constructor(ID,date,experimenter,obs,conds,desc,trialLst,Ntrials);
+% Creates 'experimentMetaData' object, which houses information about
+% the number of trials, their descriptions, notes, and trial numbers.
+% expMD = experimentMetaData(info.ExpDescription, expDate, ...
+%     info.experimenter, info.exp_obs, strtrim(info.conditionNames), ...
+%     info.conditionDescriptions, info.trialnums, info.numoftrials, ...
+%     info.schenleyLab, info.perceptualTasks);
+% Constructor(ID, date, experimenter, obs, conds, desc, trialLst, Ntrials);
 
 %% Participant Information
-% determine the reference leg, which assumes that:
+% Determine the reference leg, which assumes that:
 %   1) the leg on the fast belt is the dominant leg
-%   2) 'info.domleg' is either 'left' or 'right'
+%   2) info.domleg is either 'left' or 'right'
 %   3) the reference leg is the leg on the slow belt
 if isfield(info,'fastLeg')                  % if fast leg specified, ...
     if strcmpi(info.fastLeg,'right')
@@ -163,19 +162,19 @@ end
 save([info.save_folder filesep info.ID 'RAW.mat'],'rawExpData','-v7.3');
 
 %% Process Data
-expData = rawExpData.process(eventClass);
+expData   = rawExpData.process(eventClass);
 % save processed data object
-save([info.save_folder filesep info.ID '.mat'],'expData','-v7.3');
+save([info.save_folder filesep info.ID '.mat'], 'expData', '-v7.3');
 % create 'adaptationData' object, and save 'params' file
 adaptData = expData.makeDataObj([info.save_folder filesep info.ID]);
 
-%% Handle Experiments that Require Special Trial Splitting from Data Logs
-if contains(erase(info.ExpDescription,' '),'SpinalAdaptation')
-    [expData,adaptData] = SepCondsInExpByAudioCue(expData, ...
-        info.save_folder,info.ID,eventClass,info.ExpDescription);
+%% Handle Experiments Requiring Special Trial Splitting from Data Logs
+if contains(erase(info.ExpDescription, ' '), 'SpinalAdaptation')
+    [expData, adaptData] = SepCondsInExpByAudioCue(expData, ...
+        info.save_folder, info.ID, eventClass, info.ExpDescription);
 end
 
-diary off;
+diary('off');
 
 end
 
