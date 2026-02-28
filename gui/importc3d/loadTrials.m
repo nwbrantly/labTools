@@ -104,47 +104,72 @@ for tr = cell2mat(info.trialnums)       % for each trial, ...
                         'channel ' fieldList{j}]);
                 else
                     switch fieldList{j}(end)    % parse force channels
-                        case '1'    % left (forward) right (backward) TM FP
+                        case '1'    % left (fwd) / right (bwd) TM FP
                             if info.backwardCheck == 1
-                                forceLabels{end+1} = ['R' fieldList{j}(end-2:end-1)];
+                                forceLabels{end+1} = ...
+                                    ['R' fieldList{j}(end-2:end-1)];
                             else
-                                forceLabels{end+1} = ['L' fieldList{j}(end-2:end-1)];
+                                forceLabels{end+1} = ...
+                                    ['L' fieldList{j}(end-2:end-1)];
                             end
-                            units{end+1} = eval(['analogsInfo.units.' fieldList{j}]);
-                            relData = [relData analogs.(fieldList{j})];
-                        case '2'    % right (forward) left (backward) TM FP
+                            units{end+1} = eval( ...
+                                ['analogsInfo.units.' fieldList{j}]);
+                            relData = ...
+                                [relData analogs.(fieldList{j})];
+                        case '2'    % right (fwd) / left (bwd) TM FP
                             if info.backwardCheck == 1
-                                forceLabels{end+1} = ['L' fieldList{j}(end-2:end-1)];
+                                forceLabels{end+1} = ...
+                                    ['L' fieldList{j}(end-2:end-1)];
                             else
-                                forceLabels{end+1} = ['R' fieldList{j}(end-2:end-1)];
+                                forceLabels{end+1} = ...
+                                    ['R' fieldList{j}(end-2:end-1)];
                             end
-                            units{end+1} = eval(['analogsInfo.units.' fieldList{j}]);
-                            relData = [relData analogs.(fieldList{j})];
+                            units{end+1} = eval( ...
+                                ['analogsInfo.units.' fieldList{j}]);
+                            relData = ...
+                                [relData analogs.(fieldList{j})];
                         case '3'    % handrail forces / moments
-                            forceLabels{end+1} = ['H' fieldList{j}(end-2:end-1)];
-                            units{end+1} = eval(['analogsInfo.units.' fieldList{j}]);
-                            relData = [relData analogs.(fieldList{j})];
-                        case '4' %Other forceplate, loading just in case
-                            forceLabels{end+1} = ['FP4' fieldList{j}(end-2:end-1)];
-                            units{end+1} = eval(['analogsInfo.units.' fieldList{j}]);
-                            relData = [relData analogs.(fieldList{j})];
-                        case '5' %Other forceplate, loading just in case
-                            forceLabels{end+1} = ['FP5' fieldList{j}(end-2:end-1)];
-                            units{end+1} = eval(['analogsInfo.units.' fieldList{j}]);
-                            relData = [relData analogs.(fieldList{j})];
-                        case '6' %Other forceplate, loading just in case
-                            forceLabels{end+1} = ['FP6' fieldList{j}(end-2:end-1)];
-                            units{end+1} = eval(['analogsInfo.units.' fieldList{j}]);
-                            relData = [relData analogs.(fieldList{j})];
-                        case '7' %Other forceplate, loading just in case
-                            forceLabels{end+1} = ['FP7' fieldList{j}(end-2:end-1)];
-                            units{end+1} = eval(['analogsInfo.units.' fieldList{j}]);
-                            relData = [relData analogs.(fieldList{j})];
+                            forceLabels{end+1} = ...
+                                ['H' fieldList{j}(end-2:end-1)];
+                            units{end+1} = eval( ...
+                                ['analogsInfo.units.' fieldList{j}]);
+                            relData = ...
+                                [relData analogs.(fieldList{j})];
+                        case '4'    % other force plate, just in case
+                            forceLabels{end+1} = ...
+                                ['FP4' fieldList{j}(end-2:end-1)];
+                            units{end+1} = eval( ...
+                                ['analogsInfo.units.' fieldList{j}]);
+                            relData = ...
+                                [relData analogs.(fieldList{j})];
+                        case '5'    % other force plate, just in case
+                            forceLabels{end+1} = ...
+                                ['FP5' fieldList{j}(end-2:end-1)];
+                            units{end+1} = eval( ...
+                                ['analogsInfo.units.' fieldList{j}]);
+                            relData = ...
+                                [relData analogs.(fieldList{j})];
+                        case '6'    % other force plate, just in case
+                            forceLabels{end+1} = ...
+                                ['FP6' fieldList{j}(end-2:end-1)];
+                            units{end+1} = eval( ...
+                                ['analogsInfo.units.' fieldList{j}]);
+                            relData = ...
+                                [relData analogs.(fieldList{j})];
+                        case '7'    % other force plate, just in case
+                            forceLabels{end+1} = ...
+                                ['FP7' fieldList{j}(end-2:end-1)];
+                            units{end+1} = eval( ...
+                                ['analogsInfo.units.' fieldList{j}]);
+                            relData = ...
+                                [relData analogs.(fieldList{j})];
                         otherwise
-                            showWarning = true;%%HH moved warning outside loop on 6/3/2015 to reduce command window output
+                            % HH moved warning outside loop on
+                            % 6/3/2015 to reduce command window output
+                            showWarning = true;
                     end
-                    % remove processed analog channels to save memory space
-                    analogs = rmfield(analogs,fieldList{j});
+                    % Remove processed channel to save memory
+                    analogs = rmfield(analogs, fieldList{j});
                 end
             end
         end
@@ -169,54 +194,68 @@ for tr = cell2mat(info.trialnums)       % for each trial, ...
             differenceInForceUnits = nan(size(list));
             m                    = nan(size(list));
             tol = 10;   % N or N.m
-            for j=1:length(list)
-                k=find(strcmp(forceLabels,list{j}));
+            for j = 1:length(list)
+                k = find(strcmp(forceLabels, list{j}));
                 if ~isempty(k)
-                    aux=fields(analogs);
-                    %idx=num2str(map(k)); %Hardcoded map of input pins to
-                    %forces/moments. Outdated.
-                    [~,idx]=max(abs(relData(:,k)'*raws));
-                    idx=ttt{idx}(end);
-                    iii=find(cellfun(@(x) ~isempty(x),regexp(aux,['Pin_' idx '$'])));
-                    raw=analogs.(aux{iii});
-                    proc=relData(:,k);
-                    % figure; plot(raw,proc,'.') % Finally found were the
-                    % plots in the c3d2mat process were coming from
-                    rel=find(proc~=0);
+                    aux = fieldnames(analogs);
+                    % idx=num2str(map(k)); % Hardcoded map of input
+                    % pins to forces/moments. Outdated.
+                    [~, idx] = max(abs(relData(:, k)' * raws));
+                    idx = ttt{idx}(end);
+                    iii = find(cellfun(@(x) ~isempty(x), ...
+                        regexp(aux, ['Pin_' idx '$'])));
+                    raw  = analogs.(aux{iii});
+                    proc = relData(:, k);
+                    % figure; plot(raw,proc,'.') % Finally found
+                    % where c3d2mat plots were coming from
+                    rel = find(proc ~= 0);
                     if ~isempty(rel)
-                        m(j)=4*prctile(abs(proc(rel)),1); %This can be used for thresholding
-                        coef=polyfit(raw(rel),proc(rel),1);
-                        gain(j)=coef(1); %This could be rounded to keep only 2 significant figures, which is the more likely value
-                        offset(j)=-coef(2)/coef(1);
-                        C=[-1:.001:1];
-                        Hh=hist(raw,C);
-                        trueOffset(j)=C(Hh==max(Hh));
-                        differenceInForceUnits(j)=gain(j)*(trueOffset(j)-offset(j));
+                        % Can be used for thresholding
+                        m(j)  = 4 * prctile(abs(proc(rel)), 1);
+                        coef  = polyfit(raw(rel), proc(rel), 1);
+                        % Could be rounded to 2 sig. figs.
+                        gain(j)   = coef(1);
+                        offset(j) = -coef(2) / coef(1);
+                        C  = [-1:.001:1];
+                        Hh = hist(raw, C);
+                        trueOffset(j) = C(Hh == max(Hh));
+                        differenceInForceUnits(j) = ...
+                            gain(j) * (trueOffset(j) - offset(j));
                     end
                     switch list{j}(2)
-                        case 'F' %Forces
-                            ttol=tol;
-                            units='N';
-                        case 'M' %Moments
-                            ttol=tol*1000; %moments are in N.mm
-                            units='N.mm';
+                        case 'F'    % forces
+                            ttol  = tol;
+                            units = 'N';
+                        case 'M'    % moments (in N.mm)
+                            ttol  = tol * 1000;
+                            units = 'N.mm';
                         otherwise
                             error('');
                     end
-                    if differenceInForceUnits(j)>ttol
+                    if differenceInForceUnits(j) > ttol
                         % figure % Commented out by MGR 01/24/24
                         % hold on
                         % plot(raw(rel),proc(rel),'.')
-                        % plot([-.01 .01],([-.01 .01]+offset(j))*gain(j))
+                        % plot([-.01 .01], ...
+                        %     ([-.01 .01]+offset(j))*gain(j))
                         % hold off
-                        %a=questdlg(['When loading ' list{j} ' there appears to be a non-zero mode (offset). Calculated offset is ' num2str(differenceInForceUnits(j)) ' ' units '. Please confirm that you want to subtract this offset.']);
-                        a='No';
+                        % a=questdlg(['When loading ' list{j} ...
+                        %   ' there appears to be a non-zero mode ' ...
+                        %   '(offset). Calculated offset is ' ...
+                        %   num2str(differenceInForceUnits(j)) ' ' ...
+                        %   units '. Please confirm that you want ' ...
+                        %   'to subtract this offset.']);
+                        a = 'No';
                         switch a
                             case 'Yes'
-                                relData(:,k)=gain(j)*(raw -trueOffset(j));
-                                relData(abs(relData(:,k))<4*ttol,k)=0; %Thresholding using the tolerance, should never be less than 2*ttol
+                                relData(:, k) = ...
+                                    gain(j) * (raw - trueOffset(j));
+                                % Threshold using tolerance; should
+                                % never be less than 2*ttol
+                                relData(abs(relData(:, k)) < ...
+                                    4*ttol, k) = 0;
                             case 'No'
-                                %nop
+                                % nop
                             otherwise
                                 error('');
                         end
@@ -224,17 +263,21 @@ for tr = cell2mat(info.trialnums)       % for each trial, ...
                 end
             end
         catch ME
-            warning('loadTrials:GRFs','Could not perform offset check. Proceeding with data as is.')
+            warning('loadTrials:GRFs', ...
+                ['Could not perform offset check. ' ...
+                'Proceeding with data as is.']);
         end
 
-        % create 'labTimeSeries' object (data,t0,Ts,labels,orientation)
-        % if there are not three forces and moments per TM FP at least, ...
-        if size(relData,2) < 12
-            warning('loadTrials:GRFs',['Did not find all GRFs for the ' ...
-                'two belts in trial ' num2str(tr)]);
+        % Create 'labTimeSeries' object
+        % (data, t0, Ts, labels, orientation)
+        % If fewer than three forces and moments per TM FP, warn
+        if size(relData, 2) < 12
+            warning('loadTrials:GRFs', ...
+                ['Did not find all GRFs for the two belts ' ...
+                'in trial ' num2str(tr)]);
         end
-        GRFData = orientedLabTimeSeries(relData,0, ...
-            1/analogsInfo.frequency,forceLabels,orientation);
+        GRFData = orientedLabTimeSeries(relData, 0, ...
+            1/analogsInfo.frequency, forceLabels, orientation);
         GRFData.DataInfo.Units = units;
     else
         GRFData = [];
