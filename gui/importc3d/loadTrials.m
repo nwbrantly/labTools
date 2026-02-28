@@ -1,19 +1,35 @@
 function trials = loadTrials(trialMD,fileList,secFileList,info)
-%loadTrials generates 'rawTrialData' instances for each trial
+% loadTrials  Generates rawTrialData instances for each trial.
 %
-%INPUTS:
-%trialMD: cell array of 'trialMetaData' objects where the cell index
-%corresponds to the trial number
-%fileList: list of .c3d files containing kinematic and force data for a
-%given experiment
-%secFileList: list of files containing EMG data for a given experiment
-%info: structured array output from 'GetInfoGUI'
+%   Reads kinematic, force, and EMG data from C3D files for each trial
+% in the experimental session. For each trial, the function imports
+% analog and marker data via the Biomechanics Toolkit (BTK), processes
+% ground reaction forces, synchronizes and sorts EMG channels, processes
+% accelerometer data, and packages everything into a rawTrialData object.
 %
-%OUTPUT:
-%trials: cell array of 'rawTrialData' objects where the cell index
-%corresponds to the trial number
+%   Inputs:
+%     trialMD     - Cell array of trialMetaData objects; cell index
+%                   corresponds to trial number
+%     fileList    - Cell array of C3D file paths (without extension)
+%                   containing kinematic and force data; index
+%                   corresponds to trial number
+%     secFileList - Cell array of secondary file paths (without
+%                   extension) containing EMG data from a second PC;
+%                   empty entries indicate no secondary file for that
+%                   trial
+%     info        - Struct of session information returned by GetInfoGUI
 %
-%See also: rawTrialData
+%   Outputs:
+%     trials - Cell array of rawTrialData objects; cell index
+%              corresponds to trial number
+%
+%   Toolbox Dependencies:
+%     Signal Processing Toolbox      (medfilt1)
+%     Statistics and Machine Learning Toolbox (zscore)
+%     BTK - Biomechanics Toolkit     (btkReadAcquisition, btkGetAnalogs,
+%                                     btkGetMarkers; external dependency)
+%
+%   See also: rawTrialData, loadSubject, getTrialMetaData
 
 % orientationInfo(offset,foreaftAx,sideAx,updownAx,foreaftSign,sideSign, ...
 %     updownSign);
