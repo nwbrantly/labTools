@@ -134,8 +134,8 @@ classdef labDate
         function id = genIDFromClock()
             % genIDFromClock  Generates timestamp ID from the current time.
             %
-            %   Formats the current wall-clock time as a string in the
-            % form yyyymmddhhmmss.
+            %   Formats the current wall-clock time as a zero-padded string
+            % in the form yyyymmddHHMMSS.
             %
             %   Outputs:
             %     id - String timestamp (e.g., '20150821111631')
@@ -143,12 +143,12 @@ classdef labDate
             %   Example:
             %     id = labDate.genIDFromClock();
             %
-            %   See also: getCurrent, clock
+            %   See also: getCurrent, datetime
 
-            aux = clock();
-            id  = num2str( ...
-                aux(1) * 10^10 + aux(2) * 10^8 + aux(3) * 10^6 + ...
-                aux(4) * 10^4  + aux(5) * 10^2  + round(aux(6)));
+            t  = datetime('now');
+            id = sprintf('%04d%02d%02d%02d%02d%02d', ...
+                t.Year, t.Month, t.Day, ...
+                t.Hour, t.Minute, round(t.Second));
         end
 
         function d = getCurrent()
@@ -159,16 +159,11 @@ classdef labDate
             %
             %   Example:
             %     d = labDate.getCurrent();
-            %       d =
-            %           labDate with properties:
-            %               day: 21
-            %               month: 8
-            %               year: 2015
             %
-            %   See also: default, clock
+            %   See also: default, datetime
 
-            aux = clock();
-            d   = labDate(aux(3), labDate.monthString(aux(2)), aux(1));
+            t = datetime('now');
+            d = labDate(t.Day, labDate.monthString(t.Month), t.Year);
         end
 
         function d = default()
