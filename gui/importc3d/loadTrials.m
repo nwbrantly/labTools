@@ -31,14 +31,15 @@ function trials = loadTrials(trialMD,fileList,secFileList,info)
 %
 %   See also: rawTrialData, loadSubject, getTrialMetaData
 
-% orientationInfo(offset,foreaftAx,sideAx,updownAx,foreaftSign,sideSign, ...
-%     updownSign);
+% orientationInfo(offset, foreaftAx, sideAx, updownAx, foreaftSign, ...
+%     sideSign, updownSign);
 % check signs! this is used in biomechanics calculations
-orientation = orientationInfo([0 0 0],'y','x','z',1,1,1);
+orientation = orientationInfo([0 0 0], 'y', 'x', 'z', 1, 1, 1);
 
-% define list of expected / accepted muscles in the desired order:
-orderedMuscleList = {'PER','TA','TAP','TAD','SOL','MG','LG','RF','VM', ...
-    'VL','BF','SEMB','SEMT','ADM','GLU','TFL','ILP','SAR','HIP'};
+% Define list of expected/accepted muscles in the desired order
+orderedMuscleList = {'PER', 'TA', 'TAP', 'TAD', 'SOL', 'MG', 'LG', ...
+    'RF', 'VM', 'VL', 'BF', 'SEMB', 'SEMT', 'ADM', 'GLU', 'TFL', ...
+    'ILP', 'SAR', 'HIP'};
 orderedEMGList = {};
 for j = 1:length(orderedMuscleList)
     orderedEMGList{end+1} = ['R' orderedMuscleList{j}];
@@ -46,25 +47,27 @@ for j = 1:length(orderedMuscleList)
 end
 
 for tr = cell2mat(info.trialnums)       % for each trial, ...
-    % FIXME: close all figures and remove intermediate variables to free up
-    % some memory in matlab.
-    % There seems to be a memory issue since summer 2025. During c3d2mat,
-    % the PC will run out of memory which is shown as OutOfMemory,
-    % OutOfHeapSpace, or png file failed to write errors. A better solution
-    % is needed to identify why we are running out of memory or do we have
-    % a memory leak. Since we do not know the cause now, will try close the
-    % figures and remove variables to make the code run for now.
-    close all; clc;
+    % FIXME: close all figures and remove intermediate variables to
+    % free up some memory in MATLAB.
+    % There seems to be a memory issue since summer 2025. During
+    % c3d2mat, the PC will run out of memory, shown as OutOfMemory,
+    % OutOfHeapSpace, or png file failed to write errors. A better
+    % solution is needed to identify why we are running out of memory
+    % or if we have a memory leak. Since the cause is not yet known,
+    % closing figures and removing variables is a temporary workaround
+    % to allow the code to run.
+    close('all');
+    clc();
     clearvars -except trialMD fileList secFileList info tr ...
         orderedEMGList orientation trials;
 
-    % import C3D data using external software, BTK (Biomechanics Toolkit)
+    % Import C3D data using BTK (Biomechanics Toolkit)
     H = btkReadAcquisition([fileList{tr} '.c3d']);
-    [analogs,analogsInfo] = btkGetAnalogs(H);
+    [analogs, analogsInfo] = btkGetAnalogs(H);
     secondFile = false;
-    if ~isempty(secFileList{tr})        % if C3D files (EMG) on PC2, ...
+    if ~isempty(secFileList{tr})        % if C3D files (EMG) on PC2,...
         H2 = btkReadAcquisition([secFileList{tr} '.c3d']);
-        [analogs2,analogsInfo2] = btkGetAnalogs(H2);    % load EMG data
+        [analogs2, analogsInfo2] = btkGetAnalogs(H2);
         secondFile = true;              % indicate two PCs of EMG data
     end
 
