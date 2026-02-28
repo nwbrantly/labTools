@@ -1,60 +1,57 @@
 classdef labDate
-    %labDate  Stores a single date as day, month, year
+    % labDate  Stores a single date as day, month, and year.
     %
     %   labDate provides a simple date representation and utilities for
-    %   date manipulation, comparison, and generation of date-based
-    %   identifiers.
+    % date manipulation, comparison, and generation of date-based
+    % identifiers.
     %
-    %labDate properties:
-    %   day - day of month (1-31)
+    % labDate properties:
+    %   day   - day of month (1-31)
     %   month - month number (1-12)
-    %   year - four digit year number
+    %   year  - four-digit year number
     %
-    %labDate methods:
-    %   labDate - constructor for date object
-    %   timeSince - calculates elapsed time from another date
-    %   isempty - checks if date equals default value
+    % labDate methods:
+    %   labDate   - constructor for date object
+    %   timeSince - calculates elapsed time from another date in months
+    %   isempty   - checks if date equals default value
     %
-    %labDate static methods:
-    %   monthString - converts month number to 3-letter string
+    % labDate static methods:
+    %   monthString    - converts month number to 3-letter string
     %   genIDFromClock - generates timestamp ID from current time
-    %   getCurrent - creates labDate for current date
-    %   default - generates default date (Jan 1, 1900)
+    %   getCurrent     - creates labDate for current date
+    %   default        - generates default date (Jan 1, 1900)
     %
-    %See also: datetime
+    % See also: datetime
 
     %% Properties
     properties
-        day; % a day (ex: 27)
-        month; % a month (ex: 4)
-        year; % a year (ex: 2015)
+        day;    % day of month (e.g., 27)
+        month;  % month number (e.g., 4)
+        year;   % four-digit year (e.g., 2015)
     end
 
     %% Constructor
     methods
         function this = labDate(dd, mm, year)
-            %labDate  Constructor for labDate class
-            %
-            %   this = labDate(dd, mm, year) creates a date object with
-            %   specified day, month, and year
+            % labDate  Constructor for labDate class.
             %
             %   Inputs:
-            %       dd - day of month, must be integer in range [1, 31]
-            %       mm - month, either integer (1-12) or 3-character
+            %     dd   - Day of month; integer in range [1, 31]
+            %     mm   - Month; either integer (1-12) or 3-character
             %            string (e.g., 'jan', 'dec')
-            %       year - four digit year number
+            %     year - Four-digit year number
             %
             %   Outputs:
-            %       this - labDate object
+            %     this - labDate object
             %
             %   Examples:
-            %       d = labDate(15, 3, 2015);
-            %       d = labDate(15, 'mar', 2015);
+            %     d = labDate(15, 3,     2015);
+            %     d = labDate(15, 'mar', 2015);
             %
             %   See also: getCurrent, default
 
             this.day = dd;
-            if isa(mm, 'char') && length(mm) == 3
+            if ischar(mm) && length(mm) == 3
                 switch lower(mm)
                     case {'jan', 'ene'}
                         this.month = 1;
@@ -85,12 +82,12 @@ classdef labDate
                             'Unrecognized month string.');
                         throw(ME);
                 end
-            elseif isa(mm, 'double') && mm <= 12
+            elseif isnumeric(mm) && mm <= 12
                 this.month = mm;
             else
                 ME = MException('labDate:Constructor', ...
-                    ['Month parameter is not a 3-letter string or a ' ...
-                    'valid numerical value.']);
+                    ['Month parameter is not a 3-letter string or ' ...
+                    'a valid numerical value.']);
                 throw(ME);
             end
             this.year = year;
@@ -100,17 +97,18 @@ classdef labDate
     %% Property Setters
     methods
         function this = set.day(this, dd)
-            %set.day  Validates and sets day property
+            % set.day  Validates and sets the day property.
             %
             %   Inputs:
-            %       this - labDate object
-            %       dd - day value, must be integer in [1, 31]
+            %     this - labDate object
+            %     dd   - Day value; must be an integer in [1, 31]
 
             if dd < 32 && dd > 0 && rem(dd, 1) == 0
                 this.day = dd;
             else
                 ME = MException('labDate:Constructor', ...
-                    'Day parameter is not an integer in the [1,31] range.');
+                    ['Day parameter is not an integer in the ' ...
+                    '[1, 31] range.']);
                 throw(ME);
             end
         end
@@ -120,11 +118,11 @@ classdef labDate
         % end
 
         function this = set.year(this, year)
-            %set.year  Validates and sets year property
+            % set.year  Validates and sets the year property.
             %
             %   Inputs:
-            %       this - labDate object
-            %       year - year value, must be integer
+            %     this - labDate object
+            %     year - Year value; must be an integer
 
             if rem(year, 1) == 0
                 this.year = year;
@@ -138,100 +136,81 @@ classdef labDate
 
     %% Date Calculation Methods
     methods
-        % Suggested method: find number of years/months/days that separate
-        % two dates. The method could be called like
+        % Suggested method: find number of years/months/days that
+        % separate two dates. The method could be called like:
 
         timeInMonths = timeSince(this, other)
 
         flag = isempty(this)
 
         % function disp(this)
-        %     disp([num2str(this.day) ' ' labDate.monthString(this.month) ...
-        %         ' ' num2str(this.year)]);
+        %     disp([num2str(this.day) ' ' ...
+        %         labDate.monthString(this.month) ' ' ...
+        %         num2str(this.year)]);
         % end
     end
 
     %% Static Methods
     methods (Static)
         function str = monthString(a)
-            %monthString  Converts numeric month to 3-letter string
-            %
-            %   str = monthString(a) outputs a three-character string for
-            %   an integer between 1 and 12 (inclusive)
+            % monthString  Converts a numeric month to a 3-letter string.
             %
             %   Inputs:
-            %       a - month number (1-12)
+            %     a - Month number (1-12)
             %
             %   Outputs:
-            %       str - three-character month abbreviation
+            %     str - Three-character month abbreviation (lowercase)
             %
             %   Example:
-            %       str = labDate.monthString(1);  % returns 'jan'
+            %     str = labDate.monthString(1);  % returns 'jan'
             %
             %   See also: labDate
 
             switch a
-                case 1
-                    str = 'jan';
-                case 2
-                    str = 'feb';
-                case 3
-                    str = 'mar';
-                case 4
-                    str = 'apr';
-                case 5
-                    str = 'may';
-                case 6
-                    str = 'jun';
-                case 7
-                    str = 'jul';
-                case 8
-                    str = 'aug';
-                case 9
-                    str = 'sep';
-                case 10
-                    str = 'oct';
-                case 11
-                    str = 'nov';
-                case 12
-                    str = 'dec';
-                otherwise
-                    str = '';
+                case 1,  str = 'jan';
+                case 2,  str = 'feb';
+                case 3,  str = 'mar';
+                case 4,  str = 'apr';
+                case 5,  str = 'may';
+                case 6,  str = 'jun';
+                case 7,  str = 'jul';
+                case 8,  str = 'aug';
+                case 9,  str = 'sep';
+                case 10, str = 'oct';
+                case 11, str = 'nov';
+                case 12, str = 'dec';
+                otherwise, str = '';
             end
         end
 
         function id = genIDFromClock()
-            %genIDFromClock  Generates timestamp ID from current time
+            % genIDFromClock  Generates timestamp ID from the current time.
             %
-            %   id = genIDFromClock() gets the current time and converts
-            %   it to date ID in format: yyyymmddhhmmss
+            %   Formats the current wall-clock time as a string in the
+            % form yyyymmddhhmmss.
             %
             %   Outputs:
-            %       id - string representation of current timestamp
+            %     id - String timestamp (e.g., '20150821111631')
             %
             %   Example:
-            %       id = labDate.genIDFromClock();
-            %       id = '20150821111631'
+            %     id = labDate.genIDFromClock();
             %
             %   See also: getCurrent, clock
 
-            aux = clock;
-            id = num2str(aux(1) * 10^10 + aux(2) * 10^8 + ...
-                aux(3) * 10^6 + aux(4) * 10^4 + aux(5) * 10^2 + ...
-                round(aux(6)));
+            aux = clock();
+            id  = num2str( ...
+                aux(1) * 10^10 + aux(2) * 10^8 + aux(3) * 10^6 + ...
+                aux(4) * 10^4  + aux(5) * 10^2  + round(aux(6)));
         end
 
         function d = getCurrent()
-            %getCurrent  Creates labDate for current date
-            %
-            %   d = getCurrent() creates a labDate instance representing
-            %   the current date
+            % getCurrent  Creates a labDate for the current date.
             %
             %   Outputs:
-            %       d - labDate object with current date
+            %     d - labDate object representing today's date
             %
             %   Example:
-            %       d = labDate.getCurrent();
+            %     d = labDate.getCurrent();
             %       d =
             %           labDate with properties:
             %               day: 21
@@ -240,17 +219,15 @@ classdef labDate
             %
             %   See also: default, clock
 
-            aux = clock;
-            d = labDate(aux(3), labDate.monthString(aux(2)), aux(1));
+            aux = clock();
+            d   = labDate(aux(3), labDate.monthString(aux(2)), aux(1));
         end
 
         function d = default()
-            %default  Generates default date
-            %
-            %   d = default() creates a labDate set to January 1, 1900
+            % default  Generates the default sentinel date (Jan 1, 1900).
             %
             %   Outputs:
-            %       d - labDate object with default date (1 Jan 1900)
+            %     d - labDate object set to Jan 1, 1900
             %
             %   See also: getCurrent, isempty
 
