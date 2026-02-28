@@ -23,6 +23,15 @@ classdef labDate
     %
     % See also: datetime
 
+    % TODO: labDate essentially reimplements a small subset of what
+    % datetime already provides — storage, construction from components,
+    % and elapsed-time arithmetic — with less accuracy and no timezone or
+    % DST awareness. Wrapping or replacing it with datetime would eliminate
+    % the 30-days/month approximation in timeSince, remove the need for the
+    % custom setters, and make the class interoperable with the rest of
+    % MATLAB's date/time ecosystem. This is admittedly a large refactor
+    % given how widely labDate is presumably used across labTools.
+
     %% Properties
     properties
         day   (1,1) double {mustBeInteger, mustBeInRange(day,   1, 31)}
@@ -89,7 +98,14 @@ classdef labDate
 
         % Defined in separate files in the @labDate class folder
         timeInMonths = timeSince(this, other)
-        flag         = isempty(this)
+
+        % TODO: Overriding isempty to mean "equals the sentinel date" is
+        % unconventional — MATLAB users generally expect isempty to return
+        % true only when an object has no data (e.g., a 0×0 array). A name
+        % like isDefault() or isUninitialized() would be less surprising,
+        % and would leave isempty free to behave as MATLAB's built-in would
+        % expect.
+        flag = isempty(this)
 
         % function disp(this)
         %     disp([num2str(this.day) ' ' ...
