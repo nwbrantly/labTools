@@ -1,18 +1,18 @@
 function flag = isempty(this)
-%isempty  Checks if date equals default value
+% isempty  Checks if the date equals the default value.
 %
-%   flag = isempty(this) determines if the date equals the default
-%   date (1 Jan 1900)
+%   Determines whether the date equals the default sentinel
+% date (Jan 1, 1900), which is used to represent an
+% uninitialized labDate.
 %
 %   Inputs:
-%       this - labDate object
+%     this - labDate object
 %
 %   Outputs:
-%       flag - true if date equals default value, false otherwise
+%     flag - true if date equals default value, else false
 %
 %   See also: default, timeSince
 
-% If date equals default value, considering empty
-flag = timeSince(this, labDate.default) == 0;
+flag = timeSince(this, labDate.default()) == 0;
 end
 
