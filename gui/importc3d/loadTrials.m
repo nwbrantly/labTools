@@ -668,111 +668,134 @@ for tr = cell2mat(info.trialnums)       % for each trial, ...
         accData=[];
     end
 
-    %% Add H-Reflex Stimulator Pin If It Exists
-    relData = [];
-    stimLabels = {};
-    units = {};
-    fieldList = fields(analogs);
+    %% Add H-Reflex Stimulator Pin If Present
+    relData      = [];
+    stimLabels   = {};
+    units        = {};
+    fieldList    = fieldnames(analogs);
     stimLabelIdx = cellfun(@(x) ~isempty(x), ...
-        regexp(fieldList,'^Stimulator_Trigger_Sync_'));
+        regexp(fieldList, '^Stimulator_Trigger_Sync_'));
     stimLabelIdx = find(stimLabelIdx);
-    if ~isempty(stimLabelIdx)           % if there is a stimulator pin, ...
+    if ~isempty(stimLabelIdx)       % if there is a stimulator pin, ...
         for j = 1:length(stimLabelIdx)
-            stimLabels{end+1} = fieldList{stimLabelIdx(j)}; % add the label
-            units{end+1} = ...
-                eval(['analogsInfo.units.' fieldList{stimLabelIdx(j)}]);
+            stimLabels{end+1} = fieldList{stimLabelIdx(j)};
+            units{end+1}      = eval(['analogsInfo.units.' ...
+                fieldList{stimLabelIdx(j)}]);
             relData = [relData analogs.(fieldList{stimLabelIdx(j)})];
         end
-        % NOTE: second input argument is time offset, which should be zero
-        % like the force data, third argument is sampling period (1/freq.)
-        HreflexStimPinData = ...
-            labTimeSeries(relData,0,1/analogsInfo.frequency,stimLabels);
-
-        if ~isempty(GRFData)            % if there is GRF data, ...
-            % verify there is the same amount of data as GRF data
-            if (GRFData.Length ~= HreflexStimPinData.Length)
-                error(['Hreflex stimulator pin have different length ' ...
-                    'than GRF data. This should never happen. Data is ' ...
-                    'compromised.']);
+        % NOTE: second argument is time offset (zero, like force data)
+        % third argument is sampling period (1/frequency)
+        HreflexStimPinData = labTimeSeries( ...
+            relData, 0, 1/analogsInfo.frequency, stimLabels);
+        if ~isempty(GRFData)        % if there is GRF data, ...
+            % Verify data length matches GRF data
+            if GRFData.Length ~= HreflexStimPinData.Length
+                error(['Hreflex stimulator pin data has a ' ...
+                    'different length than GRF data. This should ' ...
+                    'never happen. Data is compromised.']);
             end
         end
-    else                                % otherwise, ...
-        % set to empty array for experiments without the stimulator pin
+    else                            % otherwise, ...
         HreflexStimPinData = [];
     end
 
     %% Process Motion Capture Marker Data
-    clear analogs*; %Save memory space, no longer need analog data, it was already loaded
-    if info.kinematics %check to see if there is kinematic data
-        [markers,markerInfo]=btkGetMarkers(H);
-        relData=[];
-        fieldList=fields(markers);
-        markerList={};
+    % Clear analog data to free memory; no longer needed after loading
+    clear analogs*;
+    if info.kinematics          % if there is kinematic data, ...
+        [markers, markerInfo] = btkGetMarkers(H);
+        relData    = [];
+        fieldList  = fieldnames(markers);
+        markerList = {};
 
-        %Check marker labels are good in .c3d files
-        mustHaveLabels={'LHIP','RHIP','LANK','RANK','RHEE','LHEE','LTOE','RTOE','RKNE','LKNE'};%we don't really care if there is RPSIS RASIS LPSIS LASIS or anything else really
-        labelPresent=false(1,length(mustHaveLabels));
-        for i=1:length(fieldList)
-            newFieldList{i}=findLabel(fieldList{i});
-            labelPresent=labelPresent+ismember(mustHaveLabels,newFieldList{i});
+        % Check that required marker labels are present in .c3d files
+        mustHaveLabels = {'LHIP', 'RHIP', 'LANK', 'RANK', 'RHEE', ...
+            'LHEE', 'LTOE', 'RTOE', 'RKNE', 'LKNE'};
+        labelPresent = false(1, length(mustHaveLabels));
+        for i = 1:length(fieldList)
+            newFieldList{i} = findLabel(fieldList{i});
+            labelPresent    = labelPresent + ...
+                ismember(mustHaveLabels, newFieldList{i});
         end
 
-        %         %if any of the must-have labels are not present, terminate script
-        %         %and throw warning.
-        %         if any(~labelPresent)
-        %             missingLabels=find(~labelPresent);
-        %             str=' ';
-        %             for j=missingLabels
-        %                 str=[str ', ' mustHaveLabels{j}];
-        %             end
-        %             ME=MException('loadTrials:markerDataError',['Marker data does not contain:' str '. Edit ''findLabel'' code to fix.']);
-        %             throw(ME)
-        %         end
+        % If any required labels are missing, terminate with error
+        % if any(~labelPresent)
+        %     missingLabels = find(~labelPresent);
+        %     str = ' ';
+        %     for j = missingLabels
+        %         str = [str ', ' mustHaveLabels{j}];
+        %     end
+        %     ME = MException('loadTrials:markerDataError', ...
+        %         ['Marker data does not contain:' str ...
+        %         '. Edit ''findLabel'' code to fix.']);
+        %     throw(ME);
+        % end
 
-        %atlernatively,
+        % Alternatively, prompt user to map any missing labels
         if any(~labelPresent)
-            missingLabels=find(~labelPresent);
-            potentialMatches=newFieldList(~ismember(newFieldList,mustHaveLabels));
-            for j=missingLabels
-                %generate menu
-                choice = menu([{['WARNING: the marker label ' mustHaveLabels{j}]},{' was not found, but is necessary for'},...
-                    {'future calculations.Please indicate which'},{[' marker corresponds to the ' mustHaveLabels{j} ' label:']}] ,[potentialMatches {'NaN'}]);
-                if choice==0
-                    ME=MException('loadTrials:markerDataError','Operation terminated by user while finding names of necessary labels.');
-                    throw(ME)
-                elseif choice>length(potentialMatches)
-                    %nop
-                    warning('loadTrials:missingRequiredMarker',['A required marker (' mustHaveLabels{j} ') was missing from the marker list. This will be problematic when computing parameters.'])
+            missingLabels    = find(~labelPresent);
+            potentialMatches = ...
+                newFieldList(~ismember(newFieldList, mustHaveLabels));
+            for j = missingLabels
+                choice = menu( ...
+                    [{['WARNING: the marker label ' ...
+                    mustHaveLabels{j}]}, ...
+                    {' was not found, but is necessary for'}, ...
+                    {'future calculations. Please indicate which'}, ...
+                    {[' marker corresponds to the ' ...
+                    mustHaveLabels{j} ' label:']}], ...
+                    [potentialMatches {'NaN'}]);
+                if choice == 0
+                    ME = MException( ...
+                        'loadTrials:markerDataError', ...
+                        ['Operation terminated by user while ' ...
+                        'finding names of necessary labels.']);
+                    throw(ME);
+                elseif choice > length(potentialMatches)
+                    % nop
+                    warning('loadTrials:missingRequiredMarker', ...
+                        ['A required marker (' mustHaveLabels{j} ...
+                        ') was missing from the marker list. ' ...
+                        'This will be problematic when computing ' ...
+                        'parameters.']);
                 else
-                    %set the label corresponding to choice as one of the must-have labels
-                    addMarkerPair(mustHaveLabels{j},potentialMatches{choice});
+                    % Map the chosen label to the required label
+                    addMarkerPair(mustHaveLabels{j}, ...
+                        potentialMatches{choice});
                 end
             end
         end
 
-        for j=1:length(fieldList)
-            if length(fieldList{j})>2 && ~strcmp(fieldList{j}(1:2),'C_')  %Getting fields that do NOT start with 'C_' (they correspond to unlabeled markers in Vicon naming)
-                relData=[relData,markers.(fieldList{j})];
-                markerLabel=findLabel(fieldList{j});%make sure that the markers are always named the same after this point (ex - if left hip marker is labeled LGT, LHIP, or anyhting else it always becomes LHIP.)
-                markerList{end+1}=[markerLabel 'x'];
-                markerList{end+1}=[markerLabel 'y'];
-                markerList{end+1}=[markerLabel 'z'];
+        for j = 1:length(fieldList)
+            % Skip unlabeled markers (Vicon 'C_' prefix)
+            if length(fieldList{j}) > 2 && ...
+                    ~strcmp(fieldList{j}(1:2), 'C_')
+                relData = [relData, markers.(fieldList{j})];
+                % Standardize marker name via findLabel
+                markerLabel       = findLabel(fieldList{j});
+                markerList{end+1} = [markerLabel 'x'];
+                markerList{end+1} = [markerLabel 'y'];
+                markerList{end+1} = [markerLabel 'z'];
             end
-            markers=rmfield(markers,fieldList{j}); %Save memory
+            % Remove processed marker to save memory
+            markers = rmfield(markers, fieldList{j});
         end
-        relData(relData==0)=NaN; %This forces missing labels to be labeled as NaN
-        markerData=orientedLabTimeSeries(relData,0,1/markerInfo.frequency,markerList,orientation);
-        clear relData
-        markerData.DataInfo.Units=markerInfo.units.ALLMARKERS;
+        % Force missing marker data to NaN
+        relData(relData == 0) = NaN;
+        markerData = orientedLabTimeSeries(relData, 0, ...
+            1/markerInfo.frequency, markerList, orientation);
+        clear relData;
+        markerData.DataInfo.Units = markerInfo.units.ALLMARKERS;
     else
-        markerData=[];
+        markerData = [];
     end
 
-    %% Construct 'rawTrialData' Object
-    %rawTrialData(metaData,markerData,EMGData,GRFData,beltSpeedSetData,beltSpeedReadData,accData,EEGData,footSwitches)
-    % organize raw trial data extracted above into 'rawTrialData' object
-    trials{tr} = rawTrialData(trialMD{tr},markerData,EMGData,GRFData, ...
-        [],[],accData,[],[],HreflexStimPinData);
+    %% Construct rawTrialData Object
+    % rawTrialData(metaData, markerData, EMGData, GRFData,
+    %     beltSpeedSetData, beltSpeedReadData, accData, EEGData,
+    %     footSwitches, HreflexStimPinData)
+    trials{tr} = rawTrialData(trialMD{tr}, markerData, EMGData, ...
+        GRFData, [], [], accData, [], [], HreflexStimPinData);
 
 end
 
