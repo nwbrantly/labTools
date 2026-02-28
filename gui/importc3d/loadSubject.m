@@ -27,7 +27,7 @@ function [expData, rawExpData, adaptData] = loadSubject(info, eventClass)
 %     None
 %
 %   See also: GetInfoGUI, c3d2mat, getTrialMetaData, loadTrials,
-%     experimentData, experimentData.process, SyncDatalog
+%     experimentData, experimentData.process, SyncDatalog, determineRefLeg
 
 arguments
     info       (1,1) struct
@@ -54,56 +54,15 @@ expDate = labDate(info.day, info.month, info.year);
 % Constructor(ID, date, experimenter, obs, conds, desc, trialLst, Ntrials);
 
 %% Participant Information
-% Determine the reference leg, which assumes that:
-%   1) the leg on the fast belt is the dominant leg
-%   2) info.domleg is either 'left' or 'right'
-%   3) the reference leg is the leg on the slow belt
-if isfield(info, 'fastLeg')                 % if fast leg specified, ...
-    if strcmpi(info.fastLeg, 'right')
-        info.refLeg = 'L';
-    elseif strcmpi(info.fastLeg, 'left')
-        info.refLeg = 'R';
-    else
-        warning(['Reference leg could not be determined from ' ...
-            'information given. Make sure info.fastLeg is either ' ...
-            '''Left'' or ''Right''.']);
-    end
-elseif isfield(info, 'isStroke') && info.isStroke == 1  % if stroke, ...
-    % Reference leg is the affected side when belt speed is not given.
-    % TODO: add condition in case fast leg field does not exist
-    if strcmpi(info.affectedSide, 'right')
-        info.refLeg  = 'R';
-        info.fastLeg = 'Left';
-    elseif strcmpi(info.affectedSide, 'left')
-        info.refLeg  = 'L';
-        info.fastLeg = 'Right';
-    else
-        warning(['Reference leg could not be determined from ' ...
-            'information given. Make sure info.affectedSide is ' ...
-            'either ''Left'' or ''Right''.']);
-    end
-else                                                    % otherwise, ...
-    % Assume reference leg is non-dominant when information not given
-    if strcmpi(info.domleg, 'right')
-        info.refLeg  = 'L';
-        info.fastLeg = 'Right';
-    elseif strcmpi(info.domleg, 'left')
-        info.refLeg  = 'R';
-        info.fastLeg = 'Left';
-    else
-        warning(['Reference leg could not be determined from ' ...
-            'information given. Make sure info.domleg is either ' ...
-            '''Left'' or ''Right''.']);
-    end
-end
-
-DOB         = labDate(info.DOBday, info.DOBmonth, info.DOByear);
+% Resolve reference leg and fast leg fields, then build subjectData
+info    = determineRefLeg(info);
+DOB     = labDate(info.DOBday, info.DOBmonth, info.DOByear);
 % Compute age at time of experimental session to nearest month
-% TODO: why not compute age to the nearest day? Privacy concern?
+% TODO: why not compute age to the nearest day? privacy concern?
 ageInMonths = round(expDate.timeSince(DOB));
 age         = ageInMonths / 12;
 
-if ~isfield(info, 'isStroke') || info.isStroke == 0    % if no stroke, ...
+if ~isfield(info, 'isStroke') || info.isStroke == 0     % if no stroke, ...
     subData = subjectData(DOB, info.gender, info.domleg, info.domhand, ...
         info.height, info.weight, age, info.ID, info.fastLeg);
 else                                                    % otherwise, ...
@@ -177,6 +136,73 @@ adaptData = expData.makeDataObj(fullfile(info.save_folder, info.ID));
 if contains(erase(info.ExpDescription, ' '), 'SpinalAdaptation')
     [expData, adaptData] = SepCondsInExpByAudioCue(expData, ...
         info.save_folder, info.ID, eventClass, info.ExpDescription);
+end
+
+end
+
+% ============================================================
+% ==================== Local Functions =======================
+% ============================================================
+
+function info = determineRefLeg(info)
+% determineRefLeg  Resolves info.refLeg and info.fastLeg from the
+%   available session information.
+%
+%   Determines the reference leg (slow-belt leg) using the first
+% available source of information in the following priority order:
+%   1) info.fastLeg, if already specified
+%   2) info.affectedSide, if the participant is a stroke patient
+%   3) info.domleg, as a fallback (dominant leg assumed to be the
+%      fast-belt leg)
+%
+%   Inputs:
+%     info - Session info struct from GetInfoGUI. Must contain at least
+%            one of: info.fastLeg, info.affectedSide (with
+%            info.isStroke == 1), or info.domleg
+%
+%   Outputs:
+%     info - Session info struct with info.refLeg ('L' or 'R') and, if not
+%            already present, info.fastLeg ('Left' or 'Right') populated
+%
+%   See also: loadSubject
+
+if isfield(info, 'fastLeg')                 % if fast leg specified, ...
+    if strcmpi(info.fastLeg, 'right')
+        info.refLeg = 'L';
+    elseif strcmpi(info.fastLeg, 'left')
+        info.refLeg = 'R';
+    else
+        warning(['Reference leg could not be determined from ' ...
+            'information given. Make sure info.fastLeg is either ' ...
+            '''Left'' or ''Right''.']);
+    end
+elseif isfield(info, 'isStroke') && info.isStroke == 1  % if stroke, ...
+    % Reference leg is the affected side when belt speed is not given.
+    % TODO: add condition in case fast leg field does not exist
+    if strcmpi(info.affectedSide, 'right')
+        info.refLeg  = 'R';
+        info.fastLeg = 'Left';
+    elseif strcmpi(info.affectedSide, 'left')
+        info.refLeg  = 'L';
+        info.fastLeg = 'Right';
+    else
+        warning(['Reference leg could not be determined from ' ...
+            'information given. Make sure info.affectedSide is ' ...
+            'either ''Left'' or ''Right''.']);
+    end
+else                                                    % otherwise, ...
+    % Assume reference leg is non-dominant when information not given
+    if strcmpi(info.domleg, 'right')
+        info.refLeg  = 'L';
+        info.fastLeg = 'Right';
+    elseif strcmpi(info.domleg, 'left')
+        info.refLeg  = 'R';
+        info.fastLeg = 'Left';
+    else
+        warning(['Reference leg could not be determined from ' ...
+            'information given. Make sure info.domleg is either ' ...
+            '''Left'' or ''Right''.']);
+    end
 end
 
 end
