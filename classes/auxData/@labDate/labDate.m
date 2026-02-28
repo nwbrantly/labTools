@@ -53,30 +53,18 @@ classdef labDate
             this.day = dd;
             if ischar(mm) && length(mm) == 3
                 switch lower(mm)
-                    case {'jan', 'ene'}
-                        this.month = 1;
-                    case {'feb'}
-                        this.month = 2;
-                    case {'mar'}
-                        this.month = 3;
-                    case {'apr', 'abr'}
-                        this.month = 4;
-                    case {'may'}
-                        this.month = 5;
-                    case {'jun'}
-                        this.month = 6;
-                    case {'jul'}
-                        this.month = 7;
-                    case {'aug', 'ago'}
-                        this.month = 8;
-                    case {'sep', 'set'}
-                        this.month = 9;
-                    case {'oct'}
-                        this.month = 10;
-                    case {'nov'}
-                        this.month = 11;
-                    case {'dec', 'dic'}
-                        this.month = 12;
+                    case {'jan', 'ene'},  this.month = 1;
+                    case {'feb'},         this.month = 2;
+                    case {'mar'},         this.month = 3;
+                    case {'apr', 'abr'},  this.month = 4;
+                    case {'may'},         this.month = 5;
+                    case {'jun'},         this.month = 6;
+                    case {'jul'},         this.month = 7;
+                    case {'aug', 'ago'},  this.month = 8;
+                    case {'sep', 'set'},  this.month = 9;
+                    case {'oct'},         this.month = 10;
+                    case {'nov'},         this.month = 11;
+                    case {'dec', 'dic'},  this.month = 12;
                     otherwise
                         ME = MException('labDate:Constructor', ...
                             'Unrecognized month string.');
@@ -99,9 +87,9 @@ classdef labDate
         % Suggested method: find number of years/months/days that
         % separate two dates. The method could be called like:
 
+        % Defined in separate files in the @labDate class folder
         timeInMonths = timeSince(this, other)
-
-        flag = isempty(this)
+        flag         = isempty(this)
 
         % function disp(this)
         %     disp([num2str(this.day) ' ' ...
