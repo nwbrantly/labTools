@@ -19,15 +19,15 @@ classdef labDate
     %   monthString    - converts month number to 3-letter string
     %   genIDFromClock - generates timestamp ID from current time
     %   getCurrent     - creates labDate for current date
-    %   default        - generates default date (Jan 1, 1900)
+    %   default        - generates the default date (Jan 1, 1900)
     %
     % See also: datetime
 
     %% Properties
     properties
-        day;    % day of month (e.g., 27)
-        month;  % month number (e.g., 4)
-        year;   % four-digit year (e.g., 2015)
+        day   (1,1) double {mustBeInteger, mustBeInRange(day,   1, 31)}
+        month (1,1) double {mustBeInteger, mustBeInRange(month, 1, 12)}
+        year  (1,1) double {mustBeInteger}  % four-digit year (e.g., 2015)
     end
 
     %% Constructor
@@ -91,46 +91,6 @@ classdef labDate
                 throw(ME);
             end
             this.year = year;
-        end
-    end
-
-    %% Property Setters
-    methods
-        function this = set.day(this, dd)
-            % set.day  Validates and sets the day property.
-            %
-            %   Inputs:
-            %     this - labDate object
-            %     dd   - Day value; must be an integer in [1, 31]
-
-            if dd < 32 && dd > 0 && rem(dd, 1) == 0
-                this.day = dd;
-            else
-                ME = MException('labDate:Constructor', ...
-                    ['Day parameter is not an integer in the ' ...
-                    '[1, 31] range.']);
-                throw(ME);
-            end
-        end
-
-        % HH: no setter for month because it was mis-behaving
-        % function this = set.month(this, mm)
-        % end
-
-        function this = set.year(this, year)
-            % set.year  Validates and sets the year property.
-            %
-            %   Inputs:
-            %     this - labDate object
-            %     year - Year value; must be an integer
-
-            if rem(year, 1) == 0
-                this.year = year;
-            else
-                ME = MException('labDate:Constructor', ...
-                    'Year parameter is not an integer.');
-                throw(ME);
-            end
         end
     end
 
