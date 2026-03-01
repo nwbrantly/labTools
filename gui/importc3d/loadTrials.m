@@ -284,66 +284,93 @@ for tr = cell2mat(info.trialnums)       % for each trial, ...
     end
     clear relData* raws;
 
-    %% Process EMG & Acceleration Data (from Two Files Across Two PCs)
+    %% Process EMG and Accelerometer Data (Two Files / Two PCs)
     if info.EMGs
-        %Primary file (PC)
+        % -- Primary file (PC 1)
         if info.Nexus == 1
-            relData = [];
+            relData     = [];
             relDataTemp = [];
-            fieldList = fields(analogs);
-            idxList = [];
+            fieldList   = fieldnames(analogs);
+            idxList     = [];
             for j = 1:length(fieldList)
-                if ~isempty(strfind(fieldList{j},'EMG'))  %Getting fields that start with 'EMG' only
-                    relDataTemp=[relDataTemp,analogs.(fieldList{j})];
-                    idxList(end+1)=str2num(fieldList{j}(strfind(fieldList{j},'EMG')+3:end));
-                    analogs=rmfield(analogs,fieldList{j}); %Just to save memory space
+                % Get fields that contain 'EMG' only
+                if ~isempty(strfind(fieldList{j}, 'EMG'))
+                    relDataTemp = [relDataTemp, ...
+                        analogs.(fieldList{j})];
+                    idxList(end+1) = str2num(fieldList{j}( ...
+                        strfind(fieldList{j}, 'EMG')+3:end));
+                    % Remove field to save memory
+                    analogs = rmfield(analogs, fieldList{j});
                 end
             end
-            emptyChannels1 = cellfun(@(x) isempty(x),info.EMGList1);
-            EMGList1 = info.EMGList1(~emptyChannels1);
-            relData(:,idxList) = relDataTemp; %Re-sorting to fix the 1,10,11,...,2,3 count that Matlab does
-            relData = relData(:,~emptyChannels1);
+            emptyChannels1 = cellfun(@(x) isempty(x), info.EMGList1);
+            EMGList1       = info.EMGList1(~emptyChannels1);
+            % Re-sort to fix 1,10,11,...,2,3 ordering from MATLAB
+            relData(:, idxList) = relDataTemp;
+            relData = relData(:, ~emptyChannels1);
             EMGList = EMGList1;
 
-            %Secondary file (PC)
+            % -- Secondary file (PC 2)
             relDataTemp2 = [];
-            idxList2 = [];
+            idxList2     = [];
             if secondFile
-                fieldList = fields(analogs2);
-                for j=1:length(fieldList)
-                    if  ~isempty(strfind(fieldList{j},'EMG'))  %Getting fields that start with 'EMG' only
-                        relDataTemp2 = [relDataTemp2,analogs2.(fieldList{j})];
-                        idxList2(end+1) = str2num(fieldList{j}(strfind(fieldList{j},'EMG')+3:end));
-                        analogs2 = rmfield(analogs2,fieldList{j}); %Just to save memory space
+                fieldList = fieldnames(analogs2);
+                for j = 1:length(fieldList)
+                    % Get fields that contain 'EMG' only
+                    if ~isempty(strfind(fieldList{j}, 'EMG'))
+                        relDataTemp2 = [relDataTemp2, ...
+                            analogs2.(fieldList{j})];
+                        idxList2(end+1) = str2num(fieldList{j}( ...
+                            strfind(fieldList{j}, 'EMG')+3:end));
+                        % Remove field to save memory
+                        analogs2 = rmfield(analogs2, fieldList{j});
                     end
                 end
-                emptyChannels2 = cellfun(@(x) isempty(x),info.EMGList2);
-                EMGList2 = info.EMGList2(~emptyChannels2); %Just using the names for the channels that were actually in the file
-                relData2(:,idxList2) = relDataTemp2; %Re-sorting to fix the 1,10,11,...,2,3 count that Matlab does
-                relData2 = relData2(:,~emptyChannels2);
-                EMGList = [EMGList1,EMGList2];
+                emptyChannels2 = ...
+                    cellfun(@(x) isempty(x), info.EMGList2);
+                % Use names only for channels in the file
+                EMGList2 = info.EMGList2(~emptyChannels2);
+                % Re-sort to fix 1,10,11,...,2,3 ordering
+                relData2(:, idxList2) = relDataTemp2;
+                relData2 = relData2(:, ~emptyChannels2);
+                EMGList  = [EMGList1, EMGList2];
             end
         elseif info.EMGworks == 1
-            [analogs,EMGList,relData,relData2,secondFile,analogsInfo2,emptyChannels1,emptyChannels2,EMGList1,EMGList2] = getEMGworksdata(info.EMGList1,info.EMGList2,info.secEMGworksdir_location,info.EMGworksdir_location,fileList{tr});
+            [analogs, EMGList, relData, relData2, secondFile, ...
+                analogsInfo2, emptyChannels1, emptyChannels2, ...
+                EMGList1, EMGList2] = getEMGworksdata( ...
+                info.EMGList1, info.EMGList2, ...
+                info.secEMGworksdir_location, ...
+                info.EMGworksdir_location, fileList{tr});
         end
-        %Check if names match with expectation, otherwise query user
+
+        % Check if muscle names match expectations; query user if not
         for k = 1:length(EMGList)
-            while sum(strcmpi(orderedEMGList,EMGList{k}))==0 && ~strcmpi(EMGList{k}(1:4),'sync')
-                aux= inputdlg(['Did not recognize muscle name, please re-enter name for channel ' num2str(k) ' (was ' EMGList{k} '). Acceptable values are ' cell2mat(strcat(orderedEMGList,', ')) ' or ''sync''.'],'s');
+            while sum(strcmpi(orderedEMGList, EMGList{k})) == 0 ...
+                    && ~strcmpi(EMGList{k}(1:4), 'sync')
+                aux = inputdlg( ...
+                    ['Did not recognize muscle name, please ' ...
+                    're-enter name for channel ' num2str(k) ...
+                    ' (was ' EMGList{k} '). Acceptable values ' ...
+                    'are ' cell2mat(strcat(orderedEMGList, ', ')) ...
+                    ' or ''sync''.'], 's');
                 if k <= length(EMGList1)
-                    info.EMGList1{idxList(k)} = aux{1}; %This is to keep the same message from being prompeted for each trial processed.
+                    info.EMGList1{idxList(k)} = aux{1};
                 else
-                    info.EMGList2{idxList2(k-length(EMGList1))} = aux{1};
+                    info.EMGList2{idxList2(k-length(EMGList1))} = ...
+                        aux{1};
                 end
                 EMGList{k} = aux{1};
             end
         end
 
-        %For some reasing the naming convention for analog pins is not kept
-        %across Nexus versions:
-        fieldNames = fields(analogs);
-
-        refSync = analogs.(fieldNames{cellfun(@(x) ~isempty(strfind(x,'Pin3')) | ~isempty(strfind(x,'Pin_3')) | ~isempty(strfind(x,'Raw_3')),fieldNames)});
+        % Note: analog pin naming convention is not kept consistently
+        % across Nexus versions
+        fieldNames = fieldnames(analogs);
+        refSync    = analogs.(fieldNames{cellfun( ...
+            @(x) ~isempty(strfind(x, 'Pin3'))  | ...
+            ~isempty(strfind(x, 'Pin_3')) | ...
+            ~isempty(strfind(x, 'Raw_3')), fieldNames)});
 
         %Check for frequencies between the two PCs
         if secondFile
