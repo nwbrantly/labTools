@@ -34,9 +34,9 @@ classdef labDate
 
     %% Properties
     properties
-        day   (1,1) double {mustBeInteger, mustBeInRange(day,   1, 31)}
-        month (1,1) double {mustBeInteger, mustBeInRange(month, 1, 12)}
-        year  (1,1) double {mustBeInteger}  % four-digit year (e.g., 2015)
+        day   (1,1) double {mustBeInteger, mustBeInRange(day,   1, 31)} = 1
+        month (1,1) double {mustBeInteger, mustBeInRange(month, 1, 12)} = 1
+        year  (1,1) double {mustBeInteger}                              = 1900
     end
 
     %% Constructor
