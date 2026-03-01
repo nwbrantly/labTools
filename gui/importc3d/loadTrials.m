@@ -432,74 +432,111 @@ for tr = cell2mat(info.trialnums)       % for each trial, ...
         syncIdx = strncmpi(EMGList, 'Sync', 4); % compare first 4 chars
         sync    = allData(:, syncIdx);
 
-        if ~isempty(sync) %Only proceeding with synchronization if there are sync signals
-            %Clipping top & bottom 0.1%
-            [sync] = clipSignals(sync,.1);
-            N=size(sync,1);
-            aux=medfilt1(sync,20,[],1); %Median filter to remove spikes
-            %aux(aux>(median(aux)+5*iqr(aux)) | aux <(median(aux)-5*iqr(aux)))=median(aux(:)); %Truncating samples outside the median+-5*iqr range
-            aux=medfilt1(diff(aux),10,[],1);
+        if ~isempty(sync)           % if sync signals present, proceed
+            % Clip top and bottom 0.1%
+            sync = clipSignals(sync, .1);
+            N    = size(sync, 1);
+            aux  = medfilt1(sync, 20, [], 1); % median filter for spikes
+            % aux(aux>(median(aux)+5*iqr(aux)) | ...
+            %     aux<(median(aux)-5*iqr(aux)))=median(aux(:));
+            aux = medfilt1(diff(aux), 10, [], 1);
             if secondFile
-                [~,timeScaleFactor,lagInSamples,~] = matchSignals(aux(:,1),aux(:,2));
-                % [~,timeScaleFactor,lagInSamples,~] = matchSignals(refAux,aux(:,2));
-                newRelData2 = resampleShiftAndScale(relData2,timeScaleFactor,lagInSamples,1); %Aligning relData2 to relData1. There is still the need to find the overall delay of the EMG system with respect to forceplate data.
+                [~, timeScaleFactor, lagInSamples, ~] = ...
+                    matchSignals(aux(:, 1), aux(:, 2));
+                % [~,timeScaleFactor,lagInSamples,~] = ...
+                %     matchSignals(refAux,aux(:,2));
+                % Align relData2 to relData1; overall delay of EMG
+                % system re. force plate data still to be determined
+                newRelData2 = resampleShiftAndScale( ...
+                    relData2, timeScaleFactor, lagInSamples, 1);
             end
-            [~,timeScaleFactorA,lagInSamplesA,~] = matchSignals(refAux,aux(:,1));
-            newRelData = resampleShiftAndScale(relData,1,lagInSamplesA,1);
+            [~, timeScaleFactorA, lagInSamplesA, ~] = ...
+                matchSignals(refAux, aux(:, 1));
+            newRelData = resampleShiftAndScale( ...
+                relData, 1, lagInSamplesA, 1);
             if secondFile
-                newRelData2 = resampleShiftAndScale(newRelData2,1,lagInSamplesA,1);
-                % [~,timeScaleFactor,lagInSamples,~] = matchSignals(refAux,aux(:,2)); %DMMO and ARL change to deal w aligment
-                % newRelData2 = resampleShiftAndScale(newRelData2,1,lagInSamples,1);  %DMMO and ARL change to deal w aligment
+                newRelData2 = resampleShiftAndScale( ...
+                    newRelData2, 1, lagInSamplesA, 1);
+                % [~,timeScaleFactor,lagInSamples,~] = ...
+                %     matchSignals(refAux,aux(:,2)); % DMMO/ARL change
+                % newRelData2 = resampleShiftAndScale( ...
+                %     newRelData2,1,lagInSamples,1); % DMMO/ARL change
             end
 
-            %Only keeping matrices of same size to one another:
+            % Keep only matrices of the same size
             if secondFile
-                [auxData, auxData2] = truncateToSameLength(newRelData,newRelData2);
-                clear newRelData*
-                allData=[auxData,auxData2];
-                clear auxData*
+                [auxData, auxData2] = ...
+                    truncateToSameLength(newRelData, newRelData2);
+                clear newRelData*;
+                allData = [auxData, auxData2];
+                clear auxData*;
             else
-                allData=newRelData;
+                allData = newRelData;
             end
 
-            %Finding gains through least-squares on high-pass filtered synch
-            %signals (why using HPF for gains and not for synch?)
-            [refSync] = clipSignals(refSync(:),.1);
-            refSync=idealHPF(refSync,0); %Removing DC only
-            [allData,refSync]=truncateToSameLength(allData,refSync);
-            sync=allData(:,syncIdx);
-            [sync] = clipSignals(sync,.1);
-            sync=idealHPF(sync,0);
-            gain1=refSync'/sync(:,1)';
-            indStart=round(max([lagInSamplesA+1,1]));
-            reducedRefSync=refSync(indStart:end);
-            indStart=round(max([lagInSamplesA+1,1]));
-            reducedSync1=sync(indStart:end,1)*gain1;
-            E1=sum((reducedRefSync-reducedSync1).^2)/sum(refSync.^2); %Computing error energy as % of original signal energy, only considering the time interval were signals were simultaneously recorded.
+            % Find gains via least-squares on high-pass filtered sync
+            % signals (why use HPF for gains and not for sync?)
+            refSync = clipSignals(refSync(:), .1);
+            refSync = idealHPF(refSync, 0);    % remove DC only
+            [allData, refSync] = ...
+                truncateToSameLength(allData, refSync);
+            sync = allData(:, syncIdx);
+            sync = clipSignals(sync, .1);
+            sync = idealHPF(sync, 0);
+            gain1    = refSync' / sync(:, 1)';
+            indStart = round(max([lagInSamplesA+1, 1]));
+            reducedRefSync = refSync(indStart:end);
+            indStart       = round(max([lagInSamplesA+1, 1]));
+            reducedSync1   = sync(indStart:end, 1) * gain1;
+            % Error energy as % of original signal energy; computed
+            % only over the interval of simultaneous recording
+            E1 = sum((reducedRefSync - reducedSync1).^2) / ...
+                sum(refSync.^2);
             if secondFile
-                gain2=refSync'/sync(:,2)';
-                indStart=round(max([lagInSamplesA+1+lagInSamples,1]));
-                reducedRefSync2=refSync(indStart:end);
-                % indStart=round(max([lagInSamplesA+1+lagInSamples,1]));
-                reducedSync2=sync(indStart:end,2)*gain2;
-                E2=sum((reducedRefSync2-reducedSync2).^2)/sum(refSync.^2);
-                %Comparing the two bases' synchrony mechanism (not to ref signal):
-                %reducedSync1a=sync(max([lagInSamplesA+1+lagInSamples,1,lagInSamplesA+1]):end,1)*gain1;
-                %reducedSync2a=sync(max([lagInSamplesA+1+lagInSamples,1,lagInSamplesA+1]):end,2)*gain2;
-                %E3=sum((reducedSync1a-reducedSync2a).^2)/sum(refSync.^2);
+                gain2    = refSync' / sync(:, 2)';
+                indStart = round( ...
+                    max([lagInSamplesA+1+lagInSamples, 1]));
+                reducedRefSync2 = refSync(indStart:end);
+                % indStart = round(max( ...
+                %     [lagInSamplesA+1+lagInSamples,1]));
+                reducedSync2 = sync(indStart:end, 2) * gain2;
+                E2 = sum((reducedRefSync2 - reducedSync2).^2) / ...
+                    sum(refSync.^2);
+                % Comparing the two bases' synchrony mechanism
+                % (not to ref signal):
+                % reducedSync1a=sync(max([lagInSamplesA+1+ ...
+                %     lagInSamples,1,lagInSamplesA+1]):end,1)*gain1;
+                % reducedSync2a=sync(max([lagInSamplesA+1+ ...
+                %     lagInSamples,1,lagInSamplesA+1]):end,2)*gain2;
+                % E3=sum((reducedSync1a-reducedSync2a).^2)/ ...
+                %     sum(refSync.^2);
             else
-                E2=0;
-                gain2=NaN;
-                timeScaleFactor=NaN;
-                lagInSamples=NaN;
+                E2              = 0;
+                gain2           = NaN;
+                timeScaleFactor = NaN;
+                lagInSamples    = NaN;
             end
 
-            %Analytic measure of alignment problems
-            disp(['Sync complete: mismatch signal energy (as %) was ' num2str(100*E1,3) ' and ' num2str(100*E2,3) '.'])
-            disp(['Sync parameters to ref. signal were: gains= ' num2str(gain1,4) ', ' num2str(gain2,4) '; delays= ' num2str(lagInSamplesA/EMGfrequency,3) 's, ' num2str((lagInSamplesA+lagInSamples)/EMGfrequency,3) 's']);
-            disp(['Typical sync parameters are: gains= -933.3 +- 0.2 (both); delays= -0.025s +- 0.001, 0.014 +- 0.002'])
-            disp(['Sync parameters between PCs were: gain= ' num2str(gain1/gain2,4) '; delay= ' num2str((lagInSamples)/EMGfrequency,3) 's; sampling mismatch (ppm)= ' num2str(1e6*(1-timeScaleFactor),3)]);
-            disp(['Typical sync parameters are: gain= 1; delay= 0.040s; sampling= 35 ppm'])
+            % Analytic measure of alignment quality
+            disp(['Sync complete: mismatch signal energy (as %) ' ...
+                'was ' num2str(100*E1, 3) ' and ' ...
+                num2str(100*E2, 3) '.']);
+            disp(['Sync parameters to ref. signal were: gains= ' ...
+                num2str(gain1, 4) ', ' num2str(gain2, 4) ...
+                '; delays= ' ...
+                num2str(lagInSamplesA/EMGfrequency, 3) 's, ' ...
+                num2str((lagInSamplesA+lagInSamples)/ ...
+                EMGfrequency, 3) 's']);
+            disp(['Typical sync parameters are: ' ...
+                'gains= -933.3 +- 0.2 (both); ' ...
+                'delays= -0.025s +- 0.001, 0.014 +- 0.002']);
+            disp(['Sync parameters between PCs were: gain= ' ...
+                num2str(gain1/gain2, 4) '; delay= ' ...
+                num2str(lagInSamples/EMGfrequency, 3) ...
+                's; sampling mismatch (ppm)= ' ...
+                num2str(1e6*(1-timeScaleFactor), 3)]);
+            disp(['Typical sync parameters are: gain= 1; ' ...
+                'delay= 0.040s; sampling= 35 ppm']);
             if isnan(E1) || isnan(E2) || E1>.01 || E2>.01 %Signal difference has at least 1% of original signal energy
                 warning(['Time alignment doesnt seem to have worked: signal mismatch is too high in trial ' num2str(tr) '.'])
                 h=figure;
