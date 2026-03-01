@@ -569,103 +569,124 @@ for tr = cell2mat(info.trialnums)       % for each trial, ...
         EMGData=labTimeSeries(allData(:,orderedIndexes),0,1/EMGfrequency,EMGList(orderedIndexes)); %Throw away the synch signal
         clear allData* relData* auxData*;
 
-        %% AccData (from 2 files too!)
-        %Primary file
-        if info.Nexus==1
-            relData=[];
-            idxList=[];
-            fieldList=fields(analogs);
-            for j=1:length(fieldList)
-                if ~isempty(strfind(fieldList{j},'ACC'))  %Getting fields that start with 'ACC' only
-                    idxList(j)=str2num(fieldList{j}(strfind(fieldList{j},'ACC')+4:end));
-                    switch fieldList{j}(strfind(fieldList{j},'ACC')+3)
-                        case 'X'
-                            aux=1;
-                        case 'Y'
-                            aux=2;
-                        case 'Z'
-                            aux=3;
+        %% Process Accelerometer Data
+        % -- Primary file (PC 1)
+        if info.Nexus == 1
+            relData   = [];
+            idxList   = [];
+            fieldList = fieldnames(analogs);
+            for j = 1:length(fieldList)
+                % Get fields that contain 'ACC' only
+                if ~isempty(strfind(fieldList{j}, 'ACC'))
+                    idxList(j) = str2num(fieldList{j}( ...
+                        strfind(fieldList{j}, 'ACC')+4:end));
+                    switch fieldList{j}( ...
+                            strfind(fieldList{j}, 'ACC')+3)
+                        case 'X',  aux = 1;
+                        case 'Y',  aux = 2;
+                        case 'Z',  aux = 3;
                     end
-                    eval(['relData(:,idxList(j),aux)=analogs.' fieldList{j} ';']);
-                    analogs=rmfield(analogs,fieldList{j}); %Just to save memory space
+                    eval(['relData(:,idxList(j),aux)=analogs.' ...
+                        fieldList{j} ';']);
+                    % Remove field to save memory
+                    analogs = rmfield(analogs, fieldList{j});
                 end
             end
-            relData=permute(relData(:,~emptyChannels1,:),[1,3,2]);
-            relData=relData(:,:);
-            if EMGfrequency~=analogsInfo.frequency %The frequency was changed when downsampling EMG data
-                P=analogsInfo.frequency/EMGfrequency;
-                R=round(P);
-                relData=relData(1:R:end,:);
+            relData = permute(relData(:, ~emptyChannels1, :), ...
+                [1, 3, 2]);
+            relData = relData(:, :);
+            % Downsample if frequency changed during EMG processing
+            if EMGfrequency ~= analogsInfo.frequency
+                P       = analogsInfo.frequency / EMGfrequency;
+                R       = round(P);
+                relData = relData(1:R:end, :);
             end
-            %Fixing time alignment
+            % Apply time alignment correction
             if ~isempty(sync)
-                relData = resampleShiftAndScale(relData,1,lagInSamplesA,1);
+                relData = resampleShiftAndScale( ...
+                    relData, 1, lagInSamplesA, 1);
             end
 
-            %Secondary file
-            relData2=[];
-            idxList2=[];
+            % -- Secondary file (PC 2)
+            relData2 = [];
+            idxList2 = [];
             if secondFile
-                fieldList=fields(analogs2);
-                for j=1:length(fieldList)
-                    if ~isempty(strfind(fieldList{j},'ACC'))  %Getting fields that start with 'EMG' only
-                        idxList2(j)=str2num(fieldList{j}(strfind(fieldList{j},'ACC')+4:end));
-                        switch fieldList{j}(strfind(fieldList{j},'ACC')+3)
-                            case 'X'
-                                aux=1;
-                            case 'Y'
-                                aux=2;
-                            case 'Z'
-                                aux=3;
+                fieldList = fieldnames(analogs2);
+                for j = 1:length(fieldList)
+                    % Get fields that contain 'ACC' only
+                    if ~isempty(strfind(fieldList{j}, 'ACC'))
+                        idxList2(j) = str2num(fieldList{j}( ...
+                            strfind(fieldList{j}, 'ACC')+4:end));
+                        switch fieldList{j}( ...
+                                strfind(fieldList{j}, 'ACC')+3)
+                            case 'X',  aux = 1;
+                            case 'Y',  aux = 2;
+                            case 'Z',  aux = 3;
                         end
-                        eval(['relData2(:,idxList2(j),aux)=analogs2.' fieldList{j} ';']);
-                        analogs2=rmfield(analogs2,fieldList{j}); %Just to save memory space
+                        eval(['relData2(:,idxList2(j),aux)=' ...
+                            'analogs2.' fieldList{j} ';']);
+                        % Remove field to save memory
+                        analogs2 = rmfield(analogs2, fieldList{j});
                     end
                 end
-                relData2=permute(relData2(:,~emptyChannels2,:),[1,3,2]);
-                relData2=relData2(:,:);
-                if EMGfrequency~=analogsInfo2.frequency %The frequency was changed when downsampling EMG data
-                    P=analogsInfo2.frequency/EMGfrequency;
-                    R=round(P);
-                    relData2=relData2(1:R:end,:);
+                relData2 = permute( ...
+                    relData2(:, ~emptyChannels2, :), [1, 3, 2]);
+                relData2 = relData2(:, :);
+                % Downsample if frequency changed
+                if EMGfrequency ~= analogsInfo2.frequency
+                    P        = analogsInfo2.frequency / EMGfrequency;
+                    R        = round(P);
+                    relData2 = relData2(1:R:end, :);
                 end
-                %Fixing time alignment
+                % Apply time alignment correction
                 if ~isempty(sync)
-                    relData2 = resampleShiftAndScale(relData2,timeScaleFactor,lagInSamples,1); %Aligning relData2 to relData1. There is still the need to find the overall delay of the EMG system with respect to forceplate data.
-                    relData2 = resampleShiftAndScale(relData2,1,lagInSamplesA,1);
-                    [auxData, auxData2] = truncateToSameLength(relData,relData2);
-                    clear relData*
-                    allData=[auxData,auxData2];
-                    clear auxData*
+                    % Align relData2 to relData1
+                    relData2 = resampleShiftAndScale( ...
+                        relData2, timeScaleFactor, lagInSamples, 1);
+                    relData2 = resampleShiftAndScale( ...
+                        relData2, 1, lagInSamplesA, 1);
+                    [auxData, auxData2] = ...
+                        truncateToSameLength(relData, relData2);
+                    clear relData*;
+                    allData = [auxData, auxData2];
+                    clear auxData*;
                 else
-                    allData=[relData,relData2]; %No synch, two files
+                    allData = [relData, relData2]; % no sync, two files
                 end
             else
-                allData=relData;
+                allData = relData;
             end
 
-            %Throwing away empty fields (same that were thrown on EMG data)
-
-            % Assign names:
-            ACCList={};
-            for j=1:length(EMGList)
-                ACCList{end+1}=[EMGList{j} 'x'];
-                ACCList{end+1}=[EMGList{j} 'y'];
-                ACCList{end+1}=[EMGList{j} 'z'];
+            % Assign ACC channel name labels (no empty fields to drop)
+            ACCList = {};
+            for j = 1:length(EMGList)
+                ACCList{end+1} = [EMGList{j} 'x'];
+                ACCList{end+1} = [EMGList{j} 'y'];
+                ACCList{end+1} = [EMGList{j} 'z'];
             end
 
-            accData=orientedLabTimeSeries(allData(1:13:end,:),0,13/EMGfrequency,ACCList,orientation); %Downsampling to ~150Hz, which is much closer to the original 148Hz sampling rate (where does this get upsampled? why?)
-            % orientation is fake: orientation is local and unique to each sensor, which is affixed to a body segment.
-        elseif info.EMGworks==1
-
-            % [ACCList, allData,analogsInfo]=getEMGworksdataAcc(info.EMGList2 ,info.secEMGworksdir_location,info.EMGworksdir_location,fileList{t},emptyChannels1,emptyChannels2,EMGList);
-            % Samplingfrequency=analogsInfo.frequency;
-            accData=[];%orientedLabTimeSeries(allData(1:13:end,:),0,Samplingfrequency,ACCList,orientation);
+            % Downsample to ~150 Hz (closer to original 148 Hz rate)
+            % (where does this get upsampled? why?)
+            accData = orientedLabTimeSeries( ...
+                allData(1:13:end, :), 0, 13/EMGfrequency, ...
+                ACCList, orientation);
+            % Note: orientation is local and unique to each sensor,
+            % which is affixed to a body segment
+        elseif info.EMGworks == 1
+            % [ACCList, allData, analogsInfo] = getEMGworksdataAcc( ...
+            %     info.EMGList2, info.secEMGworksdir_location, ...
+            %     info.EMGworksdir_location, fileList{tr}, ...
+            %     emptyChannels1, emptyChannels2, EMGList);
+            % Samplingfrequency = analogsInfo.frequency;
+            accData = [];
+            % accData = orientedLabTimeSeries( ...
+            %     allData(1:13:end,:), 0, Samplingfrequency, ...
+            %     ACCList, orientation);
         end
         clear allData* relData* auxData*;
     else
-        EMGData=[];
-        accData=[];
+        EMGData = [];
+        accData = [];
     end
 
     %% Add H-Reflex Stimulator Pin If Present
