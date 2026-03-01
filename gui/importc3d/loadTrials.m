@@ -372,52 +372,65 @@ for tr = cell2mat(info.trialnums)       % for each trial, ...
             ~isempty(strfind(x, 'Pin_3')) | ...
             ~isempty(strfind(x, 'Raw_3')), fieldNames)});
 
-        %Check for frequencies between the two PCs
+        % Check for frequency mismatch between the two PCs
         if secondFile
-            if abs(analogsInfo.frequency-analogsInfo2.frequency) > eps
-                warning('Sampling rates from the two computers are different, down-sampling one under the assumption that sampling rates are multiple of each other.')
-                %Assuming that the sampling rates are multiples of one another
+            if abs(analogsInfo.frequency - analogsInfo2.frequency) ...
+                    > eps
+                warning(['Sampling rates from the two computers ' ...
+                    'are different, down-sampling one under the ' ...
+                    'assumption that sampling rates are multiples ' ...
+                    'of each other.']);
+                % Assume sampling rates are multiples of one another
                 if analogsInfo.frequency > analogsInfo2.frequency
-                    %First set is the up-sampled one, reducing
-                    P=analogsInfo.frequency/analogsInfo2.frequency;
-                    R=round(P);
-                    relData=relData(1:R:end,:);
-                    refSync=refSync(1:R:end);
-                    EMGfrequency=analogsInfo2.frequency;
+                    % First set is the up-sampled one; reducing
+                    P       = analogsInfo.frequency / ...
+                        analogsInfo2.frequency;
+                    R       = round(P);
+                    relData = relData(1:R:end, :);
+                    refSync = refSync(1:R:end);
+                    EMGfrequency = analogsInfo2.frequency;
                 else
-                    P=round(analogsInfo2.frequency/analogsInfo.frequency);
-                    R=round(P);
-                    relData2=relData2(1:R:end,:);
-                    EMGfrequency=analogsInfo.frequency;
+                    P        = round(analogsInfo2.frequency / ...
+                        analogsInfo.frequency);
+                    R        = round(P);
+                    relData2 = relData2(1:R:end, :);
+                    EMGfrequency = analogsInfo.frequency;
                 end
-                if abs(R-P)>1e-7
-                    error('loadTrials:unmatchedSamplingRatesForEMG','The different EMG files are sampled at different rates and they are not multiple of one another')
+                if abs(R - P) > 1e-7
+                    error( ...
+                        'loadTrials:unmatchedSamplingRatesForEMG', ...
+                        ['The different EMG files are sampled at ' ...
+                        'different rates and they are not multiples' ...
+                        ' of one another.']);
                 end
             else
-                EMGfrequency=analogsInfo.frequency;
+                EMGfrequency = analogsInfo.frequency;
             end
         else
-            EMGfrequency=analogsInfo.frequency;
+            EMGfrequency = analogsInfo.frequency;
         end
 
-        %Only keeping matrices of same size to one another:
+        % Keep only matrices of the same size
         if secondFile
-            [auxData, auxData2] = truncateToSameLength(relData,relData2);
-            allData=[auxData,auxData2];
-            clear auxData*
+            [auxData, auxData2] = ...
+                truncateToSameLength(relData, relData2);
+            allData = [auxData, auxData2];
+            clear auxData*;
         else
-            allData=relData;
+            allData = relData;
         end
 
-        %Pre-process:
-        [refSync] = clipSignals(refSync(:),.1); %Clipping top & bottom samples (1 out of 1e3!)
-        refAux=medfilt1(refSync,20);
-        %refAux(refAux<(median(refAux)-5*iqr(refAux)) | refAux>(median(refAux)+5*iqr(refAux)))=median(refAux);
-        refAux=medfilt1(diff(refAux),10);
-        clear auxData*
+        % Pre-process reference sync signal
+        % Clip top and bottom 0.1% of samples (1 out of 1e3)
+        refSync = clipSignals(refSync(:), .1);
+        refAux  = medfilt1(refSync, 20);
+        % refAux(refAux<(median(refAux)-5*iqr(refAux)) | ...
+        %     refAux>(median(refAux)+5*iqr(refAux)))=median(refAux);
+        refAux = medfilt1(diff(refAux), 10);
+        clear auxData*;
 
-        syncIdx=strncmpi(EMGList,'Sync',4); %Compare first 4 chars in string list
-        sync=allData(:,syncIdx);
+        syncIdx = strncmpi(EMGList, 'Sync', 4); % compare first 4 chars
+        sync    = allData(:, syncIdx);
 
         if ~isempty(sync) %Only proceeding with synchronization if there are sync signals
             %Clipping top & bottom 0.1%
