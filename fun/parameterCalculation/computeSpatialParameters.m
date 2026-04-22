@@ -214,80 +214,6 @@ else                        % otherwise, invalid leg ID
     error('Invalid slow leg input argument, must be ''R'' or ''L''.');
 end
 
-%ALTERNATIVE COMPUTATION WAY: doesn't use HIP, so HIP loss is not an issue
-%(HIP value doesn't affect tis computation, but since it is used as
-%reference, it generates NaN downstream if absent:
-%Because we are not using HIP, walking direction is determined through Left
-%to Right ankle vector.
-stepLengthSlow = sAnkFwdAbs(:,SHS2) - fAnkFwdAbs(:,SHS2);
-stepLengthFast = fAnkFwdAbs(:,FHS) - sAnkFwdAbs(:,FHS);
-takeOffLengthSlow = sAnkFwdAbs(:,STO) - fAnkFwdAbs(:,STO);
-takeOffLengthFast = fAnkFwdAbs(:,FTO) - sAnkFwdAbs(:,FTO);
-
-%step length (2D) Express w.r.t the hip -- don't save, for now.
-stepLengthSlow2D=sqrt(sum((sAnk2D(:,SHS2,:)-fAnk2D(:,SHS2,:)).^2,3));
-stepLengthFast2D=sqrt(sum((fAnk2D(:,FHS,:)-sAnk2D(:,FHS,:)).^2,3));
-
-%Spatial parameters - in millimeters
-%alpha (positive portion of interlimb angle at HS)
-alphaSlow=sAnkFwd(:,SHS2);
-alphaTemp=sAnkFwd(:,SHS);
-alphaFast=fAnkFwd(:,FHS);
-alphaDiff=alphaFast-alphaSlow;
-%beta (negative portion of interlimb angle at TO)
-betaSlow=sAnkFwd(:,STO);
-betaFast=fAnkFwd(:,FTO2);
-%position of the ankle marker at contra lateral at HS
-XSlow=sAnkFwd(:,FHS);
-XFast=fAnkFwd(:,SHS2);
-Xdiff=XFast-XSlow;
-%stance range (subtract since beta is a negative value)
-stanceRangeSlow=alphaTemp-betaSlow;
-stanceRangeFast=alphaFast-betaFast;
-%swing range
-swingRangeSlow=sAnkFwd(:,SHS2)-sAnkFwd(:,STO);
-swingRangeFast=fAnkFwd(:,FHS)-fAnkFwd(:,FTO);
-swingRangeSlowAbs=sAnkFwdAbs(:,SHS2)-sAnkFwdAbs(:,STO);
-swingRangeFastAbs=fAnkFwdAbs(:,FHS)-fAnkFwdAbs(:,FTO);
-
-%Ratio TO./HS
-RFastPos=abs(betaFast./alphaFast);
-RSloWPos=abs(betaSlow./alphaTemp);
-
-%Ratio ankle position @HS of contralateral leg./HS
-RFastPosSHS=abs(XFast./alphaFast);
-RSlowPosFHS=abs(XSlow./alphaTemp);
-
-%Spatial parameters - in degrees
-%alpha (positive portion of interlimb angle at HS)
-alphaAngSlow=sAngle(:,SHS2);
-alphaAngTemp=sAngle(:,SHS);
-alphaAngFast=fAngle(:,FHS);
-%beta (negative portion of interlimb angle at TO)
-betaAngSlow=sAngle(:,STO);
-betaAngFast=fAngle(:,FTO2);
-%range (alpha+beta)
-stanceRangeAngSlow=alphaAngTemp-betaAngSlow;
-stanceRangeAngFast=alphaAngFast-betaAngFast;
-%interlimb spread at HS
-omegaSlow=abs(sAngle(:,SHS2)-fAngle(:,SHS2));
-omegaFast=abs(fAngle(:,FHS)-sAngle(:,FHS));
-%alpha ratios
-alphaRatioSlow=alphaSlow./(alphaSlow+alphaFast);
-alphaRatioFast=alphaFast./(alphaSlow+alphaFast);
-%delta alphas
-alphaDeltaSlow=sAngle(:,SHS2)-fAngle(:,FHS); %same as alphaAngSlow-alphaAngFast
-alphaDeltaFast=fAngle(:,FHS)-sAngle(:,SHS);
-
-%%
-% multiply by -1 to correct for direction since alpha must be positive
-alphaTemp_fromAvgHip = -1 * sAnk_fromAvgHip(:,SHS);
-alphaFast_fromAvgHip = -1 * fAnk_fromAvgHip(:,FHS);
-alphaSlow_fromAvgHip = -1 * sAnk_fromAvgHip(:,SHS2);
-
-xTemp_fromAvgHip = -1 * fAnk_fromAvgHip(:,SHS);
-xSlow_fromAvgHip = -1 * sAnk_fromAvgHip(:,FHS);
-xFast_fromAvgHip = -1 * fAnk_fromAvgHip(:,SHS2);
 % Step lengths (1D).
 % If sAnkFwd and fAnkFwd are measured with respect to the same
 % reference, this equals the difference of the marker positions.
@@ -296,6 +222,92 @@ stepLengthFast    = fAnkFwd(:, FHS)  - sAnkFwd(:, FHS);
 takeOffLengthSlow = sAnkFwd(:, STO)  - fAnkFwd(:, STO);
 takeOffLengthFast = fAnkFwd(:, FTO)  - sAnkFwd(:, FTO);
 
+% Alternative computation that does not use the HIP marker, so HIP
+% marker loss does not affect the result. Since HIP is used as a
+% reference, its absence generates NaN values downstream. Walking
+% direction is instead determined from the left-to-right ankle vector.
+stepLengthSlow    = sAnkFwdAbs(:, SHS2) - fAnkFwdAbs(:, SHS2);
+stepLengthFast    = fAnkFwdAbs(:, FHS)  - sAnkFwdAbs(:, FHS);
+takeOffLengthSlow = sAnkFwdAbs(:, STO)  - fAnkFwdAbs(:, STO);
+takeOffLengthFast = fAnkFwdAbs(:, FTO)  - sAnkFwdAbs(:, FTO);
+
+% Step lengths (2D), expressed with respect to the hip (not saved).
+stepLengthSlow2D = sqrt(sum( ...
+    (sAnk2D(:, SHS2, :) - fAnk2D(:, SHS2, :)).^2, 3));
+stepLengthFast2D = sqrt(sum( ...
+    (fAnk2D(:, FHS, :)  - sAnk2D(:, FHS,  :)).^2, 3));
+
+% Spatial parameters (in millimeters)
+
+% Alpha: positive portion of interlimb angle at heel strike
+alphaSlow = sAnkFwd(:, SHS2);
+alphaTemp = sAnkFwd(:, SHS);
+alphaFast = fAnkFwd(:, FHS);
+alphaDiff = alphaFast - alphaSlow;
+
+% Beta: negative portion of interlimb angle at toe off
+betaSlow = sAnkFwd(:, STO);
+betaFast = fAnkFwd(:, FTO2);
+
+% Position of the ankle marker at contralateral heel strike
+XSlow = sAnkFwd(:, FHS);
+XFast = fAnkFwd(:, SHS2);
+Xdiff = XFast - XSlow;
+
+% Stance range (subtract since beta is a negative value)
+stanceRangeSlow = alphaTemp - betaSlow;
+stanceRangeFast = alphaFast - betaFast;
+
+% Swing range
+swingRangeSlow = sAnkFwd(:, SHS2) - sAnkFwd(:, STO);
+swingRangeFast = fAnkFwd(:, FHS)  - fAnkFwd(:, FTO);
+swingRangeSlowAbs = sAnkFwdAbs(:, SHS2) - sAnkFwdAbs(:, STO);
+swingRangeFastAbs = fAnkFwdAbs(:, FHS)  - fAnkFwdAbs(:, FTO);
+
+% Ratio TO/HS
+RFastPos = abs(betaFast ./ alphaFast);
+RSloWPos = abs(betaSlow ./ alphaTemp);
+
+% Ratio ankle position at HS of contralateral leg / HS
+RFastPosSHS = abs(XFast ./ alphaFast);
+RSlowPosFHS = abs(XSlow ./ alphaTemp);
+
+% Spatial parameters (in degrees)
+
+% Alpha: positive portion of interlimb angle at heel strike
+alphaAngSlow = sAngle(:, SHS2);
+alphaAngTemp = sAngle(:, SHS);
+alphaAngFast = fAngle(:, FHS);
+
+% Beta: negative portion of interlimb angle at toe off
+betaAngSlow = sAngle(:, STO);
+betaAngFast = fAngle(:, FTO2);
+
+% Stance angle range (alpha + beta)
+stanceRangeAngSlow = alphaAngTemp - betaAngSlow;
+stanceRangeAngFast = alphaAngFast - betaAngFast;
+
+% Interlimb spread at heel strike
+omegaSlow = abs(sAngle(:, SHS2) - fAngle(:, SHS2));
+omegaFast = abs(fAngle(:, FHS)  - sAngle(:, FHS));
+
+% Alpha ratios
+alphaRatioSlow = alphaSlow ./ (alphaSlow + alphaFast);
+alphaRatioFast = alphaFast ./ (alphaSlow + alphaFast);
+
+% Delta alphas
+alphaDeltaSlow = sAngle(:, SHS2) - fAngle(:, FHS); % = alphaAngSlow-alphaAngFast
+alphaDeltaFast = fAngle(:, FHS)  - sAngle(:, SHS);
+
+%% Compute Average Hip-Referenced Ankle Placements
+% Multiply by -1 to correct for direction since alpha must be positive
+alphaTemp_fromAvgHip = -1 * sAnk_fromAvgHip(:, SHS);
+alphaFast_fromAvgHip = -1 * fAnk_fromAvgHip(:, FHS);
+alphaSlow_fromAvgHip = -1 * sAnk_fromAvgHip(:, SHS2);
+
+xTemp_fromAvgHip = -1 * fAnk_fromAvgHip(:, SHS);
+xSlow_fromAvgHip = -1 * sAnk_fromAvgHip(:, FHS);
+xFast_fromAvgHip = -1 * fAnk_fromAvgHip(:, SHS2);
 
 %% Compute Interlimb Spatial Parameters
 stepLengthDiff   = stepLengthFast   - stepLengthSlow;
