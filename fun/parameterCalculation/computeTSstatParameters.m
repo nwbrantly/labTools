@@ -28,6 +28,10 @@ function out = computeTSstatParameters(tsData, strideEvents)
 %   See also: computeSpatialParameters, computeTemporalParameters,
 %     computeForceParameters, parameterSeries, calcParameters
 
+arguments
+    tsData       (1,1)
+    strideEvents (:,:) double
+end
 
 %% Statistic Labels
 % 'skw', 'kur', and 'iqr' are excluded -- never used and slow to compute
