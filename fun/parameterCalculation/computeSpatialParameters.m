@@ -443,14 +443,15 @@ singleStanceSpeedDiff = singleStanceSpeedFast - singleStanceSpeedSlow;
 % NOTE: modified by Digna de Kam (April 2018) to use rotated markerdata,
 % which allows using these values for overground trials.
 aux = -rotatedMarkerDataAbs.getDataAsTS( ...
-    {[f 'ANKy'],[ s 'ANKy']}).getSample(eventTimes,'closest');  % N x 8 x 2
-spatialContributionP2 = -(2 * aux(:,FHS,1) - aux(:,SHS2,2) - aux(:,SHS,2));
-vf2 = abs((aux(:,SHS2,1) - aux(:,FHS,1))) ./ tf;
-vs2 = abs((aux(:,FHS,2) - aux(:,SHS,2))) ./ ts;
-stepTimeContributionP2 = 0.5 * (vf2 + vs2) .* (ts - tf);
-velocityContributionP2 = 0.5 * (vs2 - vf2) .* (tf + ts);
-netContributionP2 = ...
-    spatialContributionP2 + stepTimeContributionP2 + velocityContributionP2;
+    {[f 'ANKy'], [s 'ANKy']}).getSample(eventTimes, 'closest');
+spatialContributionP2 = ...
+    -(2 * aux(:, FHS, 1) - aux(:, SHS2, 2) - aux(:, SHS, 2));
+vf2 = abs((aux(:, SHS2, 1) - aux(:, FHS, 1))) ./ tf;
+vs2 = abs((aux(:, FHS,  2) - aux(:, SHS, 2))) ./ ts;
+stepTimeContributionP2  = 0.5 * (vf2 + vs2) .* (ts  - tf);
+velocityContributionP2  = 0.5 * (vs2 - vf2) .* (tf  + ts);
+netContributionP2 = spatialContributionP2 + ...
+    stepTimeContributionP2 + velocityContributionP2;
 
 spatialContributionPNorm2  = spatialContributionP2  ./ Dist;
 stepTimeContributionPNorm2 = stepTimeContributionP2 ./ Dist;
@@ -491,16 +492,16 @@ singleStanceSpeedSlowAbs = nan(T, 1);
 singleStanceSpeedFastAbs = nan(T, 1);
 sToeAbsVel = markerData.getDataAsOTS({[s 'TOE']}).derivate;
 fToeAbsVel = markerData.getDataAsOTS({[f 'TOE']}).derivate;
-for ii = 1:T                                        % for each stride, ...
-    if ~isnan(timeFTO(ii)) && ~isnan(timeFHS(ii))   % if events exist, ...
+for ii = 1:T                                    % for each stride, ...
+    if ~isnan(timeFTO(ii)) && ~isnan(timeFHS(ii))   % if events exist,...
         sToePartial = ...
-            sToeAbsVel.split(timeFTO(ii),timeFHS(ii)).getOrientedData();
-        singleStanceSpeedSlowAbs(ii) = prctile(sToePartial(:,1,2),70);
+            sToeAbsVel.split(timeFTO(ii), timeFHS(ii)).getOrientedData();
+        singleStanceSpeedSlowAbs(ii) = prctile(sToePartial(:, 1, 2), 70);
     end
     if ~isnan(timeSTO(ii)) && ~isnan(timeSHS2(ii))
         fToePartial = ...
-            fToeAbsVel.split(timeSTO(ii),timeSHS2(ii)).getOrientedData();
-        singleStanceSpeedFastAbs(ii) = prctile(fToePartial(:,1,2),70);
+            fToeAbsVel.split(timeSTO(ii), timeSHS2(ii)).getOrientedData();
+        singleStanceSpeedFastAbs(ii) = prctile(fToePartial(:, 1, 2), 70);
     end
 end
 
@@ -508,16 +509,16 @@ singleStanceSpeedSlowAbsANK = nan(T, 1);
 singleStanceSpeedFastAbsANK = nan(T, 1);
 sToeAbsVelANK = markerData.getDataAsOTS({[s 'ANK']}).derivate;
 fToeAbsVelANK = markerData.getDataAsOTS({[f 'ANK']}).derivate;
-for ii = 1:T                                        % for each stride, ...
-    if ~isnan(timeFTO(ii)) && ~isnan(timeFHS(ii))   % if events exist, ...
-        sToePartialANK = ...
-            sToeAbsVelANK.split(timeFTO(ii),timeFHS(ii)).getOrientedData();
+for ii = 1:T                                    % for each stride, ...
+    if ~isnan(timeFTO(ii)) && ~isnan(timeFHS(ii))   % if events exist,...
+        sToePartialANK = sToeAbsVelANK.split( ...
+            timeFTO(ii), timeFHS(ii)).getOrientedData();
         singleStanceSpeedSlowAbsANK(ii) = ...
             prctile(sToePartialANK(:, 1, 2), 70);
     end
     if ~isnan(timeSTO(ii)) && ~isnan(timeSHS2(ii))
-        fToePartialANK = ...
-            fToeAbsVelANK.split(timeSTO(ii),timeSHS2(ii)).getOrientedData();
+        fToePartialANK = fToeAbsVelANK.split( ...
+            timeSTO(ii), timeSHS2(ii)).getOrientedData();
         singleStanceSpeedFastAbsANK(ii) = ...
             prctile(fToePartialANK(:, 1, 2), 70);
     end
@@ -525,17 +526,18 @@ end
 
 singleStanceSpeedDiffAbsAnk = ...
     singleStanceSpeedFastAbsANK - singleStanceSpeedSlowAbsANK;
-% ankle relative to hip, during ipsilateral stance phase
-stanceSpeedSlow = abs(sAnkFwd(:,STO) - sAnkFwd(:,SHS)) ./ ...
-    (timeSTO - timeSHS);
-stanceSpeedFast = abs(fAnkFwd(:,FTO2) - fAnkFwd(:,FHS)) ./ ...
+
+% Ankle relative to hip during ipsilateral stance phase
+stanceSpeedSlow = abs(sAnkFwd(:, STO)  - sAnkFwd(:, SHS))  ./ ...
+    (timeSTO  - timeSHS);
+stanceSpeedFast = abs(fAnkFwd(:, FTO2) - fAnkFwd(:, FHS))  ./ ...
     (timeFTO2 - timeFHS);
 
-% NOTE: 'stepSpeed' should be the same as the velocity calculation for
-% above contributions.
-stepSpeedSlow = dispSlow ./ ts; % ankle relative to hip, from iHS to cHS
-stepSpeedFast = dispFast ./ tf; % ankle relative to hip, from iHS to cHS
-stepSpeedAvg = mean([stepSpeedSlow stepSpeedFast],2,'omitnan');
+% NOTE: 'stepSpeed' should be the same as the velocity calculation
+% used for the contributions above.
+stepSpeedSlow = dispSlow ./ ts; % ankle relative to hip, iHS to cHS
+stepSpeedFast = dispFast ./ tf; % ankle relative to hip, iHS to cHS
+stepSpeedAvg  = mean([stepSpeedSlow stepSpeedFast], 2, 'omitnan');
 
 % rotate coordinates back to original to prevent discontinuities
 % rotationMatrix = [cosd(-avgRotation) -sind(-avgRotation) 0;
