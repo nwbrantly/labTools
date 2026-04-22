@@ -1,10 +1,32 @@
 function out = computeTSstatParameters(someTS, arrayedEvents)
-%This function computes summary parameters per stride based on labTS data.
-%The output is a parameterSeries object, which can be concatenated with
-%other parameterSeries objects, for example with those from
-%computeTemporalParameters.
-%See also computeSpatialParameters, computeTemporalParameters,
-%computeForceParameters, parameterSeries
+% computeTSstatParameters  Compute summary statistics per stride.
+%
+%   Syntax:
+%     out = computeTSstatParameters(tsData, strideEvents)
+%
+%   Computes stride-by-stride summary statistics for each channel of a
+% labTimeSeries and returns a parameterSeries object that can be
+% concatenated with other parameter series objects (e.g., from
+% computeTemporalParameters).
+%
+%   Inputs:
+%     tsData       - labTimeSeries object containing channel data
+%     strideEvents - N-by-K matrix of stride event times (seconds),
+%                    where N is the number of strides; the first
+%                    column is used to slice tsData into strides
+%
+%   Outputs:
+%     out - parameterSeries object containing, for each channel,
+%           the following statistics per stride: max, min, avg
+%           (mean), var (variance), med (median), snr
+%           (signal-to-noise ratio in dB), and bad (data-quality
+%           flag)
+%
+%   Toolbox Dependencies:
+%     None
+%
+%   See also: computeSpatialParameters, computeTemporalParameters,
+%     computeForceParameters, parameterSeries, calcParameters
 
 %% Parameter list and description (per muscle!)
 labelSuff={'max', 'min', 'avg', 'var', 'med', 'snr', 'bad'}; %Some stats on channel data, excluded 'skw','kur','iqr' because they are never used and take long to compute
