@@ -265,19 +265,35 @@ introduced after R2021a without an explicit compatibility note.
   `out = func()` not `[out] = func()`
 - Suffix no-argument method calls with `()` to distinguish them from
   property access: write `obj.method()` not `obj.method`
-- Include a MATLAB `arguments` block immediately after the
-  documentation comment for all functions that accept inputs; declare
-  input sizes, types, and default values there rather than using
-  `nargin` checks
+- Include a MATLAB `arguments` block immediately after the documentation
+  comment for all functions that accept inputs; declare input sizes,
+  types, and default values there rather than using `nargin` checks.
+  Place multiline validators on the line(s) following the argument name,
+  indented to align with the argument name:
+  ```matlab
+  options.Colors (:,3) double ...
+      {mustBeInRange(options.Colors, 0, 1)} = []
+  ```
 - Use camelCase or PascalCase for all variable, function, and script
-  file names (not underscore-separated)
+  file names (not underscore-separated). Choose names that make their
+  purpose clear without a comment — prefer `participantCount` over `n`,
+  `knotLocations` over `kl`. Abbreviations are acceptable when they are
+  unambiguous in context (e.g., `tbl`, `fig`, `lme`, `pval`).
 - Do not use `i` or `j` as loop index variables (reserved for the
-  imaginary unit in MATLAB); use descriptive names instead. For
-  stride loops use `st`; for generic enumeration use `ii`; for
-  loops over a named collection use a prefixed name such as `iField`
-  or `iMarker` to make the indexing role explicit
-- Do not indent the base level of code inside functions, as the
-  MATLAB IDE autoformatter removes this indentation
+  imaginary unit in MATLAB); use descriptive names. For stride loops
+  use `st`; for generic enumeration use `ii`; for loops over a named
+  collection use a prefixed name such as `iField` or `iMarker`
+- Do not indent the base level of code inside functions, as the MATLAB
+  IDE autoformatter removes this indentation
+- Align `=` signs within a group of closely related assignments to make
+  differences between variable names visually apparent:
+  ```matlab
+  minSpacing  = max(1, round(options.MinSpacing));
+  optimizeFor = upper(options.OptimizeFor);
+  maxEvals    = round(options.MaxEvals);
+  ```
+  Apply this within a logical group; do not force alignment across
+  unrelated statements separated by blank lines.
 
 ## Documentation Comments
 Every function and class must include a standard MATLAB documentation
@@ -294,10 +310,83 @@ block with the following sections as appropriate:
 - Author / revision history (if consistent with existing files)
 
 ## Code Organization
-- Use section headers, code block comments, and inline comments to
-  organize code clearly
-- Maintain consistent whitespace and indentation throughout
+- Use `%%` section headers to divide every script and function into
+  named logical phases. The header text should name the phase, not
+  describe the code:
+  ```matlab
+  %% Validate Input Arguments
+  %% Fit Zero-Knot Linear Mixed-Effects Model (ML)
+  %% Prepare Output Data Structure
+  ```
+- Separate sections with a single blank line before the `%%` header.
+  Separate logically distinct groups of statements within a section
+  with a single blank line.
+- Maintain consistent whitespace and indentation throughout.
 - In the 'Labels and Descriptions' `aux` block found in parameter
   computation functions, keep each parameter name and its description
   on a single line regardless of length — this block is exempt from
   the 76-character line-wrap rule
+
+### Writing Comments
+Write comments to help a future reader (including yourself) understand
+purposes and decisions that are not obvious from the code itself.
+
+**Write a comment when:**
+- Starting a new `%%` section — the header *is* the comment; make it
+  descriptive (see section header guidance above).
+- A group of statements implements a non-obvious algorithm or
+  multi-step procedure — add a short block comment above the group
+  summarizing what it does and, if non-obvious, why that approach
+  was chosen.
+- A single line encodes a domain-specific rule, constraint, or
+  formula — add an end-of-line comment explaining its meaning:
+  ```matlab
+  bias = mean(stepAsym(end-39:end));  % mean of last 40 non-bad strides
+  pval = results.pValue(2);           % LRT p-value (second row = complex model)
+  ```
+- A value is a magic number whose meaning would not be obvious to
+  a reader unfamiliar with the study protocol:
+  ```matlab
+  numBase = 40;   % strides used to estimate baseline bias
+  alpha   = 0.05; % significance threshold for likelihood ratio test
+  ```
+- A decision could reasonably have been made differently — explain
+  why this choice was made:
+  ```matlab
+  % must use ML (not REML) for valid likelihood ratio test
+  lme = fitlme(tbl, formula, 'FitMethod', 'ML');
+  ```
+
+**Omit a comment when:**
+- The identifier names already make the purpose completely clear.
+  `participantIDs = unique(tbl.Participant)` needs no comment.
+- The comment would merely restate the code in English
+  (`% increment counter` above `ii = ii + 1`).
+
+**Special prefixes:**
+- `% TODO:` — known incomplete work or a known limitation to
+  revisit later.
+- `% NOTE:` — an important caveat, subtle invariant, or
+  non-obvious constraint that future editors must not accidentally
+  remove.
+
+### Comment Preservation
+
+When editing existing files, preserve all of the following:
+
+- **Step-labeling comments** — short inline or block comments that
+  label distinct steps in a multi-step algorithm (e.g., `% round to
+  integer and canonicalize by sorting for the cache key`). These are
+  navigation aids for readers of complex code.
+- **WHY comments** — comments explaining a non-obvious decision, a
+  hidden constraint, or a subtle invariant (e.g., `% must use ML for
+  valid likelihood ratio test`).
+- **Commented-out code** — alternative implementations or temporarily
+  disabled code that the author hasn't decided to delete (e.g., an
+  `% alternatively:` block). These represent work in progress.
+- **End-of-line clarifications** — inline comments on assignment lines
+  that clarify units, roles, or non-obvious behavior (e.g.,
+  `% Lower bound`, `% safety limit to prevent infinite loops`).
+
+Remove only comments that redundantly restate what the adjacent code
+already makes obvious from its identifier names alone.
