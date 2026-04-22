@@ -47,6 +47,12 @@ COP = bsxfun(@rdivide,(bsxfun(@times,COPF,FzF') + bsxfun(@times,COPS,FzS')),(FzS
 %
 %   See also: computeForceParameters, computeCOM
 
+arguments
+    grfDataSlow (:,:) double
+    grfDataFast (:,:) double
+    slowLeg     (1,1) char
+    fastLeg     (1,1) char
+end
 
 end
 
