@@ -1,4 +1,4 @@
-function out = computeTSstatParameters(someTS, arrayedEvents)
+function out = computeTSstatParameters(tsData, strideEvents)
 % computeTSstatParameters  Compute summary statistics per stride.
 %
 %   Syntax:
@@ -28,75 +28,98 @@ function out = computeTSstatParameters(someTS, arrayedEvents)
 %   See also: computeSpatialParameters, computeTemporalParameters,
 %     computeForceParameters, parameterSeries, calcParameters
 
-%% Parameter list and description (per muscle!)
-labelSuff={'max', 'min', 'avg', 'var', 'med', 'snr', 'bad'}; %Some stats on channel data, excluded 'skw','kur','iqr' because they are never used and take long to compute
-%%
-slicedTS = someTS.sliceTS(arrayedEvents(:, 1), 0); %Slicing by first event ONLY
-N = length(slicedTS);
-Nl = length(labelSuff);
-labs = someTS.labels;
-paramData = nan(N, length(labs), Nl);
-paramLabels = cell(length(labs), Nl);
-description = cell(length(labs), Nl);
-%Define parameter names and descriptions:
-for j = 1:length(labs) %Muscles
-    for k = 1:Nl
-        if strcmp(labelSuff{k}, 'bad')
-            paramLabels{j, k} = [labs{j} labelSuff{k}];
-            description{j, k} = ['Signals if quality was anything other than good (no missing, no spikes, no out-of-range) for muscle ' labs{j}];
+
+%% Statistic Labels
+% 'skw', 'kur', and 'iqr' are excluded -- never used and slow to compute
+statSuffixes = {'max', 'min', 'avg', 'var', 'med', 'snr', 'bad'};
+
+%% Slice Time Series and Allocate Arrays
+slicedTS = tsData.sliceTS(strideEvents(:, 1), 0);  % first event only
+
+numStrides    = length(slicedTS);
+numStats      = length(statSuffixes);
+channelLabels = tsData.labels;
+numChannels   = length(channelLabels);
+paramData     = nan(numStrides, numChannels, numStats);
+paramLabels   = cell(numChannels, numStats);
+description   = cell(numChannels, numStats);
+
+%% Build Parameter Labels and Descriptions
+for iChan = 1:numChannels
+    for iStat = 1:numStats
+        paramLabels{iChan, iStat} = ...
+            [channelLabels{iChan} statSuffixes{iStat}];
+        if strcmp(statSuffixes{iStat}, 'bad')
+            description{iChan, iStat} = [ ...
+                'Signals if quality was anything other than good ' ...
+                '(no missing, no spikes, no out-of-range) for muscle ' ...
+                channelLabels{iChan}];
         else
-            paramLabels{j, k} = [labs{j} labelSuff{k}];
-            description{j, k} = [labelSuff{k} ' in timeseries ' labs{j}];
+            description{iChan, iStat} = [ ...
+                statSuffixes{iStat} ' in timeseries ' ...
+                channelLabels{iChan}];
         end
     end
 end
 
-for i = 1:N %For each stride
-    Data = slicedTS{i}.Data;
-    Qual = slicedTS{i}.Quality;
-    for j = 1:length(labs) %Muscles
-        mData = Data(:, j);
-        if ~isempty(Qual)
-            qq = Qual(:, j);
+%% Compute Per-Stride Statistics
+for iStride = 1:numStrides
+    strideData = slicedTS{iStride}.Data;
+    strideQual = slicedTS{iStride}.Quality;
+    for iChan = 1:numChannels
+        channelData = strideData(:, iChan);
+        if ~isempty(strideQual)
+            qualColumn = strideQual(:, iChan);
         else
-            qq = 0;
+            qualColumn = 0;
         end
-        for k = 1:Nl %Computing each param
-            switch labelSuff{k}
+        for iStat = 1:numStats
+            switch statSuffixes{iStat}
                 case 'max'
-                    %description{j,k}=['Peak proc EMG in muscle ' labs{j}];
-                    paramData(i, j, k) = max(mData);
+                    %description{iChan,iStat}=['Peak proc EMG in muscle ' channelLabels{iChan}];
+                    paramData(iStride, iChan, iStat) = max(channelData);
                 case 'min'
-                    %description{j,k}=['Min proc EMG in muscle ' labs{j}];
-                    paramData(i, j, k) = min(mData);
+                    %description{iChan,iStat}=['Min proc EMG in muscle ' channelLabels{iChan}];
+                    paramData(iStride, iChan, iStat) = min(channelData);
                 case 'iqr'
-                    %description{j,k}=['Inter-quartile range of proc EMG in muscle ' labs{j}];
-                    paramData(i, j, k) = iqr(mData);
+                    %description{iChan,iStat}=['Inter-quartile range of proc EMG in muscle ' channelLabels{iChan}];
+                    paramData(iStride, iChan, iStat) = iqr(channelData);
                 case 'avg'
-                    %description{j,k}=['Avg. (mean) of proc EMG in muscle ' labs{j}];
-                    paramData(i, j, k) = mean(mData);
+                    %description{iChan,iStat}=['Avg. (mean) of proc EMG in muscle ' channelLabels{iChan}];
+                    paramData(iStride, iChan, iStat) = mean(channelData);
                 case 'var'
-                    %description{j,k}=['Variance of proc EMG in muscle ' labs{j}];
-                    paramData(i, j, k) = var(mData, 0); %Unbiased
+                    %description{iChan,iStat}=['Variance of proc EMG in muscle ' channelLabels{iChan}];
+                    paramData(iStride, iChan, iStat) = ...
+                        var(channelData, 0);  % unbiased
                 case 'skw'
-                    %description{j,k}=['Skewness of proc EMG in muscle ' labs{j}];
-                    paramData(i, j, k) = skewness(mData, 0); %Unbiased
+                    %description{iChan,iStat}=['Skewness of proc EMG in muscle ' channelLabels{iChan}];
+                    paramData(iStride, iChan, iStat) = ...
+                        skewness(channelData, 0);  % unbiased
                 case 'kur'
-                    %description{j,k}=['Kurtosis of proc EMG in muscle ' labs{j}];
-                    paramData(i, j, k) = kurtosis(mData, 0); %Unbiased
+                    %description{iChan,iStat}=['Kurtosis of proc EMG in muscle ' channelLabels{iChan}];
+                    paramData(iStride, iChan, iStat) = ...
+                        kurtosis(channelData, 0);  % unbiased
                 case 'med'
-                    %description{j,k}=['Median of proc EMG in muscle ' labs{j}];
-                    paramData(i, j, k) = median(mData);
+                    %description{iChan,iStat}=['Median of proc EMG in muscle ' channelLabels{iChan}];
+                    paramData(iStride, iChan, iStat) = median(channelData);
                 case 'snr'
-                    %description{j,k}=['Energy of proc EMG divided by base noise energy (in dB) for muscle ' labs{j}];
-                    paramData(i, j, k) = 20*log10(mean(mData.^2)/min(mData)^2); %Is this a good estimate?? Seems like min() will always be very close to zero because of the low-pass filtering and the 'dip' it introduces
+                    %description{iChan,iStat}=['Energy of proc EMG divided by base noise energy (in dB) for muscle ' channelLabels{iChan}];
+                    % TODO: min() may be near zero after low-pass
+                    %   filtering; verify this is a valid SNR estimate
+                    paramData(iStride, iChan, iStat) = 20 * log10( ...
+                        mean(channelData.^2) / min(channelData)^2);
                 case 'bad'
-                    paramData(i, j, k) = sum(unique(qq)); %Quality codes used are powers of 2, which allows for 8 different codes (int8). Sum of unique appearances allows to keep track of all codes at the same time.
+                    % quality codes are powers of 2 (up to 8 per int8);
+                    % summing unique values tracks all issues at once
+                    paramData(iStride, iChan, iStat) = ...
+                        sum(unique(qualColumn));
             end
         end
     end
 end
-%% Create parameterSeries
+
+%% Output Computed Parameters
 out = parameterSeries(paramData(:, :), paramLabels(:), [], description(:));
+
 end
 
