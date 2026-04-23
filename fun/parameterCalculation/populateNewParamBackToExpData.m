@@ -1,29 +1,38 @@
 function [expData] = populateNewParamBackToExpData(expData, adaptData)
-%When new parameters are calculated in adaptData only (current use case
-%is with EMG norm parameters). Populate them back into the exp data so
-%that the expData and the adapt data is consistent, this will also be
-%used in recompute parameters to ensure the EMG norm parameter will not
-%be lost.
+% populateNewParamBackToExpData  Back-populate new parameters into expData.
 %
+%   Syntax:
+%     expData = populateNewParamBackToExpData(expData, adaptData)
 %
-% [OUTPUTARGS]
-%   - adaptData: adaptataionData object with the new EMG norm parameters
-%       added. It's up to the caller fnction to save the file.
+%   Copies parameters that exist in adaptData but not yet in expData back
+% into each trial's adaptParams field. The primary use case is
+% synchronizing EMG normalization parameters that were appended to
+% adaptData after the initial processing run. Also propagates DataInfo
+% UserData from adaptData, merging any additional fields unique to the
+% existing trial. Parameters already present in adaptParams or
+% experimentalParams for a given trial are skipped to avoid downstream
+% collisions when makeDataObj later rebuilds adaptData from expData
+% (e.g., fakeParam is always in experimentalParams and must not be
+% duplicated).
 %
-% [INPUTARGS]
-%   - expData: an experimentData object where the params data will be
-%       populated back
-%   - adaptData: an adaptationData object with the new params
-%       calculated.
+%   Inputs:
+%     expData   - experimentData object; each trial's adaptParams will
+%                 be updated with new parameters from adaptData
+%     adaptData - adaptationData object containing the new parameters
+%                 to back-populate (e.g., after EMG normalization)
 %
-% See also:
-%   labTools\fun\parameterCalculation\appendEMGNormParameters.m
-%   labTools\gui\importc3d\loadSubject.m
-%   labTools\classes\dataStructs\@experimentData\recomputeParameters.m
-%   labTools\classes\dataStructs\@experimentData\flushAndRecomputeParameters.m
+%   Outputs:
+%     expData - Updated experimentData object with new parameters
+%               appended to each trial's adaptParams
 %
-% $Author: Shuqi Liu $	$Date: 2026/04/02 13:43:01 $	$Revision: 0.1 $
-% Copyright: Sensorimotor Learning Laboratory 2026
+%   Toolbox Dependencies:
+%     None
+%
+%   See also: appendEMGNormParameters, loadSubject,
+%     experimentData.recomputeParameters,
+%     experimentData.flushAndRecomputeParameters
+%
+%   Author: Shuqi Liu, 2026-04-02
 
 trials = find(~cellfun(@isempty, expData.data));
 trialCol = ismember(adaptData.data.labels, 'trial');
