@@ -1,16 +1,4 @@
 function [markerDataNEW] = COMCalculator(markerData, BW)
-%CJS 5/2017  -- COMCalculator
-% Takes marker data and will give you an approximation of the COM position
-% (1) If a HAT marker is present then a more correct version of the COM will be
-%       Calculated using anthropometry tables from
-%       (http://www.smf.org/docs/articles/hic/USAARL_88-5.pdf), winters,
-%       and perhaps some assymptions from https://msis.jsc.nasa.gov/sections/section03.htm#3.3.7.3.2.1
-%       WHICH ASSUMES: I am assuming that the arms don't affect anything because they are swinging completely counter clockwise to each other
-% (2) If not HAT marker is present than we will use the average of the hips
-%       isntead.  I know what you are thinking!  Yes, the ASIS and PSIS
-%       would be better ("Alteration in the center of mass trajectory of
-%       patients after stroke"), but people don't take the time to fill these
-%       markers in so I think from than perspective, the hips are better.
 %% Step 1: Get relevant marker data
 %get orientation
 if isempty(markerData.orientation)
@@ -120,4 +108,35 @@ labelsBody={'BCOMx', 'BCOMy', 'BCOMz'};
 %COMTS=orientedLabTimeSeries(COMData,markerData.Time(1),markerData.sampPeriod,labels(:),markerData.orientation);
 markerDataNEW=appendData(markerData, BCOM, labelsBody, markerData.orientation);
 end
+
+% COMCalculator  Approximate whole-body center of mass from marker data.
+%
+%   Syntax:
+%     markerDataOut = COMCalculator(markerData, BW)
+%
+%   Estimates the whole-body center of mass (COM) from kinematic marker
+% data using segment inertial parameters. If a HAT (head-arms-trunk)
+% marker is present, the COM is computed from six body segments (foot,
+% shank, and thigh bilaterally plus HAT) using anthropometric fractions
+% from Winter and USAARL-88-5. If no HAT marker is present, the average
+% hip marker position is used as a proxy. Arm motion is assumed to cancel
+% (arms swing in opposite phase) and is excluded from the computation.
+% The computed body COM (BCOMx/y/z) is appended to the input dataset.
+%
+%   Inputs:
+%     markerData - orientedLabTimeSeries containing marker trajectories;
+%                  must include RHIP and LHIP; if HAT is present, RANK,
+%                  LANK, RKNE, LKNE, RTOE, and LTOE are also required
+%     BW         - Subject body weight (kg)
+%
+%   Outputs:
+%     markerDataOut - Input markerData with channels BCOMx, BCOMy, and
+%                     BCOMz appended
+%
+%   Toolbox Dependencies:
+%     None
+%
+%   See also: computeCOM, appendData, orientedLabTimeSeries
+%
+%   Author: CJS 5/2017
 
