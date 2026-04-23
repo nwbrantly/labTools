@@ -1,14 +1,4 @@
 function out = calcExperimentalParams(in, subData, eventClass, initEventSide)
-%Calculate parameters:
-%
-%INPUTS
-%'in' must be an instance of the class "processedlabData"
-%'subData' is the instance of subjectData e.g. subject.mat/expData.subData
-%'eventClass'
-%'initEventSide' can be either 'R' or 'L', if blank this comes from come from
-%subjectRAW.mat/rawExpData.data{i,j}.metaData.refLeg, or the first input
-%'in'
-
 if nargin<2 || isempty(eventClass)
     eventClass='';
 end
@@ -55,4 +45,36 @@ end
 
 %%
 out=parameterSeries(data, paramLabels, in.adaptParams.hiddenTime, description);
+
+% calcExperimentalParams  Compute experimental parameters per stride.
+%
+%   Syntax:
+%     out = calcExperimentalParams(trialData, subData)
+%     out = calcExperimentalParams(trialData, subData, eventClass)
+%     out = calcExperimentalParams( ...
+%         trialData, subData, eventClass, initEventSide)
+%
+%   Computes stride-by-stride experimental parameters from a processed
+% trial. Currently returns a placeholder parameterSeries containing a
+% single NaN parameter; intended to be extended with study-specific
+% parameter calculations.
+%
+%   Inputs:
+%     trialData     - processedLabData object containing gait events,
+%                     parameters, and metadata for the trial
+%     subData       - subjectData object containing subject information
+%     eventClass    - (optional) String specifying the gait event
+%                     detection method (e.g., 'kin' or 'force');
+%                     defaults to ''
+%     initEventSide - (optional) 'L' or 'R'; side for the initial
+%                     gait event; defaults to
+%                     trialData.metaData.refLeg if omitted or empty
+%
+%   Outputs:
+%     out - parameterSeries object containing computed parameters
+%
+%   Toolbox Dependencies:
+%     None
+%
+%   See also: calcParameters, parameterSeries, getStrideInfo
 
