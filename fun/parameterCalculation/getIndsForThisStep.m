@@ -49,6 +49,12 @@ FHS=events(:,2);
 STO=events(:,3);
 FTO=events(:,4);
 inds=find(SHS);
+arguments
+    events     (:,:) double
+    eventsTime (:,1) double
+    step       (1,1) double
+end
+
 
 indSHS=inds(step);
 timeSHS=eventsTime(indSHS);
