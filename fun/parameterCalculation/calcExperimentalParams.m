@@ -3,6 +3,7 @@ function out = calcExperimentalParams( ...
 % calcExperimentalParams  Compute experimental parameters per stride.
 %
 %   Syntax:
+%     out = calcExperimentalParams(trialData)
 %     out = calcExperimentalParams(trialData, subData)
 %     out = calcExperimentalParams(trialData, subData, eventClass)
 %     out = calcExperimentalParams( ...
@@ -16,7 +17,8 @@ function out = calcExperimentalParams( ...
 %   Inputs:
 %     trialData     - processedLabData object containing gait events,
 %                     parameters, and metadata for the trial
-%     subData       - subjectData object containing subject information
+%     subData       - (optional) subjectData object containing subject
+%                     information; reserved for study-specific use
 %     eventClass    - (optional) String specifying the gait event
 %                     detection method (e.g., 'kin' or 'force');
 %                     defaults to ''
@@ -34,7 +36,7 @@ function out = calcExperimentalParams( ...
 
 arguments
     trialData     (1,1)
-    subData       (1,1)
+    subData       = []
     eventClass    (1,:) char = ''
     initEventSide (1,:) char = ''
 end
