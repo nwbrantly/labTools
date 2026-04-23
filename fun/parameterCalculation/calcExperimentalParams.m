@@ -1,13 +1,4 @@
 function out = calcExperimentalParams(in, subData, eventClass, initEventSide)
-if nargin<2 || isempty(eventClass)
-    eventClass='';
-end
-if nargin<3 || isempty(initEventSide)
-    refLeg=in.metaData.refLeg;
-else
-    refLeg=initEventSide;
-end
-
 if strcmp(refLeg, 'R')
     s = 'R';    f = 'L';
 elseif strcmp(refLeg, 'L')
@@ -77,4 +68,17 @@ out=parameterSeries(data, paramLabels, in.adaptParams.hiddenTime, description);
 %     None
 %
 %   See also: calcParameters, parameterSeries, getStrideInfo
+
+arguments
+    trialData     (1,1)
+    subData       (1,1)
+    eventClass    (1,:) char = ''
+    initEventSide (1,:) char = ''
+end
+
+if isempty(initEventSide)
+    refLeg = trialData.metaData.refLeg;
+else
+    refLeg = initEventSide;
+end
 
