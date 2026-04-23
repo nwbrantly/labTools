@@ -1,42 +1,5 @@
-function out = calcExperimentalParams(in, subData, eventClass, initEventSide)
-if strcmp(refLeg, 'R')
-    s = 'R';    f = 'L';
-elseif strcmp(refLeg, 'L')
-    s = 'L';    f = 'R';
-else
-    ME=MException('MakeParameters:refLegError','the refLeg property of metaData must be either ''L'' or ''R''.');
-    throw(ME);
-end
-
-
-
-%% Find number of strides
-good=in.adaptParams.getDataAsVector({'good'}); %Getting data from 'good' label
-ts=~isnan(good);
-good=good(ts);
-Nstrides=length(good);%Using lenght of the 'good' parameter already calculated in calcParams
-
-%% get events
-eventTypes={[s, 'HS'], [f, 'TO'], [f, 'HS'], [s, 'TO']};
-eventTypes=strcat(eventClass, eventTypes);
-eventTypes2={['SHS'], ['FTO'], ['FHS'], ['STO']};
-triggerEvent=eventTypes{1};
-[strideIdxs, initTime, endTime]=getStrideInfo(in, triggerEvent);
-
-%% Compute params
-aux1={ 'fakeParam', 'fakeDescription'};
-paramLabels=aux1(:, 1);
-description=aux1(:, 2);
-fakeParam=nan(Nstrides, 1);
-
-%% Save all the params in the data matrix & generate labTimeSeries
-for i=1:length(paramLabels)
-    eval(['data(:, i)=', paramLabels{i}, ';'])
-end
-
-%%
-out=parameterSeries(data, paramLabels, in.adaptParams.hiddenTime, description);
-
+function out = calcExperimentalParams( ...
+    trialData, subData, eventClass, initEventSide)
 % calcExperimentalParams  Compute experimental parameters per stride.
 %
 %   Syntax:
@@ -76,9 +39,56 @@ arguments
     initEventSide (1,:) char = ''
 end
 
+%% Resolve Reference Leg
 if isempty(initEventSide)
     refLeg = trialData.metaData.refLeg;
 else
     refLeg = initEventSide;
+end
+
+if strcmp(refLeg, 'R')
+    s = 'R';
+    f = 'L';
+elseif strcmp(refLeg, 'L')
+    s = 'L';
+    f = 'R';
+else
+    ME = MException('MakeParameters:refLegError', ...
+        ['The refLeg property of metaData must be ' ...
+        'either ''L'' or ''R''.']);
+    throw(ME);
+end
+
+%% Find Number of Strides
+% 'good' is already computed by calcParameters; use it to count strides
+goodData   = trialData.adaptParams.getDataAsVector({'good'});
+validMask  = ~isnan(goodData);
+goodData   = goodData(validMask);
+numStrides = length(goodData);
+
+%% Configure Gait Event Types
+eventTypes   = {[s, 'HS'], [f, 'TO'], [f, 'HS'], [s, 'TO']};
+eventTypes   = strcat(eventClass, eventTypes);
+eventLabels  = {'SHS', 'FTO', 'FHS', 'STO'};
+triggerEvent = eventTypes{1};
+[strideCount, initTime, endTime] = getStrideInfo(trialData, triggerEvent);
+
+%% Compute Parameters
+% TODO: add study-specific parameter calculations here
+aux = {'fakeParam', 'fakeDescription'};
+paramLabels = aux(:, 1);
+description = aux(:, 2);
+fakeParam   = nan(numStrides, 1);
+
+%% Assign Parameters to Data Matrix
+data = nan(numStrides, length(paramLabels));
+for ii = 1:length(paramLabels)
+    eval(['data(:, ii) = ' paramLabels{ii} ';']);
+end
+
+%% Output Computed Parameters
+out = parameterSeries( ...
+    data, paramLabels, trialData.adaptParams.hiddenTime, description);
+
 end
 
