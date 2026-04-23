@@ -35,6 +35,11 @@ function [expData] = populateNewParamBackToExpData(expData, adaptData)
 %   Author: Shuqi Liu, 2026-04-02
 
 trials = find(~cellfun(@isempty, expData.data));
+arguments
+    expData   (1,1)
+    adaptData (1,1)
+end
+
 trialCol = ismember(adaptData.data.labels, 'trial');
 for t = trials
     %find columes containing new data (do not touch data that's already
