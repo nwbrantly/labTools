@@ -103,3 +103,7 @@ end
 %
 %   Author: CJS, 08/2016
 
+arguments
+    trialData (1,1)
+end
+
