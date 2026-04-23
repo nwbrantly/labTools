@@ -1,6 +1,19 @@
 fieldList={...
     'hipContribution',      '@(w,x,y,z) w-x-y-z',           {'netContributionNorm2', 'spatialContributionNorm2', 'stepTimeContributionPNorm', 'velocityContributionPNorm'},            'computes the proposed hip contrib'...
     };
+% createDependentParamRecipes  Build and save dependent parameter recipes.
+%
+%   Creates a recipe table (fieldList) defining how derived EMG
+% parameters are computed from base stride-segment parameters. The
+% table includes a hip contribution entry and phase-average (p),
+% time-integrated (t), and stride-normalized (e) versions of each
+% EMG muscle/side combination. The completed table is saved as
+% DependParamRecipes.mat in the same directory as this script.
+%
+%   Toolbox Dependencies:
+%     None
+%
+%   See also: adaptationData, calcParameters
 
 %% Add p,e,t (EMG) params from s
 muscleList={'TA', 'PER', 'MG', 'LG', 'SOL', 'RF', 'VM', 'VF', 'SEMT', 'SEMB', 'BF', 'GLU', 'TFL', 'HIP', 'ADM'};
