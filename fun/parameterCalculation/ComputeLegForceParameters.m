@@ -1,8 +1,4 @@
 function [SB, SBsum, SP, SPsum, SBmax, SBmax_ABS, SBmaxQS, SPmax, SPmaxQS, ImpactMagS] = ComputeLegForceParameters(striderS, LevelofInterest, FlipB, titleTXT)
-if nargin<4 || isempty(titleTXT)
-    titleTXT='';
-end
-
 % Identify all the 'braking' (i.e., negative) and 'propeling' (i.e.,
 % positive data points for the stride
 ns=find((striderS-LevelofInterest)<0);
@@ -118,4 +114,11 @@ end
 %     None
 %
 %   See also: computeForceParameters, parameterSeries
+
+arguments
+    apForceTrace  (:,1) double
+    forceBaseline (1,1) double
+    brakingSign   (1,1) double
+    titleText     (1,:) char = ''
+end
 
