@@ -1,4 +1,4 @@
-function [expData] = populateNewParamBackToExpData(expData, adaptData)
+function expData = populateNewParamBackToExpData(expData, adaptData)
 % populateNewParamBackToExpData  Back-populate new parameters into expData.
 %
 %   Syntax:
@@ -34,45 +34,55 @@ function [expData] = populateNewParamBackToExpData(expData, adaptData)
 %
 %   Author: Shuqi Liu, 2026-04-02
 
-trials = find(~cellfun(@isempty, expData.data));
 arguments
     expData   (1,1)
     adaptData (1,1)
 end
 
+%% Identify Trials and Trial Column Index
+trials   = find(~cellfun(@isempty, expData.data));
 trialCol = ismember(adaptData.data.labels, 'trial');
-for t = trials
-    %find columes containing new data (do not touch data that's already
-    %there + do not populate a fakeparam which is always in
-    %experimentalParams, otherwise the fakeparam will be repeated and cause parameter
-    % collision downstream when trying to create adaptData using adaptData = expData.makeDataObj([]);
-    newDataCol = ~ismember(adaptData.data.labels, [expData.data{t}.adaptParams.labels; expData.data{t}.experimentalParams.labels]);
-    newData = adaptData.data.Data(adaptData.data.Data(:, trialCol) == t, newDataCol);
-    newLabels = adaptData.data.labels(newDataCol);
-    newDescp = adaptData.data.description(newDataCol);
-    expData.data{t}.adaptParams = expData.data{t}.adaptParams.appendData(newData, newLabels, newDescp);
-    %repopulate the information as well.
-    if isempty(expData.data{t}.adaptParams.DataInfo.UserData)
-        %if used to be empty, just replace with what's in adaptData
-        expData.data{t}.adaptParams.DataInfo.UserData = adaptData.data.DataInfo.UserData;
-    else%if used have info, try to preserve or replace it.
+
+%% Populate New Parameters Per Trial
+for iTrial = trials
+    trialAdapt     = expData.data{iTrial}.adaptParams;
+    trialExpParams = expData.data{iTrial}.experimentalParams;
+
+    % Identify parameters in adaptData not already in this trial
+    newDataCol = ~ismember(adaptData.data.labels, ...
+        [trialAdapt.labels; trialExpParams.labels]);
+    newData         = adaptData.data.Data( ...
+        adaptData.data.Data(:, trialCol) == iTrial, newDataCol);
+    newLabels       = adaptData.data.labels(newDataCol);
+    newDescriptions = adaptData.data.description(newDataCol);
+    trialAdapt = trialAdapt.appendData( ...
+        newData, newLabels, newDescriptions);
+
+    % Propagate DataInfo UserData from adaptData
+    if isempty(trialAdapt.DataInfo.UserData)
+        % Previously empty: replace entirely with adaptData's UserData
+        trialAdapt.DataInfo.UserData = adaptData.data.DataInfo.UserData;
+    else
+        % Merge: adaptData fields take precedence; preserve fields
+        % unique to the old expData trial
         newUserData = adaptData.data.DataInfo.UserData;
-        if isstruct(expData.data{t}.adaptParams.DataInfo.UserData)
-            %used to have info and is already a struct, existing fields
-            %use the new info from the adaptData, additional fields,
-            %try to keep it.
-            %look for additional fields that used to be in expData but
-            %not in new adaptData. Note here repeated fields will honor the adaptData and
-            %ignore the expData's userinfo
-            uniqueToOld = setdiff(fieldnames(expData.data{t}.adaptParams.DataInfo.UserData),...
+        if isstruct(trialAdapt.DataInfo.UserData)
+            uniqueFields = setdiff( ...
+                fieldnames(trialAdapt.DataInfo.UserData), ...
                 fieldnames(newUserData));
-            for fd = uniqueToOld %add in the additional info
-                newUserData.(fd{1}) = expData.data{t}.adaptParams.DataInfo.UserData.(fd{1});
+            for iField = uniqueFields'
+                newUserData.(iField{1}) = ...
+                    trialAdapt.DataInfo.UserData.(iField{1});
             end
-        else %not a struct just save all old info into one field.
-            newUserData.prevUserData = expData.data{t}.adaptParams.DataInfo.UserData;
+        else
+            % Not a struct: preserve old info in a single field
+            newUserData.prevUserData = trialAdapt.DataInfo.UserData;
         end
-        expData.data{t}.adaptParams.DataInfo.UserData = newUserData;
+        trialAdapt.DataInfo.UserData = newUserData;
     end
+
+    expData.data{iTrial}.adaptParams = trialAdapt;
 end
+
 end
+
