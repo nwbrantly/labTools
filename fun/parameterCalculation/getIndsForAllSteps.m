@@ -38,6 +38,10 @@ events=gaitEvents.getDataAsVector(eventList);
 
 for i=1:N
     eval([eventList{i} '=events(:, i);']);
+arguments
+    gaitEvents (1,1)
+    s          (1,1) char
+    f          (1,1) char
 end
 
 eventsTime=gaitEvents.Time;
