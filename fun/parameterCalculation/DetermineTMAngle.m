@@ -1,8 +1,4 @@
 function [ ang ] = DetermineTMAngle( trialData )
-%UNTITLED This function determines what angle a trial was run at based on
-%the trial districiption which must contain this information
-%  08/2016, CJS, The input trial is the trial description
-
 %There is assuredely a better way to do this, but for right now...
 %trial
 
@@ -77,4 +73,33 @@ else
 end
 
 end
+
+% DetermineTMAngle  Extract treadmill incline angle from trial description.
+%
+%   Syntax:
+%     ang = DetermineTMAngle(trialData)
+%
+%   Parses the trial description string to extract a numeric treadmill
+% incline angle in degrees. If the description contains 'deg', the
+% function locates the numeric value immediately preceding it and
+% determines the sign from keywords ('decline'/'downhill' = negative,
+% all others = positive incline). If no valid angle is parsed, prompts
+% the user to enter the value manually. Returns 0 if the description
+% contains no 'deg' substring.
+%
+%   Inputs:
+%     trialData - Object with fields .description (string or cell array
+%                 containing the trial name/condition) and .type
+%                 (string used in the manual input prompt on failure)
+%
+%   Outputs:
+%     ang - Treadmill incline angle in degrees; positive = uphill,
+%           negative = downhill, 0 = level
+%
+%   Toolbox Dependencies:
+%     None
+%
+%   See also: computeForceParameters, calcParameters
+%
+%   Author: CJS, 08/2016
 
