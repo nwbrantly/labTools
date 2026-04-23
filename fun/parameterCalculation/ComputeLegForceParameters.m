@@ -1,79 +1,6 @@
-function [SB, SBsum, SP, SPsum, SBmax, SBmax_ABS, SBmaxQS, SPmax, SPmaxQS, ImpactMagS] = ComputeLegForceParameters(striderS, LevelofInterest, FlipB, titleTXT)
-% Identify all the 'braking' (i.e., negative) and 'propeling' (i.e.,
-% positive data points for the stride
-ns=find((striderS-LevelofInterest)<0);
-ps=find((striderS-LevelofInterest)>0);
-
-%From the first 15% of the stride, determin the peak anterior-posterior impact force
-[ImpactMagS, ImpactSWhere]=nanmax(striderS(1:round(0.15*length(striderS))));
-
-% if there is an impact force, then we do not want the impact behavior to
-% be considered when we are computing braking and propulsion measures.
-if isempty(ImpactSWhere)~=1
-    % New method 2/25/2020
-    ps(find(ps<ImpactSWhere))=[];
-    ns(find(ns<ImpactSWhere))=[];
-end
-
-%% Mean Behaviors
-
-% Braking Force Characterization
-if isempty(ns) %No Braking Data
-    SB=NaN;
-    SBsum=NaN;
-else % As long as there are some braking data points
-    SB=FlipB.*(nanmean(striderS(ns)-LevelofInterest));
-    SBsum=FlipB.*nansum(striderS(ns)-LevelofInterest);
-end
-
-% Propulsion Force Characterization
-if isempty(ps)
-    SP=NaN;
-    SPsum=NaN;
-else % As long as there are some propulsion data points
-    SP=nanmean(striderS(ps)-LevelofInterest);
-    SPsum=nansum(striderS(ps)-LevelofInterest);
-end
-
-ns_ALL=ns;
-ps_ALL=ps;
-
-%% Peak Behaviors
-
-%Prevent Impulse & Tail end of forces traces from being identified at peaks
-ns(find(ns>=0.9*length(striderS)))=[]; % 2/14/2018 -- This is to prevent us from identifiying the tail end of the trace as the braking force 4/11/2017 CJS
-ps(find(ps<=0.1*length(striderS)))=[]; % 2/14/2018 -- This is to prevent the impulse from being identified.
-
-if isempty(ns)
-    SBmax=NaN;
-    SBmax_ABS=NaN;
-    SBmaxQS=NaN;
-else% As long as there are some braking data points
-    [SBmax]=nanmin(striderS(ns));%-LevelofInterest
-    SBmax=FlipB.*SBmax;
-    SBmaxQS=SBmax-2.*FlipB.*(LevelofInterest);
-    SBmax_ABS=FlipB.*(nanmin(striderS-LevelofInterest));
-end
-
-if isempty(ps)
-    SPmax=NaN;
-    SPmaxQS=NaN;
-else % As long as there are some propulsion data points
-    [SPmax]=nanmax(striderS(ps));%-LevelofInterest
-    SPmaxQS=SPmax-2.*LevelofInterest;
-end
-
-% if ps(MaxWhereS)<=0.1*length(striderS)
-%     figure
-%     plot(striderS, 'k'); hold on
-%     line([0.1*length(striderS) 0.1*length(striderS)], [-.2 .2])
-%     line([0.9*length(striderS) 0.9*length(striderS)], [-.2 .2])
-%     plot(ps(MaxWhereS), striderS(ps(MaxWhereS)), 'r*')
-%     plot(ns(MinWhereS), striderS(ns(MinWhereS)), 'b*')
-%     title(titleTXT)
-% end
-
-end
+function [SB, SBsum, SP, SPsum, SBmax, SBmaxAbs, SBmaxQS, SPmax, ...
+    SPmaxQS, ImpactMagS] = ComputeLegForceParameters( ...
+    apForceTrace, forceBaseline, brakingSign, titleText)
 % ComputeLegForceParameters  Compute AP force parameters for one leg stride.
 %
 %   Syntax:
@@ -120,5 +47,80 @@ arguments
     forceBaseline (1,1) double
     brakingSign   (1,1) double
     titleText     (1,:) char = ''
+end
+
+%% Identify Braking and Propulsion Indices
+% Braking: samples below baseline; propulsion: samples above baseline
+brakingIdx = find((apForceTrace - forceBaseline) < 0);
+propIdx    = find((apForceTrace - forceBaseline) > 0);
+
+% Identify the AP impact peak in the first 15% of the stride
+[ImpactMagS, impactIdx] = nanmax( ...
+    apForceTrace(1:round(0.15*length(apForceTrace))));
+
+% Exclude pre-impact samples from braking and propulsion classification
+% (new method 2/25/2020)
+if ~isempty(impactIdx)
+    propIdx(find(propIdx < impactIdx))       = [];
+    brakingIdx(find(brakingIdx < impactIdx)) = [];
+end
+
+%% Mean Braking and Propulsion Forces
+if isempty(brakingIdx)  % no braking data
+    SB    = NaN;
+    SBsum = NaN;
+else
+    SB = brakingSign .* ...
+        nanmean(apForceTrace(brakingIdx) - forceBaseline);
+    SBsum = brakingSign .* ...
+        nansum(apForceTrace(brakingIdx) - forceBaseline);
+end
+
+if isempty(propIdx)  % no propulsion data
+    SP    = NaN;
+    SPsum = NaN;
+else
+    SP    = nanmean(apForceTrace(propIdx) - forceBaseline);
+    SPsum = nansum(apForceTrace(propIdx) - forceBaseline);
+end
+
+%% Peak Braking and Propulsion Forces
+% Save pre-trim index copies; then remove the trailing 10% (end-of-stance
+% decay) and leading 10% (impact transient) so neither is misidentified
+% as the true braking or propulsion peak; 2/14/2018 (4/11/2017 CJS)
+brakingIdxAll = brakingIdx;
+propIdxAll    = propIdx;
+brakingIdx(find(brakingIdx >= 0.9*length(apForceTrace))) = [];
+propIdx(find(propIdx <= 0.1*length(apForceTrace)))       = [];
+
+if isempty(brakingIdx)
+    SBmax    = NaN;
+    SBmaxAbs = NaN;
+    SBmaxQS  = NaN;
+else
+    SBmax    = nanmin(apForceTrace(brakingIdx));  %-forceBaseline
+    SBmax    = brakingSign .* SBmax;
+    SBmaxQS  = SBmax - 2 .* brakingSign .* forceBaseline;
+    SBmaxAbs = brakingSign .* nanmin(apForceTrace - forceBaseline);
+end
+
+if isempty(propIdx)
+    SPmax   = NaN;
+    SPmaxQS = NaN;
+else
+    SPmax   = nanmax(apForceTrace(propIdx));  %-forceBaseline
+    SPmaxQS = SPmax - 2 .* forceBaseline;
+end
+
+% if propIdx(MaxWhereS) <= 0.1*length(apForceTrace)
+%     figure
+%     plot(apForceTrace, 'k'); hold on
+%     line([0.1*length(apForceTrace) 0.1*length(apForceTrace)], [-.2 .2])
+%     line([0.9*length(apForceTrace) 0.9*length(apForceTrace)], [-.2 .2])
+%     plot(propIdx(MaxWhereS), apForceTrace(propIdx(MaxWhereS)), 'r*')
+%     plot(brakingIdx(MinWhereS), apForceTrace(brakingIdx(MinWhereS)), 'b*')
+%     title(titleText)
+% end
+
 end
 
