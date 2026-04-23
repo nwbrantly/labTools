@@ -1,19 +1,3 @@
-function [markerDataNEW] = COMCalculator(markerData, BW)
-%% Step 1: Get relevant marker data
-%get orientation
-if isempty(markerData.orientation)
-    warning('Assuming default orientation of axes for marker data.');
-    orientation=orientationInfo([0, 0, 0], 'x', 'y', 'z', 1, 1, 1);
-else
-    orientation=markerData.orientation;
-end
-
-%get hip position
-RHip=markerData.getDataAsVector({['RHIP' orientation.sideAxis], ['RHIP' orientation.foreaftAxis], ['RHIP' orientation.updownAxis]});
-RHip=[orientation.sideSign*RHip(:, 1), orientation.foreaftSign*RHip(:, 2), orientation.updownSign*RHip(:, 3)];
-LHip=markerData.getDataAsVector({['LHIP' orientation.sideAxis], ['LHIP' orientation.foreaftAxis], ['LHIP' orientation.updownAxis]});
-LHip=[orientation.sideSign*LHip(:, 1), orientation.foreaftSign*LHip(:, 2), orientation.updownSign*LHip(:, 3)];
-
 % Define the marker data
 if isempty(markerData.getLabelsThatMatch('HAT')) %we don't have the data we need to do this for realy, but we can use a proxy
     warning('Not enough markers to calculate the COM, using the average of the hips as a proxy')
@@ -102,13 +86,7 @@ else
     COMData=[fcomR fcomL scomR scomL tcomR tcomL HATcom BCOM]; %CJS note to self, change here to change what is stored in the COM
     labels={'RfCOMx', 'RfCOMy', 'RfCOMz', 'LfCOMx', 'LfCOMy', 'LfCOMz', 'RsCOMx', 'RsCOMy', 'RsCOMz', 'LsCOMx', 'LsCOMy', 'LsCOMz', 'RtCOMx', 'RtCOMy', 'RtCOMz', 'LtCOMx', 'LtCOMy', 'LtCOMz', 'HATCOMx', 'HATCOMy', 'HATCOMz', 'BCOMx', 'BCOMy', 'BCOMz'};
 end
-
-labelsBody={'BCOMx', 'BCOMy', 'BCOMz'};
-%Pablo: creating orientedLabTS
-%COMTS=orientedLabTimeSeries(COMData,markerData.Time(1),markerData.sampPeriod,labels(:),markerData.orientation);
-markerDataNEW=appendData(markerData, BCOM, labelsBody, markerData.orientation);
-end
-
+function markerDataOut = COMCalculator(markerData, BW)
 % COMCalculator  Approximate whole-body center of mass from marker data.
 %
 %   Syntax:
@@ -143,5 +121,40 @@ end
 arguments
     markerData (1,1)
     BW         (1,1) double
+end
+
+%% Get Orientation and Hip Markers
+if isempty(markerData.orientation)
+    warning('COMCalculator:noOrientation', ...
+        'Assuming default orientation of axes for marker data.');
+    orientation = orientationInfo([0, 0, 0], 'x', 'y', 'z', 1, 1, 1);
+else
+    orientation = markerData.orientation;
+end
+
+rHip = markerData.getDataAsVector({ ...
+    ['RHIP' orientation.sideAxis], ...
+    ['RHIP' orientation.foreaftAxis], ...
+    ['RHIP' orientation.updownAxis]});
+rHip = [orientation.sideSign    * rHip(:, 1), ...
+    orientation.foreaftSign * rHip(:, 2), ...
+    orientation.updownSign  * rHip(:, 3)];
+lHip = markerData.getDataAsVector({ ...
+    ['LHIP' orientation.sideAxis], ...
+    ['LHIP' orientation.foreaftAxis], ...
+    ['LHIP' orientation.updownAxis]});
+lHip = [orientation.sideSign    * lHip(:, 1), ...
+    orientation.foreaftSign * lHip(:, 2), ...
+    orientation.updownSign  * lHip(:, 3)];
+
+
+%% Append Body COM to Marker Dataset
+labelsBody    = {'BCOMx', 'BCOMy', 'BCOMz'};
+% Pablo: creating orientedLabTS
+% COMTS = orientedLabTimeSeries(segCOMData, markerData.Time(1), ...
+%     markerData.sampPeriod, segLabels(:), markerData.orientation);
+markerDataOut = appendData( ...
+    markerData, bCOM, labelsBody, markerData.orientation);
+
 end
 
