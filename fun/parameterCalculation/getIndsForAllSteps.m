@@ -1,4 +1,4 @@
-function [indData] = getIndsForAllSteps(gaitEvents, s, f)
+function indData = getIndsForAllSteps(gaitEvents, s, f)
 % getIndsForAllSteps  Return event indices and times for all strides.
 %
 %   Syntax:
@@ -32,71 +32,81 @@ function [indData] = getIndsForAllSteps(gaitEvents, s, f)
 %
 %   See also: getIndsForThisStep, calcParameters
 
-eventList={[s 'HS'], [f 'TO'], [f 'HS'], [s 'TO']};
-N=length(eventList);
-events=gaitEvents.getDataAsVector(eventList);
-
-for i=1:N
-    eval([eventList{i} '=events(:, i);']);
 arguments
     gaitEvents (1,1)
     s          (1,1) char
     f          (1,1) char
 end
 
-eventsTime=gaitEvents.Time;
-aux=find(SHS);
-M=length(aux)-1;
-inds=NaN(M, 2*N);
-times=NaN(M, 2*N);
+%% Configure Event Types
+eventList  = {[s 'HS'], [f 'TO'], [f 'HS'], [s 'TO']};
+numEvents  = length(eventList);
+eventData  = gaitEvents.getDataAsVector(eventList);
+eventsTime = gaitEvents.Time;
 
-%Set ind and time for all SHS events
-inds(:, 1)=aux(1:M);
-times(:, 1)=eventsTime(aux(1:M));
+%% Initialize Index and Time Arrays
+shsInds    = find(eventData(:, 1));
+numStrides = length(shsInds) - 1;
+eventInds  = NaN(numStrides, 2 * numEvents);
+eventTimes = NaN(numStrides, 2 * numEvents);
 
-%Set other events for all steps except last
-for step=1:M-1;
-    for i=2:N
-        eval(['inds(step, i)=find((eventsTime>times(step, i-1))&' eventList{i} ', 1);']);
-        times(step, i)=eventsTime(inds(step, i));
+% Set index and time for the SHS column (first event of each stride)
+eventInds(:, 1)  = shsInds(1:numStrides);
+eventTimes(:, 1) = eventsTime(shsInds(1:numStrides));
+
+%% Fill Events for All Steps Except Last
+for iStep = 1:numStrides - 1
+    for ii = 2:numEvents
+        eventInds(iStep, ii)  = find( ...
+            (eventsTime > eventTimes(iStep, ii - 1)) & ...
+            eventData(:, ii), 1);
+        eventTimes(iStep, ii) = eventsTime(eventInds(iStep, ii));
     end
-    inds(step, N+1)=inds(step+1, 1);
-    times(step, N+1)=eventsTime(inds(step, N+1));
-    for i=N+2:2*N
-        eval(['inds(step, i)=find((eventsTime>times(step, i-1))&' eventList{i} ', 1);']);
-        times(step, i)=eventsTime(inds(step, i));
-    end
-end
-
-%Set for last step:
-step=M;
-for i=2:N
-    eval(['inds(step, i)=find((eventsTime>times(step, i-1))&' eventList{i} ', 1);']);
-    times(step, i)=eventsTime(inds(step, i));
-end
-inds(step, N+1)=aux(M+1);
-times(step, N+1)=eventsTime(inds(step, N+1));
-for i=N+2:2*N
-    eval(['aux=find((eventsTime>times(step, i-1))&' eventList{i} ', 1);']); %There is no assurance that these events exist, as we only now that there are M+1 SHS events, but not FTO, FHS, STO
-    if ~isempty(aux) %In case an event was actually found, if not, leave NaN in place
-        inds(step, i)=aux;
-        times(step, i)=eventsTime(inds(step, i));
+    eventInds(iStep, numEvents + 1)  = eventInds(iStep + 1, 1);
+    eventTimes(iStep, numEvents + 1) = ...
+        eventsTime(eventInds(iStep, numEvents + 1));
+    for ii = numEvents + 2 : 2 * numEvents
+        eventInds(iStep, ii)  = find( ...
+            (eventsTime > eventTimes(iStep, ii - 1)) & ...
+            eventData(:, ii - numEvents), 1);
+        eventTimes(iStep, ii) = eventsTime(eventInds(iStep, ii));
     end
 end
 
-
-%Set labels for events
-labels=cell(4*N, 1);
-labels(1:N)=eventList;
-for i=1:N
-    labels(i)=['inds' eventList{i}];
-    labels(N+i)=['inds' eventList{i} '2'];
-    labels(2*N+i)=['times' eventList{i}];
-    labels(3*N+i)=['times' eventList{i} '2'];
+%% Fill Events for Last Step
+iStep = numStrides;
+for ii = 2:numEvents
+    eventInds(iStep, ii)  = find( ...
+        (eventsTime > eventTimes(iStep, ii - 1)) & ...
+        eventData(:, ii), 1);
+    eventTimes(iStep, ii) = eventsTime(eventInds(iStep, ii));
+end
+eventInds(iStep, numEvents + 1)  = shsInds(numStrides + 1);
+eventTimes(iStep, numEvents + 1) = ...
+    eventsTime(eventInds(iStep, numEvents + 1));
+% NOTE: trailing second-stride events (FTO2, FHS2, STO2) may not
+% exist for the last step — only M+1 SHS events are guaranteed
+for ii = numEvents + 2 : 2 * numEvents
+    foundIdx = find( ...
+        (eventsTime > eventTimes(iStep, ii - 1)) & ...
+        eventData(:, ii - numEvents), 1);
+    if ~isempty(foundIdx)  % leave NaN in place if event not found
+        eventInds(iStep, ii)  = foundIdx;
+        eventTimes(iStep, ii) = eventsTime(eventInds(iStep, ii));
+    end
 end
 
-indData.Data=[inds, times];
-indData.labels=labels;
+%% Build Output Structure
+colLabels = cell(4 * numEvents, 1);
+for ii = 1:numEvents
+    colLabels(ii)                = {['inds'  eventList{ii}]};
+    colLabels(numEvents + ii)    = {['inds'  eventList{ii} '2']};
+    colLabels(2 * numEvents + ii) = {['times' eventList{ii}]};
+    colLabels(3 * numEvents + ii) = {['times' eventList{ii} '2']};
+end
+
+indData.Data   = [eventInds, eventTimes];
+indData.labels = colLabels;
 
 end
 
