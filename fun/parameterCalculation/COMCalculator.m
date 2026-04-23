@@ -140,3 +140,8 @@ end
 %
 %   Author: CJS 5/2017
 
+arguments
+    markerData (1,1)
+    BW         (1,1) double
+end
+
