@@ -1,30 +1,4 @@
-function [ ang ] = DetermineTMAngle( trialData )
-%There is assuredely a better way to do this, but for right now...
-%trial
-
-trial=trialData.description;
-if iscell(trial)
-    trial=trial{1};
-end
-if iscell(trial)
-    trial=char(trial);
-end
-
-% (~iscell(regexp(trial, 'deg')) && ~iscell(cell2mat(regexp(trial, 'deg'))))|| ~iscell(regexp(trial, '8.5')) %~isempty(cell2mat(regexp(trial, 'deg'))) || ~isempty(cell2mat(regexp(trial, '8.5')))
-failRead=false;
 if ~isempty(findstr(trial, 'deg'))%( ~iscell(cell2mat(regexp(trial, 'deg'))))|| ~iscell(cell2mat(regexp(trial, '8.5'))) %~isempty(cell2mat(regexp(trial, 'deg'))) || ~isempty(cell2mat(regexp(trial, '8.5')))
-    %     if ~isempty(findstr(trial, '8.5 deg incline')) || ~isempty(findstr(trial, '8.5 deg uphill')) %(~iscell(regexp(trial, '8.5 deg incline')) && ~isempty(cell2mat(regexp(trial, '8.5 deg incline')))) || (~iscell(regexp(trial, '8.5 deg uphill')) && ~isempty(cell2mat(regexp(trial, '8.5 deg uphill')))) %~isempty(cell2mat(regexp(trial, '8.5 deg incline'))) || ~isempty(cell2mat(regexp(trial, '8.5 deg uphill'))) %|| (~isempty(regexp(trial, '8.5 deg'))
-    %         ang=8.5;
-    %     elseif ~isempty(findstr(trial, '8.5 deg decline')) || ~isempty(findstr(trial, '8.5 decline')) || ~isempty(findstr(trial, '8.5 deg downhill')) %(~iscell(regexp(trial, '8.5 deg decline')) ) || (~iscell(regexp(trial, '8.5 deg downhill')) )|| (~iscell(regexp(trial, '8.5 decline'))) % || ||
-    %         %(~iscell(regexp(trial, '8.5 deg decline')) && ~isempty(cell2mat(regexp(trial, '8.5 deg decline')))) || (~iscell(regexp(trial, '8.5 deg downhill')) && ~isempty(cell2mat(regexp(trial, '8.5 deg downhill'))))|| (~iscell(regexp(trial, '8.5 decline')) && ~isempty(cell2mat(regexp(trial, '8.5 decline')))) % || ||
-    %         ang=-8.5;
-    %     elseif ~isempty(cell2mat(regexp(trial, '5 deg incline')))|| ~isempty(cell2mat(regexp(trial, '5 deg uphill'))) || ~isempty(cell2mat(regexp(trial, '5 deg')))
-    %         ang=5;
-    %     elseif ~isempty(cell2mat(regexp(trial, '5 deg decline')))|| ~isempty(cell2mat(regexp(trial, '5 deg downhill')))
-    %         ang=-5;
-    %     else
-    %         ang=input(['What angle (in degrees) was the study run at ', trial, ': ',trialData.type ,'?   ']);
-    %     end
     if ~isempty(findstr(trial,'decline')) || ~isempty(findstr(trial,'downhill'))
         sign=-1;
     else %Assuming incline by default
@@ -74,6 +48,7 @@ end
 
 end
 
+function ang = DetermineTMAngle(trialData)
 % DetermineTMAngle  Extract treadmill incline angle from trial description.
 %
 %   Syntax:
@@ -107,3 +82,29 @@ arguments
     trialData (1,1)
 end
 
+%% Parse Trial Description
+% NOTE: assuredly a more robust approach exists using regexp pattern
+% matching, but this is functional for current naming conventions
+trial = trialData.description;
+if iscell(trial)
+    trial = trial{1};
+end
+if iscell(trial)
+    trial = char(trial);
+end
+
+%% Determine Treadmill Angle
+% (old condition):
+% (~iscell(regexp(trial, 'deg')) && ~iscell(cell2mat(regexp(trial, 'deg'))))|| ~iscell(regexp(trial, '8.5')) %~isempty(cell2mat(regexp(trial, 'deg'))) || ~isempty(cell2mat(regexp(trial, '8.5')))
+failRead = false;
+    %     if ~isempty(strfind(trial, '8.5 deg incline')) || ~isempty(strfind(trial, '8.5 deg uphill'))
+    %         ang=8.5;
+    %     elseif ~isempty(strfind(trial, '8.5 deg decline')) || ~isempty(strfind(trial, '8.5 decline')) || ~isempty(strfind(trial, '8.5 deg downhill'))
+    %         ang=-8.5;
+    %     elseif ~isempty(cell2mat(regexp(trial, '5 deg incline')))|| ~isempty(cell2mat(regexp(trial, '5 deg uphill'))) || ~isempty(cell2mat(regexp(trial, '5 deg')))
+    %         ang=5;
+    %     elseif ~isempty(cell2mat(regexp(trial, '5 deg decline')))|| ~isempty(cell2mat(regexp(trial, '5 deg downhill')))
+    %         ang=-5;
+    %     else
+    %         ang=input(['What angle (in degrees) was the study run at ', trial, ': ',trialData.type ,'?   ']);
+    %     end
