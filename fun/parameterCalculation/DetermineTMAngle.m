@@ -1,53 +1,3 @@
-if ~isempty(findstr(trial, 'deg'))%( ~iscell(cell2mat(regexp(trial, 'deg'))))|| ~iscell(cell2mat(regexp(trial, '8.5'))) %~isempty(cell2mat(regexp(trial, 'deg'))) || ~isempty(cell2mat(regexp(trial, '8.5')))
-    if ~isempty(findstr(trial,'decline')) || ~isempty(findstr(trial,'downhill'))
-        sign=-1;
-    else %Assuming incline by default
-        sign=1;
-    end
-    i=regexp(trial,'deg');
-    if iscell(i)
-        i=i{1};
-    end
-    string=trial(max([i,7])-6:i);
-    digits=regexp(string,'\d'); %Assuming the number of degrees does not precede the string 'deg' by more than 5 chars
-    if ~isempty(digits)
-        number=str2double(string(digits)); %This discards any decimal points that may appear
-        firstDigit=digits(1);
-        lastDigit=digits(end);
-        if firstDigit~=lastDigit
-            dots=regexp(string,'\.');
-
-            %Should check that digits are consecutive indexes, except for a single
-            %dot in the middle:
-            aux=sort([digits dots], 'ascend');
-            if any((aux-firstDigit-[0:length(aux)-1])~=0)
-                failRead=true;
-            end
-
-            if ~isempty(dots)
-                dots=dots(1);
-                decimalPosition=lastDigit-dots(1);
-                number=number/10^decimalPosition;
-            end
-        end
-
-        if firstDigit>1 && string(firstDigit-1)=='-' %Using a minus sign to flip value
-            sign=-1;
-        end
-        ang=number*sign;
-    else %Didn't find digits
-        failRead=true;
-    end
-    if failRead
-        ang=input(['What angle (in degrees) was the study run at (' , trial, '): ',trialData.type ,'?   ']);
-    end
-
-else
-    ang=0;
-end
-
-end
-
 function ang = DetermineTMAngle(trialData)
 % DetermineTMAngle  Extract treadmill incline angle from trial description.
 %
@@ -97,6 +47,7 @@ end
 % (old condition):
 % (~iscell(regexp(trial, 'deg')) && ~iscell(cell2mat(regexp(trial, 'deg'))))|| ~iscell(regexp(trial, '8.5')) %~isempty(cell2mat(regexp(trial, 'deg'))) || ~isempty(cell2mat(regexp(trial, '8.5')))
 failRead = false;
+if ~isempty(strfind(trial, 'deg'))
     %     if ~isempty(strfind(trial, '8.5 deg incline')) || ~isempty(strfind(trial, '8.5 deg uphill'))
     %         ang=8.5;
     %     elseif ~isempty(strfind(trial, '8.5 deg decline')) || ~isempty(strfind(trial, '8.5 decline')) || ~isempty(strfind(trial, '8.5 deg downhill'))
@@ -108,3 +59,52 @@ failRead = false;
     %     else
     %         ang=input(['What angle (in degrees) was the study run at ', trial, ': ',trialData.type ,'?   ']);
     %     end
+    if ~isempty(strfind(trial, 'decline')) || ...
+            ~isempty(strfind(trial, 'downhill'))
+        angleSign = -1;
+    else  % assume incline by default
+        angleSign = 1;
+    end
+    degIdx = strfind(trial, 'deg');
+    degIdx = degIdx(1);  % use first occurrence if multiple
+    % Extract substring ending at 'deg'; start up to 6 chars before
+    degSubstr = trial(max([degIdx, 7]) - 6 : degIdx);
+    % NOTE: assumes angle digits precede 'deg' by at most 5 characters
+    digitInds = regexp(degSubstr, '\d');
+    if ~isempty(digitInds)
+        numVal        = str2double(degSubstr(digitInds));  % discards decimal points
+        firstDigitPos = digitInds(1);
+        lastDigitPos  = digitInds(end);
+        if firstDigitPos ~= lastDigitPos
+            dotInds = regexp(degSubstr, '\.');
+            % Check that digit and dot positions form a consecutive
+            % sequence with no gaps, as expected for a numeric literal
+            sortedInds = sort([digitInds dotInds], 'ascend');
+            if any((sortedInds - firstDigitPos - ...
+                    (0:length(sortedInds) - 1)) ~= 0)
+                failRead = true;
+            end
+            if ~isempty(dotInds)
+                dotInds    = dotInds(1);
+                decimalPos = lastDigitPos - dotInds;
+                numVal     = numVal / 10^decimalPos;
+            end
+        end
+        if firstDigitPos > 1 && degSubstr(firstDigitPos - 1) == '-'
+            angleSign = -1;  % minus sign in description overrides keyword
+        end
+        ang = numVal * angleSign;
+    else  % no digits found before 'deg'
+        failRead = true;
+    end
+    if failRead
+        prompt = ['What angle (in degrees) was the study run at (' ...
+            trial '): ' trialData.type '?   '];
+        ang = input(prompt);
+    end
+else
+    ang = 0;
+end
+
+end
+
