@@ -1,15 +1,41 @@
 function out = computeHreflexParameters(strideEvents, HreflexData, ...
     EMGData, slowLeg)
-%This function computes summary H-reflex parameters per stride
-%   This function outputs a 'parameterSeries' object, which can be
-% concatenated with other 'parameterSeries' objects, for example, with
-% those from 'computeTemporalParameters'. While this function is used for
-% H-reflex parameters exclusively, it should work for any 'labTS' object.
-% This function computes summary parameters per stride across three
-% different muscles: SOL, MG, and LG.
+% Compute stride-by-stride H-reflex parameters across SOL, MG, and LG
 %
-% See also computeSpatialParameters, computeTemporalParameters,
-% computeForceParameters, parameterSeries
+% Syntax
+%   out = computeHreflexParameters(strideEvents, HreflexData, ...
+%       EMGData, slowLeg)
+%
+% Description
+%   Computes per-stride H-reflex parameters for three muscles (SOL, MG,
+%   LG) on both legs. Stimulation artifact indices are localized from
+%   tibialis anterior EMG synchronized to trigger signals, then peak-to-
+%   peak amplitudes (H-wave, M-wave, noise) and RMS values are extracted
+%   per stride for each muscle. Background EMG RMS is computed for both
+%   stimulated strides (pre-artifact window) and non-stimulated strides
+%   (mid single-stance). Output is a parameterSeries that can be
+%   concatenated with other parameter series from the same trial.
+%
+% Inputs
+%   strideEvents - struct of stride event times with fields tSHS, tFTO,
+%                  tFHS, tSTO, tSHS2, tFTO2, tFHS2, tSTO2
+%   HreflexData  - labTimeSeries containing stimulator trigger channels
+%   EMGData      - labTimeSeries containing EMG channels (RSOL, LSOL,
+%                  RMG, LMG, RLG, LLG, RTAP, LTAP required)
+%   slowLeg      - slow-leg identifier, 'R' or 'L' (char)
+%
+% Outputs
+%   out - parameterSeries of H-reflex parameters per stride (68
+%         parameters: timing, amplitude, RMS, and background EMG for
+%         each combination of leg, muscle, and measure)
+%
+% Toolbox Dependencies
+%   None
+%
+% See Also
+%   computeSpatialParameters, computeTemporalParameters,
+%   computeForceParameters, Hreflex, parameterSeries
+
 
 % TODO: accept GRF data as input argument (if necessary) to leave as NaN
 % strides for which stim occurs during double rather than single stance
@@ -222,8 +248,8 @@ indsStimStrideSlow = arrayfun(@(x) ...
 indsStimStrideFast = arrayfun(@(x) ...
     find((x - timeFHS) > 0, 1, 'last'), timeStimFast);
 
-%% Check for duplicate stide numbers that share a stim index
-%%(has happened when stimulation occurred on first step from rest)
+%% Remove Duplicate Stride Indices Sharing One Stim Artifact
+% (has happened when stimulation occurred on first step from rest)
 % Find unique values and their first occurrence indices
 [indsStimStrideFast, firstIdxfast] = unique(indsStimStrideFast, 'stable');
 [indsStimStrideSlow, firstIdxslow] = unique(indsStimStrideSlow, 'stable');
@@ -249,7 +275,7 @@ else                % otherwise, right leg is fast, ...
     indsStimArtValid{1}(duplicateMaskfast) = [];
     indsStimArtValid{2}(duplicateMaskslow) = [];
 end
-%%
+%% Create Logical Arrays for Stimulated Strides
 % create logical arrays for indexing for (valid) strides with stimulation
 isStimStrideSlow = false(size(timeSHS));
 isStimStrideFast = false(size(timeFHS));
