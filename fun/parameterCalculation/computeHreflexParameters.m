@@ -36,6 +36,12 @@ function out = computeHreflexParameters(strideEvents, HreflexData, ...
 %   computeSpatialParameters, computeTemporalParameters,
 %   computeForceParameters, Hreflex, parameterSeries
 
+arguments
+    strideEvents (1,1) struct
+    HreflexData
+    EMGData
+    slowLeg      (1,:) char
+end
 
 % TODO: accept GRF data as input argument (if necessary) to leave as NaN
 % strides for which stim occurs during double rather than single stance
