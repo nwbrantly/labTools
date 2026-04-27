@@ -1,6 +1,45 @@
 function out = computeForceParameters_OGFP(strideEvents, GRFData, slowleg, fastleg, BW, trialData, markerData)
-% CJS 2017: Here I am including the code that I have been using for the incline decline analysis.
-% This code is a bit eccentric in the way that identifies the inclination for the TM.
+% Compute stride-by-stride AP GRF parameters from overground force plates
+%
+% Syntax
+%   out = computeForceParameters_OGFP(strideEvents, GRFData, slowleg, ...
+%       fastleg, BW, trialData, markerData)
+%
+% Description
+%   Computes anterior-posterior (AP) ground reaction force parameters for
+%   trials recorded with overground force plates (OG/NIM). Forces are
+%   low-pass filtered at 20 Hz and AP offsets are estimated and removed
+%   per leg. For each stride, the function identifies which force plate
+%   contains a valid full-stance waveform (double-peaked vertical force
+%   exceeding a body-weight threshold) and extracts average braking and
+%   propulsion from that plate. The same parameters are also computed
+%   summed across all force plates and per-plate individually.
+%   Handrail use is flagged per stride via the HFy/HFz channels.
+%
+% Inputs
+%   strideEvents - struct of stride event times with fields tSHS, tFTO,
+%                  tFHS, tSTO, tSHS2, tFTO2, tFHS2, tSTO2
+%   GRFData      - labTimeSeries of ground reaction forces
+%   slowleg      - slow-leg identifier, 'L' or 'R' (char)
+%   fastleg      - fast-leg identifier, 'R' or 'L' (char)
+%   BW           - participant body weight (kg)
+%   trialData    - processedTrialData object supplying metaData
+%   markerData   - labTimeSeries of marker data (used for optional COM
+%                  computation; pass empty if unavailable)
+%
+% Outputs
+%   out - parameterSeries of AP GRF parameters per stride, including
+%         braking/propulsion averages and peaks for the best single
+%         force plate, summed across plates, and per-plate, plus
+%         vertical and ML force means, and handrail use flag
+%
+% Toolbox Dependencies
+%   None
+%
+% See Also
+%   computeForceParameters, ComputeLegForceParameters,
+%   DetermineTMAngle, parameterSeries
+
 
 %~~~~~~~ Here is where I am putting real stuffs ~~~~~~~~
 trial = trialData.metaData.description;

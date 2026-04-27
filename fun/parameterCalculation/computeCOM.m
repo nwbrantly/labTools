@@ -1,6 +1,4 @@
 function out = computeCOM(strideEvents, markerData, BW, slowleg, fastleg, impactS, expData, gaitEvents, flipIT)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
 timeSHS = strideEvents.tSHS;
 timeFTO = strideEvents.tFTO;
 timeFHS = strideEvents.tFHS;
