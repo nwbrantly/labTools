@@ -1,4 +1,5 @@
-function out = computeForceParameters_OGFP(strideEvents, GRFData, slowleg, fastleg, BW, trialData, markerData)
+function out = computeForceParameters_OGFP(strideEvents, GRFData, ...
+    slowleg, fastleg, BW, trialData, markerData)
 % Compute stride-by-stride AP GRF parameters from overground force plates
 %
 % Syntax
@@ -50,7 +51,7 @@ arguments
     markerData
 end
 
-%~~~~~~~ Here is where I am putting real stuffs ~~~~~~~~
+%% Initialize Trial Metadata
 trial = trialData.metaData.description;
 %If I want all the forces to be unitless then set this to 9.81*BW, else set it
 %to 1*BW
@@ -84,12 +85,12 @@ FilteredF = Filtered;
 FilteredS = Filtered;
 
 
-%~~~~~~~~~~~~~~~~ REMOVE ANY OFFSETS IN THE DATA~~~~~~~~~~~~~~~~~~~~~~~~~~~
-%New 8/5/2016 CJS: It came to my attenion that one of the decline subjects
-%(LD30) one of the force plates was not properly zeroed.  Here I am
-%manually shifting the forces.  I am assuming that the vertical forces have
-%been properly been shifted during the c3d2mat process, otherwise the
-%events are wrong and these lines of code will not save you. rats
+%% Remove AP Force Offsets
+% New 8/5/2016 CJS: It came to my attenion that one of the decline subjects
+% (LD30) one of the force plates was not properly zeroed.  Here I am
+% manually shifting the forces.  I am assuming that the vertical forces have
+% been properly been shifted during the c3d2mat process, otherwise the
+% events are wrong and these lines of code will not save you. rats
 
 %figure; plot(Filtered.getDataAsTS([s 'Fy']).Data, 'b'); hold on; plot(Filtered.getDataAsTS([f 'Fy']).Data, 'r');
 fFy = Filtered.getDataAsTS([fastleg 'Fy']);
@@ -128,41 +129,41 @@ OGFPy_names = {'FP4Fy', 'FP5Fy', 'FP6Fy', 'FP7Fy'};
 OGFPz_names = {'FP4Fz', 'FP5Fz', 'FP6Fz', 'FP7Fz'};
 
 
-for j = 1:length(Ally)
-    if Filtered.isaLabel(Ally{j})
-        OGFP.(Ally{j}) = Filtered.getDataAsTS(Ally{j});
-        FastLegOffSetData_OGFP.(Ally{j}) = nan(length(strideEvents.tSHS)-1, 1);
-        SlowLegOffSetData_OGFP.(Ally{j}) = nan(length(strideEvents.tSHS)-1, 1);
+for iFP = 1:length(Ally)
+    if Filtered.isaLabel(Ally{iFP})
+        OGFP.(Ally{iFP}) = Filtered.getDataAsTS(Ally{iFP});
+        FastLegOffSetData_OGFP.(Ally{iFP}) = nan(length(strideEvents.tSHS)-1, 1);
+        SlowLegOffSetData_OGFP.(Ally{iFP}) = nan(length(strideEvents.tSHS)-1, 1);
     else
-        OGFP.(Ally{j}) = [];
-        FastLegOffSetData_OGFP.(Ally{j}) = nan(length(strideEvents.tSHS)-1, 1);
-        SlowLegOffSetData_OGFP.(Ally{j}) = nan(length(strideEvents.tSHS)-1, 1);
+        OGFP.(Ally{iFP}) = [];
+        FastLegOffSetData_OGFP.(Ally{iFP}) = nan(length(strideEvents.tSHS)-1, 1);
+        SlowLegOffSetData_OGFP.(Ally{iFP}) = nan(length(strideEvents.tSHS)-1, 1);
     end
 end
 
-for i = 1:length(strideEvents.tSHS)-1
-    SHS = strideEvents.tSHS(i);
-    FTO = strideEvents.tFTO(i);
-    FHS = strideEvents.tFHS(i);
-    STO = strideEvents.tSTO(i);
-    FTO2 = strideEvents.tFTO2(i);
-    SHS2 = strideEvents.tSHS2(i);
+for iSt = 1:length(strideEvents.tSHS)-1
+    SHS = strideEvents.tSHS(iSt);
+    FTO = strideEvents.tFTO(iSt);
+    FHS = strideEvents.tFHS(iSt);
+    STO = strideEvents.tSTO(iSt);
+    FTO2 = strideEvents.tFTO2(iSt);
+    SHS2 = strideEvents.tSHS2(iSt);
 
     if isnan(FTO) || isnan(FHS) || FTO>FHS
         %nop
     else
-        FastLegOffSetData(i) = nanmedian(fFy.split(FTO, FHS).Data);
+        FastLegOffSetData(iSt) = nanmedian(fFy.split(FTO, FHS).Data);
     end
     if isnan(STO) || isnan(SHS2)
         %nop
     else
-        SlowLegOffSetData(i) = nanmedian(sFy.split(STO, SHS2).Data);
+        SlowLegOffSetData(iSt) = nanmedian(sFy.split(STO, SHS2).Data);
     end
 
-    for j = 1:length(Ally)
-        if Filtered.isaLabel(Ally{j})
-            FastLegOffSetData_OGFP.(Ally{j})(i) = nanmedian(OGFP.(Ally{j}).split(FTO, FHS).Data);
-            SlowLegOffSetData_OGFP.(Ally{j})(i) = nanmedian(OGFP.(Ally{j}).split(STO, SHS2).Data);
+    for iFP = 1:length(Ally)
+        if Filtered.isaLabel(Ally{iFP})
+            FastLegOffSetData_OGFP.(Ally{iFP})(iSt) = nanmedian(OGFP.(Ally{iFP}).split(FTO, FHS).Data);
+            SlowLegOffSetData_OGFP.(Ally{iFP})(iSt) = nanmedian(OGFP.(Ally{iFP}).split(STO, SHS2).Data);
         end
     end
 end
@@ -174,22 +175,22 @@ Filtered.Data(:, find(strcmp(Filtered.getLabels, [fastleg 'Fy']))) = Filtered.ge
 Filtered.Data(:, find(strcmp(Filtered.getLabels, [slowleg 'Fy']))) = Filtered.getDataAsVector([slowleg 'Fy']) - SlowLegOffSet;
 
 
-for j = 1:length(Ally)
+for iFP = 1:length(Ally)
 
-    FastLegOffSet_OGFP.(Ally{j}) = round(nanmedian(FastLegOffSetData_OGFP.(Ally{j})), 3);
-    FilteredF.Data(:, find(strcmp(FilteredF.getLabels, Ally{j}))) = FilteredF.getDataAsVector(Ally{j}) - FastLegOffSet_OGFP.(Ally{j});
+    FastLegOffSet_OGFP.(Ally{iFP}) = round(nanmedian(FastLegOffSetData_OGFP.(Ally{iFP})), 3);
+    FilteredF.Data(:, find(strcmp(FilteredF.getLabels, Ally{iFP}))) = FilteredF.getDataAsVector(Ally{iFP}) - FastLegOffSet_OGFP.(Ally{iFP});
 
-    SlowLegOffSet_OGFP.(Ally{j}) = round(nanmedian(SlowLegOffSetData_OGFP.(Ally{j})), 3);
-    FilteredS.Data(:, find(strcmp(FilteredS.getLabels, Ally{j}))) = FilteredS.getDataAsVector(Ally{j}) - SlowLegOffSet_OGFP.(Ally{j});
+    SlowLegOffSet_OGFP.(Ally{iFP}) = round(nanmedian(SlowLegOffSetData_OGFP.(Ally{iFP})), 3);
+    FilteredS.Data(:, find(strcmp(FilteredS.getLabels, Ally{iFP}))) = FilteredS.getDataAsVector(Ally{iFP}) - SlowLegOffSet_OGFP.(Ally{iFP});
 
 end
 
 
 %figure; plot(Filtered.getDataAsTS([slowleg 'Fy']).Data, 'b'); hold on; plot(Filtered.getDataAsTS([fastleg 'Fy']).Data, 'r');line([0 5*10^5], [0, 0])
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+%% Pre-Allocate Output Arrays
 LevelofInterest = 0.5.*flipIT.*cosd(90-abs(ang)); %The actual angle of the incline
 
-% pre-defining variables
 lenny = length(strideEvents.tSHS)-1;
 impactS_all = NaN(1, lenny); impactF_all = NaN(1, lenny);
 SB_all = NaN(1, lenny); SP_all = NaN(1, lenny); SZ_all = NaN(1, lenny); SX_all = NaN(1, lenny);
@@ -199,20 +200,21 @@ SBmax_all = NaN(1, lenny); SPmax_all = NaN(1, lenny); SZmax_all = NaN(1, lenny);
 impactSmax_all = NaN(1, lenny); impactFmax_all = NaN(1, lenny);
 FBmax_all = NaN(1, lenny); FPmax_all = NaN(1, lenny); FZmax_all = NaN(1, lenny); FXmax_all = NaN(1, lenny);
 
-for j = 1:length(Ally)
-    impactS_OGFP.(Ally{j}) = NaN(1, lenny); impactF_OGFP.(Ally{j}) = NaN(1, lenny);
-    SB_OGFP.(Ally{j}) = NaN(1, lenny); SP_OGFP.(Ally{j}) = NaN(1, lenny); SZ_OGFP.(Ally{j}) = NaN(1, lenny); SX_OGFP.(Ally{j}) = NaN(1, lenny);
-    FB_OGFP.(Ally{j}) = NaN(1, lenny); FP_OGFP.(Ally{j}) = NaN(1, lenny); FZ_OGFP.(Ally{j}) = NaN(1, lenny); FX_OGFP.(Ally{j}) = NaN(1, lenny);
-    SBmax_OGFP.(Ally{j}) = NaN(1, lenny); SPmax_OGFP.(Ally{j}) = NaN(1, lenny); SZmax_OGFP.(Ally{j}) = NaN(1, lenny); SXmax_OGFP.(Ally{j}) = NaN(1, lenny);
-    impactSmax_OGFP.(Ally{j}) = NaN(1, lenny); impactFmax_OGFP.(Ally{j}) = NaN(1, lenny);
-    FBmax_OGFP.(Ally{j}) = NaN(1, lenny); FPmax_OGFP.(Ally{j}) = NaN(1, lenny); FZmax_OGFP.(Ally{j}) = NaN(1, lenny); FXmax_OGFP.(Ally{j}) = NaN(1, lenny);
+for iFP = 1:length(Ally)
+    impactS_OGFP.(Ally{iFP}) = NaN(1, lenny); impactF_OGFP.(Ally{iFP}) = NaN(1, lenny);
+    SB_OGFP.(Ally{iFP}) = NaN(1, lenny); SP_OGFP.(Ally{iFP}) = NaN(1, lenny); SZ_OGFP.(Ally{iFP}) = NaN(1, lenny); SX_OGFP.(Ally{iFP}) = NaN(1, lenny);
+    FB_OGFP.(Ally{iFP}) = NaN(1, lenny); FP_OGFP.(Ally{iFP}) = NaN(1, lenny); FZ_OGFP.(Ally{iFP}) = NaN(1, lenny); FX_OGFP.(Ally{iFP}) = NaN(1, lenny);
+    SBmax_OGFP.(Ally{iFP}) = NaN(1, lenny); SPmax_OGFP.(Ally{iFP}) = NaN(1, lenny); SZmax_OGFP.(Ally{iFP}) = NaN(1, lenny); SXmax_OGFP.(Ally{iFP}) = NaN(1, lenny);
+    impactSmax_OGFP.(Ally{iFP}) = NaN(1, lenny); impactFmax_OGFP.(Ally{iFP}) = NaN(1, lenny);
+    FBmax_OGFP.(Ally{iFP}) = NaN(1, lenny); FPmax_OGFP.(Ally{iFP}) = NaN(1, lenny); FZmax_OGFP.(Ally{iFP}) = NaN(1, lenny); FXmax_OGFP.(Ally{iFP}) = NaN(1, lenny);
 end
 
+%% Compute Per-Stride Force Parameters
 i_slow = 0; i_fast = 0;
 SlowCount_force = 0; SlowCount_no_force = 0;
 FastCount_force = 0; FastCount_no_force = 0;
 
-for i = 1:length(strideEvents.tSHS)-1
+for iSt = 1:length(strideEvents.tSHS)-1
     % get the filtered data for the slow and fast stance phases
     filteredSlowStance = FilteredS.split(SHS, STO);
     filteredFastStance = FilteredF.split(FHS, FTO2);
@@ -222,7 +224,7 @@ for i = 1:length(strideEvents.tSHS)-1
     filteredFastSingleStance = FilteredF.split(STO, SHS2);
 
     % Getting the events
-    SHS = strideEvents.tSHS(i); FTO = strideEvents.tFTO(i); FHS = strideEvents.tFHS(i); STO = strideEvents.tSTO(i); SHS2 = strideEvents.tSHS2(i); FTO2 = strideEvents.tFTO2(i);
+    SHS = strideEvents.tSHS(iSt); FTO = strideEvents.tFTO(iSt); FHS = strideEvents.tFHS(iSt); STO = strideEvents.tSTO(iSt); SHS2 = strideEvents.tSHS2(iSt); FTO2 = strideEvents.tFTO2(iSt);
 
     if isnan(SHS) || isnan(STO) % make sure the slow events are not empty
         striderSy_all = []; striderSz_all = [];
@@ -234,12 +236,12 @@ for i = 1:length(strideEvents.tSHS)-1
             striderSy_OGFP_SS.(Allz{j}) = [];
         end
         striderSy_OGFP_sum = []; striderSz_OGFP_sum = [];
-        exist_SlowF(i) = 0;
+        exist_SlowF(iSt) = 0;
 
     else %FILTERING
         striderSy_OGFP_sum = 0; striderSz_OGFP_sum = 0;
 
-        for j = 1:length(Ally)
+        for iFP = 1:length(Ally)
             % getting each force-plate value during stance
             striderSy_OGFP.(Ally{j}) = flipIT.*filteredSlowStance.getDataAsVector(Ally{j})/Normalizer;
             striderSz_OGFP.(Allz{j}) = flipIT.*filteredSlowStance.getDataAsVector(Allz{j})/Normalizer;
