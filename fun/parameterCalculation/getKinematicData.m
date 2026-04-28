@@ -1,30 +1,3 @@
-% adjust stride data to ensure consistent slope during stance phase
-aux = sign(diff(sAnk(:, [3 5], 2), 1, 2));  % checks for: sAnk(indSHS2,2) < sAnk(indFHS,2) (doesn't use HIP to avoid HIP fluctuation issues)
-sAnkFwd = bsxfun(@times, sAnkFwd, aux);
-fAnkFwd = bsxfun(@times, fAnkFwd, aux);
-sAnk2D = bsxfun(@times, sAnk2D, aux);
-fAnk2D = bsxfun(@times, fAnk2D, aux);
-
-%Alternative definition: should be equivalent, since we reference to midHip
-%when doing the rotation. Only difference may be in sign of walking, since
-%its computed slighltly different. Should not cause issues as differences
-%may only ocurr when subject is turning around, which is a bad stride
-%anyway
-%WARNING: THIS WAS DISABLED BECAUSE IT LEADS TO CRAPPY RESULTS WHEN HIP
-%MARKERS ARE NOT RELIABLE (NOISY). NEED TO FIX. THE PROBLEM IS
-%sAnkFwd-fAnkFwd DEPENDS ON HIP POSITION WHEN IT SHOULDNT (COMPUTING
-%DIFFERENCE OF TWO MARKER POSITIONS USING SAME REFERENCE). NOT SURE WHY.
-%sAnkFwd=sAnkRel(:,:,2);
-%fAnkFwd=fAnkRel(:,:,2);
-%sAnk2D=sAnkRel(:,:,1:2);
-%fAnk2D=fAnkRel(:,:,1:2);
-
-aux = sign(sAngle(:, 1));            % checks for sAngle(indSHS) < 0
-sAngle = bsxfun(@times, sAngle, aux);
-fAngle = bsxfun(@times, fAngle, aux);
-
-end
-
 function [rotatedMarkerData, sAnkFwd, fAnkFwd, sAnk2D, fAnk2D, ...
     sAngle, fAngle, direction, hipPosSHS, ...
     sAnk_fromAvgHip, fAnk_fromAvgHip] = ...
@@ -263,4 +236,33 @@ fAnk_fromAvgHip = fAnk(:, :, 2) - hipPosAvg_forFast;
 % stance phase is assumed)
 %WHAT IS THIS FOR? WHAT PROBLEMS DOES IT SOLVE THAT THE PREVIOUS ROTATION
 %DOESN'T?
+
+% adjust stride data to ensure consistent slope during stance phase
+% checks for: sAnk(indSHS2,2) < sAnk(indFHS,2)
+% (doesn't use HIP to avoid HIP fluctuation issues)
+aux = sign(diff(sAnk(:, [3 5], 2), 1, 2));
+sAnkFwd = bsxfun(@times, sAnkFwd, aux);
+fAnkFwd = bsxfun(@times, fAnkFwd, aux);
+sAnk2D  = bsxfun(@times, sAnk2D, aux);
+fAnk2D  = bsxfun(@times, fAnk2D, aux);
+
+%Alternative definition: should be equivalent, since we reference to midHip
+%when doing the rotation. Only difference may be in sign of walking, since
+%its computed slighltly different. Should not cause issues as differences
+%may only ocurr when subject is turning around, which is a bad stride
+%anyway
+%WARNING: THIS WAS DISABLED BECAUSE IT LEADS TO CRAPPY RESULTS WHEN HIP
+%MARKERS ARE NOT RELIABLE (NOISY). NEED TO FIX. THE PROBLEM IS
+%sAnkFwd-fAnkFwd DEPENDS ON HIP POSITION WHEN IT SHOULDNT (COMPUTING
+%DIFFERENCE OF TWO MARKER POSITIONS USING SAME REFERENCE). NOT SURE WHY.
+%sAnkFwd=sAnkRel(:,:,2);
+%fAnkFwd=fAnkRel(:,:,2);
+%sAnk2D=sAnkRel(:,:,1:2);
+%fAnk2D=fAnkRel(:,:,1:2);
+
+aux    = sign(sAngle(:, 1));            % checks for sAngle(indSHS) < 0
+sAngle = bsxfun(@times, sAngle, aux);
+fAngle = bsxfun(@times, fAngle, aux);
+
+end
 
