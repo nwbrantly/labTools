@@ -235,3 +235,10 @@ end
 % See Also
 %   getKinematicDataAbs, computeSpatialParameters
 
+arguments
+    eventTimes  (:,:) double
+    markerData
+    angleData
+    s           (1,:) char
+end
+
