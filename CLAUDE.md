@@ -299,18 +299,55 @@ be replaced with `strfind`.
   unrelated statements separated by blank lines.
 
 ## Documentation Comments
-Every function and class must include a standard MATLAB documentation
-block with the following sections as appropriate:
-- Brief one-line description
-- Syntax
-- Description (detailed)
-- Inputs
-- Outputs
-- Toolbox Dependencies (list any required MATLAB toolboxes, e.g.,
-  Signal Processing, Statistics and Machine Learning, etc.; state
-  "None" if only core MATLAB is required)
-- See Also
-- Author / revision history (if consistent with existing files)
+Every function must include a standard MATLAB documentation block
+immediately following the function definition line.
+
+**H1 line** — the first comment line, on the line immediately after
+`function`. No space between `%` and the function name; the name is
+in ALL CAPS, followed by a brief one-line description. This is the
+only place in a comment block where there is no space after `%`:
+```matlab
+%MYFUNCTION Compute stride-by-stride parameters from GRF data.
+```
+
+**Description** — follows the H1 line with exactly one blank comment
+line (`%`) between them. No section header. Use paragraph
+indentation: the first line of each paragraph is indented three
+spaces after `%`; all continuation lines in the same paragraph use
+one space after `%`:
+```matlab
+%
+%   First sentence of description, indented.
+% Continuation lines use one space after %.
+%
+%   A second paragraph, again indented on its first line.
+% Continuation lines use one space here too.
+```
+
+**Inputs / Outputs** — labeled section headers (`% Inputs:`,
+`% Outputs:`), with each argument indented three spaces:
+```matlab
+% Inputs:
+%   argName - description of the argument
+%
+% Outputs:
+%   out - description of the output
+```
+
+**Examples** (optional) — include after Outputs when it would
+clarify how the function is used within the labTools pipeline.
+
+**Toolbox Dependencies** — list any required MATLAB toolboxes;
+state `None` if only core MATLAB is required.
+
+**See Also** — function names must be ALL CAPS so that MATLAB
+renders them as clickable hyperlinks in the Command Window:
+```matlab
+% See also RELATEDFUNCTION, ANOTHERFUNCTION.
+```
+
+Do not include a `Syntax` section — it redundantly restates the
+function definition and adds no information.
 
 ## Code Organization
 - Use `%%` section headers to divide every script and function into
