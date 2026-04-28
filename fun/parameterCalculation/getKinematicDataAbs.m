@@ -1,32 +1,3 @@
-% TODO: would it be best to simply leave the zeros since unclear?
-% handle invalid direction values (where only one valid y-value exists)
-indsDirZeros = find(direction == 0);
-numZeros = length(indsDirZeros);
-for inv = 1:numZeros                    % for each invalid measure, ...
-    if indsDirZeros(inv) == 1           % if first stride is invalid, ...
-        direction(1) = direction(2);    % set to be same as stride 2
-    else                                % otherwise, ...
-        % set invalid direction value to be previous stride direction value
-        direction(indsDirZeros(inv)) = direction(indsDirZeros(inv)-1);
-    end
-end
-
-%% Compute Ankle Positions Relative to Hip
-hipPos3D = 0.5 * (sHip + fHip);
-hipPosFwd = hipPos3D(:, :, 2);    % extract y-axis component
-hipPos3DRel = 0.5 * (sHipRel + fHipRel);    % just for check, should be all zeros
-% hipPos = mean([sHip(indSHS,2) fHip(indSHS,2)]);
-hipPosSHS = hipPosFwd(:, 1);     % hip position at SHS
-% compute average hip position over gait cycle
-hipPosAvg_forFast = mean(mean(hipPosFwd(:, 1:6), 'omitnan')); % average hip position from SHS to STO2
-hipPosAvg_forSlow = mean(mean(hipPosFwd(:, 3:8), 'omitnan')); % average hip position from SHS to STO2
-
-%rotate coordinates to be aligned wiht walking dierection
-%sRotation = calcangle(sAnk(indSHS2,1:2),sAnk(indSTO,1:2),[sAnk(indSTO,1)-100*direction sAnk(indSTO,2)])-90;
-%fRotation = calcangle(fAnk(indFHS,1:2),fAnk(indFTO,1:2),[fAnk(indFTO,1)-100*direction fAnk(indFTO,2)])-90;
-
-%avgRotation = (sRotation+fRotation)./2;
-
 %rotationMatrix = [cosd(avgRotation) -sind(avgRotation) 0; sind(avgRotation) cosd(avgRotation) 0; 0 0 1];
 %sAnk(indSHS:indFTO2,:) = (rotationMatrix*sAnk(indSHS:indFTO2,:)')';
 %fAnk(indSHS:indFTO2,:) = (rotationMatrix*fAnk(indSHS:indFTO2,:)')';
@@ -257,4 +228,34 @@ for miss = 1:numNans                    % for each missing value, ...
     direction(indsDirNans(miss)) = sign(diff(sAnk(indsDirNans(miss), ...
         [find(hasVal, 1) find(hasVal, 1, 'last')], 2), 1, 2));
 end
+
+% TODO: would it be best to simply leave the zeros since unclear?
+% handle invalid direction values (where only one valid y-value exists)
+indsDirZeros = find(direction == 0);
+numZeros     = length(indsDirZeros);
+for inv = 1:numZeros                    % for each invalid measure, ...
+    if indsDirZeros(inv) == 1           % if first stride is invalid, ...
+        direction(1) = direction(2);    % set to be same as stride 2
+    else                                % otherwise, ...
+        % set invalid direction value to be previous stride direction value
+        direction(indsDirZeros(inv)) = direction(indsDirZeros(inv)-1);
+    end
+end
+
+%% Compute Absolute Ankle Positions
+hipPos3D    = 0.5 * (sHip + fHip);
+hipPosFwd   = hipPos3D(:, :, 2);    % extract y-axis component
+% just for check, should be all zeros
+hipPos3DRel = 0.5 * (sHipRel + fHipRel);
+% hipPos = mean([sHip(indSHS,2) fHip(indSHS,2)]);
+hipPosSHS   = hipPosFwd(:, 1);      % hip position at SHS
+% compute average hip position over gait cycle (SHS to STO2)
+hipPosAvg_forFast = mean(mean(hipPosFwd(:, 1:6), 'omitnan'));
+hipPosAvg_forSlow = mean(mean(hipPosFwd(:, 3:8), 'omitnan'));
+
+%rotate coordinates to be aligned wiht walking dierection
+%sRotation = calcangle(sAnk(indSHS2,1:2),sAnk(indSTO,1:2),[sAnk(indSTO,1)-100*direction sAnk(indSTO,2)])-90;
+%fRotation = calcangle(fAnk(indFHS,1:2),fAnk(indFTO,1:2),[fAnk(indFTO,1)-100*direction fAnk(indFTO,2)])-90;
+
+%avgRotation = (sRotation+fRotation)./2;
 
