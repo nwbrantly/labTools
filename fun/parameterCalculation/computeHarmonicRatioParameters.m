@@ -155,24 +155,21 @@ end
 %% Local Functions
 
 function pelvisPos = computePelvisPosition(markerData, useMarkers)
-% computePelvisPosition  Compute pelvis centroid position from markers.
-%
-%   Syntax:
-%     pelvisPos = computePelvisPosition(markerData, useMarkers)
+%COMPUTEPELVISPOSITION Compute pelvis centroid position from markers.
 %
 %   Returns the (T x 3) mean position across available pelvis markers,
 % where columns correspond to [x, y, z] in the same units as markerData.
 %
-%   Inputs:
-%     markerData  - orientedLabTimeSeries containing pelvis marker data
-%     useMarkers  - 'GT' to use only greater trochanter markers, or
-%                   any other value to use all available pelvis markers
+% Inputs:
+%   markerData - orientedLabTimeSeries containing pelvis marker data
+%   useMarkers - 'GT' to use only greater trochanter markers, or
+%                any other value to use all available pelvis markers
 %
-%   Outputs:
-%     pelvisPos - (T x 3) array of pelvis centroid position [x, y, z]
+% Outputs:
+%   pelvisPos - (T x 3) array of pelvis centroid position [x, y, z]
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 if strcmpi(useMarkers, 'GT')
     % Use only Greater Trochanter markers (most reliable)
     gtData    = markerData.getOrientedData({'RGT', 'LGT'});
@@ -189,25 +186,22 @@ end
 
 function markerDataOut = transformCoordinateSystem( ...
     markerDataIn, coordMapping)
-% transformCoordinateSystem  Reorder marker data columns to ML/AP/VT.
+%TRANSFORMCOORDINATESYSTEM Reorder marker data columns to ML/AP/VT.
 %
-%   Syntax:
-%     markerDataOut = transformCoordinateSystem(markerDataIn, coordMapping)
+% Inputs:
+%   markerDataIn  - struct with marker fields (each [n x 3])
+%   coordMapping  - string specifying the transformation, or a
+%                   3-element numeric vector [ML_col, AP_col, VT_col]:
+%                     'XYZ_to_MLAP_VT' - x=ML, y=AP, z=VT (no change)
+%                     'XZY_to_MLAP_VT' - x=ML, z=AP, y=VT (swap y,z)
+%                     'YXZ_to_MLAP_VT' - y=ML, x=AP, z=VT (swap x,y)
+%                     'ZXY_to_MLAP_VT' - z=VT, x=ML, y=AP
 %
-%   Inputs:
-%     markerDataIn  - Struct with marker fields (each [n x 3])
-%     coordMapping  - String specifying the transformation, or a
-%                     3-element numeric vector [ML_col, AP_col, VT_col]:
-%                       'XYZ_to_MLAP_VT' - x=ML, y=AP, z=VT (no change)
-%                       'XZY_to_MLAP_VT' - x=ML, z=AP, y=VT (swap y,z)
-%                       'YXZ_to_MLAP_VT' - y=ML, x=AP, z=VT (swap x,y)
-%                       'ZXY_to_MLAP_VT' - z=VT, x=ML, y=AP
+% Outputs:
+%   markerDataOut - struct with columns reordered to [ML, AP, VT]
 %
-%   Outputs:
-%     markerDataOut - Struct with columns reordered to [ML, AP, VT]
-%
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 
 markerDataOut = struct();
 fields = fieldnames(markerDataIn);
@@ -242,41 +236,35 @@ fprintf(['Applied coordinate transformation: ' ...
 end
 
 function dataFilt = filterMarkerData(data, fs, fc)
-% filterMarkerData  Apply zero-phase low-pass Butterworth filter.
+%FILTERMARKERDATA Apply zero-phase low-pass Butterworth filter.
 %
-%   Syntax:
-%     dataFilt = filterMarkerData(data, fs, fc)
+% Inputs:
+%   data - (T x N) data array to filter
+%   fs   - sampling frequency in Hz
+%   fc   - low-pass cutoff frequency in Hz
 %
-%   Inputs:
-%     data - (T x N) data array to filter
-%     fs   - Sampling frequency in Hz
-%     fc   - Low-pass cutoff frequency in Hz
+% Outputs:
+%   dataFilt - filtered data, same size as data
 %
-%   Outputs:
-%     dataFilt - Filtered data, same size as data
-%
-%   Toolbox Dependencies:
-%     Signal Processing Toolbox (butter, filtfilt)
+% Toolbox Dependencies:
+%   Signal Processing Toolbox (butter, filtfilt)
 
 [b, a] = butter(4, fc/(fs/2), 'low');
 dataFilt = filtfilt(b, a, data);
 end
 
 function accel = computeAcceleration(pos, fs)
-% computeAcceleration  Compute acceleration via double differentiation.
+%COMPUTEACCELERATION Compute acceleration via double differentiation.
 %
-%   Syntax:
-%     accel = computeAcceleration(pos, fs)
+% Inputs:
+%   pos - (T x N) position data array
+%   fs  - sampling frequency in Hz
 %
-%   Inputs:
-%     pos - (T x N) position data array
-%     fs  - Sampling frequency in Hz
+% Outputs:
+%   accel - (T x N) acceleration array (same units as pos * fs^2)
 %
-%   Outputs:
-%     accel - (T x N) acceleration array (same units as pos * fs^2)
-%
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 
 % First derivative (velocity), then second derivative (acceleration)
 vel   = gradient(pos, 1/fs);
@@ -284,22 +272,19 @@ accel = gradient(vel, 1/fs);
 end
 
 function HR = computeHR_singleStride(signal, strideFreq, numHarmonics)
-% computeHR_singleStride  Compute harmonic ratio for one stride.
+%COMPUTEHR_SINGLESTRIDE Compute harmonic ratio for one stride.
 %
-%   Syntax:
-%     HR = computeHR_singleStride(signal, strideFreq, numHarmonics)
+% Inputs:
+%   signal       - (n x 1) acceleration signal for one stride window
+%   strideFreq   - fundamental stride frequency in Hz
+%   numHarmonics - number of harmonics to sum in the even/odd ratio
 %
-%   Inputs:
-%     signal       - (n x 1) acceleration signal for one stride window
-%     strideFreq   - Fundamental stride frequency in Hz
-%     numHarmonics - Number of harmonics to sum in the even/odd ratio
+% Outputs:
+%   HR - harmonic ratio (even-harmonic sum / odd-harmonic sum);
+%        NaN if the odd-harmonic sum is zero
 %
-%   Outputs:
-%     HR - Harmonic ratio (even-harmonic sum / odd-harmonic sum);
-%          NaN if the odd-harmonic sum is zero
-%
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 
 % Ensure signal is column vector and remove mean
 signal = signal(:) - mean(signal);
