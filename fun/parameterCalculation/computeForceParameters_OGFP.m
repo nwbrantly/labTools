@@ -587,10 +587,10 @@ for iSt = 1:length(strideEvents.tSHS)-1
             %                 saveas(gcf,['FastOverlapped_' trialData.metaData.name],'png')
             %             end
         end
-        FZ_all(i) = -1*nanmean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']))/Normalizer; %%[OGFPy_fast(1:end-1) 'z']
-        FX_all(i) = nanmean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']))/Normalizer;
-        FZmax_all(i) = -1*nanmin(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']))/Normalizer;
-        FXmax_all(i) = nanmax(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']))/Normalizer;
+        FZ_all(iSt) = -1*nanmean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']))/Normalizer; %%[OGFPy_fast(1:end-1) 'z']
+        FX_all(iSt) = nanmean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']))/Normalizer;
+        FZmax_all(iSt) = -1*nanmin(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']))/Normalizer;
+        FXmax_all(iSt) = nanmax(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']))/Normalizer;
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% computing the parameters for adding all forces toghether %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -707,15 +707,15 @@ for iSt = 1:length(strideEvents.tSHS)-1
             if nanstd(striderSy_OGFP.(Ally{iFP}))<0.01 && nanmean(striderSy_OGFP.(Ally{iFP}))<0.01 %This is to get rid of places where there is only noise and no data
 
             else
-                ns_OGFP.(Ally{j}) = find((striderSy_OGFP.(Ally{j})-LevelofInterest) < 0);%1:65
-                ps_OGFP.(Ally{j}) = find((striderSy_OGFP.(Ally{j})-LevelofInterest) > 0);
+                ns_OGFP.(Ally{iFP}) = find((striderSy_OGFP.(Ally{iFP})-LevelofInterest) < 0);%1:65
+                ps_OGFP.(Ally{iFP}) = find((striderSy_OGFP.(Ally{iFP})-LevelofInterest) > 0);
 
-                ImpactMagS_OGFP.(Ally{j}) = find((striderSy_OGFP.(Ally{j})-LevelofInterest)==nanmax(striderSy_OGFP.(Ally{j})(1:75)-LevelofInterest));%no longer percent of stride
-                if isempty(ImpactMagS_OGFP.(Ally{j})) ~= 1
-                    postImpactS_OGFP.(Ally{j}) = ns_OGFP.(Ally{j})(find(ns_OGFP.(Ally{j}) > ImpactMagS_OGFP.(Ally{j})(end), 1, 'first'));
-                    if isempty(postImpactS_OGFP.(Ally{j}))~=1
-                        ps_OGFP.(Ally{j})(find(ps_OGFP.(Ally{j}) < postImpactS_OGFP.(Ally{j}))) = [];
-                        ns_OGFP.(Ally{j})(find(ns_OGFP.(Ally{j}) < postImpactS_OGFP.(Ally{j}))) = [];
+                ImpactMagS_OGFP.(Ally{iFP}) = find((striderSy_OGFP.(Ally{iFP})-LevelofInterest)==nanmax(striderSy_OGFP.(Ally{iFP})(1:75)-LevelofInterest));%no longer percent of stride
+                if isempty(ImpactMagS_OGFP.(Ally{iFP})) ~= 1
+                    postImpactS_OGFP.(Ally{iFP}) = ns_OGFP.(Ally{iFP})(find(ns_OGFP.(Ally{iFP}) > ImpactMagS_OGFP.(Ally{iFP})(end), 1, 'first'));
+                    if isempty(postImpactS_OGFP.(Ally{iFP}))~=1
+                        ps_OGFP.(Ally{iFP})(find(ps_OGFP.(Ally{iFP}) < postImpactS_OGFP.(Ally{iFP}))) = [];
+                        ns_OGFP.(Ally{iFP})(find(ns_OGFP.(Ally{iFP}) < postImpactS_OGFP.(Ally{iFP}))) = [];
                     end
                 end
 
@@ -744,10 +744,10 @@ for iSt = 1:length(strideEvents.tSHS)-1
                     end
                 end
             end
-            SZ_OGFP.(Ally{j})(i) = -1*nanmean(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'z']))/Normalizer;
-            SX_OGFP.(Ally{j})(i) = nanmean(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'x']))/Normalizer;
-            SZmax_OGFP.(Ally{j})(i) = -1*nanmin(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'z']))/Normalizer;
-            SXmax_OGFP.(Ally{j})(i) = nanmin(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'x']))/Normalizer;
+            SZ_OGFP.(Ally{iFP})(iSt) = -1*nanmean(filteredSlowStance.getDataAsVector([Ally{iFP}(1:end-1) 'z']))/Normalizer;
+            SX_OGFP.(Ally{iFP})(iSt) = nanmean(filteredSlowStance.getDataAsVector([Ally{iFP}(1:end-1) 'x']))/Normalizer;
+            SZmax_OGFP.(Ally{iFP})(iSt) = -1*nanmin(filteredSlowStance.getDataAsVector([Ally{iFP}(1:end-1) 'z']))/Normalizer;
+            SXmax_OGFP.(Ally{iFP})(iSt) = nanmin(filteredSlowStance.getDataAsVector([Ally{iFP}(1:end-1) 'x']))/Normalizer;
         end
 
         %%Now for the fast leg...
@@ -757,14 +757,14 @@ for iSt = 1:length(strideEvents.tSHS)-1
             if nanstd(striderFy_OGFP.(Ally{iFP}))<0.01 && nanmean(striderFy_OGFP.(Ally{iFP}))<0.01 %This is to get rid of places where there is only noise and no data
 
             else
-                nf_OGFP.(Ally{j}) = find((striderFy_OGFP.(Ally{j})-LevelofInterest) < 0);%1:65
-                pf_OGFP.(Ally{j}) = find((striderFy_OGFP.(Ally{j})-LevelofInterest) > 0);
-                ImpactMagF_OGFP.(Ally{j}) = find((striderFy_OGFP.(Ally{j})-LevelofInterest)==nanmax(striderFy_OGFP.(Ally{j})(1:75)-LevelofInterest));%1:15
-                if isempty(ImpactMagF_OGFP.(Ally{j}))~=1
-                    postImpactF_OGFP.(Ally{j}) = nf_OGFP.(Ally{j})(find(nf_OGFP.(Ally{j}) > ImpactMagF_OGFP.(Ally{j})(end), 1, 'first'));
-                    if isempty(postImpactF_OGFP.(Ally{j}))~=1
-                        pf_OGFP.(Ally{j})(find(pf_OGFP.(Ally{j}) < postImpactF_OGFP.(Ally{j}))) = [];
-                        nf_OGFP.(Ally{j})(find(nf_OGFP.(Ally{j}) < postImpactF_OGFP.(Ally{j}))) = [];
+                nf_OGFP.(Ally{iFP}) = find((striderFy_OGFP.(Ally{iFP})-LevelofInterest) < 0);%1:65
+                pf_OGFP.(Ally{iFP}) = find((striderFy_OGFP.(Ally{iFP})-LevelofInterest) > 0);
+                ImpactMagF_OGFP.(Ally{iFP}) = find((striderFy_OGFP.(Ally{iFP})-LevelofInterest)==nanmax(striderFy_OGFP.(Ally{iFP})(1:75)-LevelofInterest));%1:15
+                if isempty(ImpactMagF_OGFP.(Ally{iFP}))~=1
+                    postImpactF_OGFP.(Ally{iFP}) = nf_OGFP.(Ally{iFP})(find(nf_OGFP.(Ally{iFP}) > ImpactMagF_OGFP.(Ally{iFP})(end), 1, 'first'));
+                    if isempty(postImpactF_OGFP.(Ally{iFP}))~=1
+                        pf_OGFP.(Ally{iFP})(find(pf_OGFP.(Ally{iFP}) < postImpactF_OGFP.(Ally{iFP}))) = [];
+                        nf_OGFP.(Ally{iFP})(find(nf_OGFP.(Ally{iFP}) < postImpactF_OGFP.(Ally{iFP}))) = [];
                     end
                 end
 
@@ -792,10 +792,10 @@ for iSt = 1:length(strideEvents.tSHS)-1
                     end
                 end
             end
-            FZ_OGFP.(Ally{j})(i) = -1*nanmean(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'z']))/Normalizer;
-            FX_OGFP.(Ally{j})(i) = nanmean(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'x']))/Normalizer;
-            FZmax_OGFP.(Ally{j})(i) = -1*nanmin(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'z']))/Normalizer;
-            FXmax_OGFP.(Ally{j})(i) = nanmax(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'x']))/Normalizer;
+            FZ_OGFP.(Ally{iFP})(iSt) = -1*nanmean(filteredFastStance.getDataAsVector([Ally{iFP}(1:end-1) 'z']))/Normalizer;
+            FX_OGFP.(Ally{iFP})(iSt) = nanmean(filteredFastStance.getDataAsVector([Ally{iFP}(1:end-1) 'x']))/Normalizer;
+            FZmax_OGFP.(Ally{iFP})(iSt) = -1*nanmin(filteredFastStance.getDataAsVector([Ally{iFP}(1:end-1) 'z']))/Normalizer;
+            FXmax_OGFP.(Ally{iFP})(iSt) = nanmax(filteredFastStance.getDataAsVector([Ally{iFP}(1:end-1) 'x']))/Normalizer;
         end
     end
 end
