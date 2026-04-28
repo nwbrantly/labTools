@@ -1,24 +1,3 @@
-%% Get Relevant Sample of Data (Using Interpolation)
-% 's' represents the slow limb, 'f' represents the fast limb
-if strcmp(s, 'L')
-    f = 'R';
-elseif strcmp(s, 'R')
-    f = 'L';
-else
-    error('Invalid limb specification. Must be ''L'' or ''R''.');
-end
-
-% extract marker orientation and axis information
-orientation = markerData.orientation;
-directions = {orientation.sideAxis, orientation.foreaftAxis, orientation.updownAxis};
-signs = [orientation.sideSign orientation.foreaftSign orientation.updownSign];
-
-% define markers of interest
-markers = {'HIP', 'ANK', 'TOE'};
-labels = {};
-legs = {s, f};
-legs2 = {'s', 'f'};
-
 % construct labels for markers (e.g., 'sHIP', 'fANK', etc.)
 for j = 1:length(markers)
     for leg = 1:2
@@ -248,4 +227,27 @@ refAxis = refAxis * [1 0 0]' * [1 0 0];
 % and y columns (but not z) of the output from 'translate'
 rotatedMarkerData = markerData.translate(-squeeze(refMarker3D)) ...
     .alignRotate(refAxis, [0 0 1]);
+
+%% Get Relevant Sample of Data (Using Interpolation)
+% 's' represents the slow limb, 'f' represents the fast limb
+if strcmp(s, 'L')
+    f = 'R';
+elseif strcmp(s, 'R')
+    f = 'L';
+else
+    error('Invalid limb specification. Must be ''L'' or ''R''.');
+end
+
+% extract marker orientation and axis information
+orientation = markerData.orientation;
+directions  = {orientation.sideAxis, orientation.foreaftAxis, ...
+    orientation.updownAxis};
+signs = [orientation.sideSign orientation.foreaftSign ...
+    orientation.updownSign];
+
+% define markers of interest
+markers = {'HIP', 'ANK', 'TOE'};
+labels  = {};
+legs    = {s, f};
+legs2   = {'s', 'f'};
 
