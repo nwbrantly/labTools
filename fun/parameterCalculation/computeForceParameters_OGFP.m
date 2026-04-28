@@ -40,6 +40,15 @@ function out = computeForceParameters_OGFP(strideEvents, GRFData, slowleg, fastl
 %   computeForceParameters, ComputeLegForceParameters,
 %   DetermineTMAngle, parameterSeries
 
+arguments
+    strideEvents (1,1) struct
+    GRFData
+    slowleg      (1,:) char
+    fastleg      (1,:) char
+    BW           (1,1) double
+    trialData
+    markerData
+end
 
 %~~~~~~~ Here is where I am putting real stuffs ~~~~~~~~
 trial = trialData.metaData.description;
