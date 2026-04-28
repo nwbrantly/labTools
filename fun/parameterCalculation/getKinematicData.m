@@ -1,31 +1,6 @@
 function [rotatedMarkerData, sAnkFwd, fAnkFwd, sAnk2D, fAnk2D, ...
     sAngle, fAngle, direction, hipPosSHS, sAnk_fromAvgHip, fAnk_fromAvgHip] = ...
     getKinematicData(eventTimes, markerData, angleData, s)
-%GETKINEMATICDATA extract marker data at specified gait event times
-%
-%   This function loads marker and angle data at predefined gait events and
-% computes:
-%
-% Three-dimensional matrices in the format:
-%   number of strides x 6 events (SHS through FTO2) x 2 dimensions (x,y)
-%   Variables: sAnk2D, fAnk2D (slow and fast ankle positions in 2D space)
-%
-% Two-dimensional matrices in the format:
-%   number of strides x 6 events (SHS through FTO2)
-%   Variables:
-%    - sAnkFwd, fAnkFwd: ankle position in fore-aft direction relative to
-%       average hip position
-%    - sAngle, fAngle: limb angles (angle of hip-ankle vector with respect
-%       to vertical)
-%
-% Scalar:
-%    - direction: number of strides x 1 array of walking direction (+1 if
-%       walking toward lab door, -1 if walking toward window)
-%
-% Additional outputs in the format:
-%   number of strides x 6 events (SHS through FTO2) x 3 dimensions (x,y,z)
-%    - sHIP, fHIP, sANK, fANK, sTOE, fTOE
-
 % THE FOLLOWING RELIES ON HAVING A DECENT RECONSTRUCTION OF HIP MARKERS:
 % define reference marker as midpoint between left and right hip markers
 % compute the average of LHIP and RHIP across the x, y, and z dimensions
@@ -212,4 +187,51 @@ sAngle = bsxfun(@times, sAngle, aux);
 fAngle = bsxfun(@times, fAngle, aux);
 
 end
+
+%GETKINEMATICDATA Extract marker and angle data at gait event times.
+%
+% Syntax
+%   [rotatedMarkerData, sAnkFwd, fAnkFwd, sAnk2D, fAnk2D, sAngle, ...
+%    fAngle, direction, hipPosSHS, sAnk_fromAvgHip, ...
+%    fAnk_fromAvgHip] = ...
+%       getKinematicData(eventTimes, markerData, angleData, s)
+%
+% Description
+%   Loads marker and angle data at six predefined gait events per
+%   stride (SHS, FHS, STO, FTO, SHS2, FTO2) and computes ankle
+%   positions relative to the average hip position, walking direction,
+%   and limb angles. Marker data are first aligned to a hip-centered,
+%   rotated coordinate frame before event-time sampling.
+%
+% Inputs
+%   eventTimes  - (numStrides x numEvents) array of gait event times
+%   markerData  - orientedLabTimeSeries of 3D marker trajectories
+%   angleData   - labTimeSeries of limb angles (or empty)
+%   s           - (char) slow-leg identifier: 'L' or 'R'
+%
+% Outputs
+%   rotatedMarkerData - markerData rotated to hip-centered frame
+%   sAnkFwd           - (numStrides x numEvents) slow ankle fore-aft
+%                       position relative to average hip
+%   fAnkFwd           - (numStrides x numEvents) fast ankle fore-aft
+%                       position relative to average hip
+%   sAnk2D            - (numStrides x numEvents x 2) slow ankle 2D
+%                       position relative to hip center
+%   fAnk2D            - (numStrides x numEvents x 2) fast ankle 2D
+%                       position relative to hip center
+%   sAngle            - (numStrides x numEvents) slow leg limb angles
+%   fAngle            - (numStrides x numEvents) fast leg limb angles
+%   direction         - (numStrides x 1) walking direction (+1 or -1)
+%   hipPosSHS         - (numStrides x 1) hip position at slow heel
+%                       strike
+%   sAnk_fromAvgHip   - slow ankle fore-aft position relative to mean
+%                       hip
+%   fAnk_fromAvgHip   - fast ankle fore-aft position relative to mean
+%                       hip
+%
+% Toolbox Dependencies
+%   None
+%
+% See Also
+%   getKinematicDataAbs, computeSpatialParameters
 
