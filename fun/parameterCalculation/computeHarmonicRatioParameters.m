@@ -1,11 +1,6 @@
 function out = computeHarmonicRatioParameters(strideEvents, markerData, ...
     options)
-% computeHarmonicRatioParameters  Compute harmonic ratios per stride.
-%
-%   Syntax:
-%     out = computeHarmonicRatioParameters(strideEvents, markerData)
-%     out = computeHarmonicRatioParameters(strideEvents, markerData, ...
-%         options)
+%COMPUTEHARMONICRATIOPARAMETERS Compute harmonic ratios per stride.
 %
 %   Computes stride-by-stride harmonic ratio parameters and returns a
 % parameterSeries object that can be concatenated with other parameter
@@ -13,42 +8,42 @@ function out = computeHarmonicRatioParameters(strideEvents, markerData, ...
 % vertical, medial-lateral, anterior-posterior, and aggregate harmonic
 % ratios using the greater trochanter (GT) markers.
 %
-%   Inputs:
-%     strideEvents - Struct of stride-level gait event times generated
-%                    by calcParameters, with fields tSHS and tSHS2
-%                    (N-by-1 vectors, in seconds)
-%     markerData   - orientedLabTimeSeries containing kinematic marker
-%                    data; must include 'RGT' and/or 'LGT' label
-%                    prefixes
-%     options      - (optional) Struct with fields:
-%                      .numHarmonics: number of harmonics to include
-%                                     (default: 10; following Menz,
-%                                     Lord & Fitzpatrick 2003 J
-%                                     Gerontol A, the foundational HR
-%                                     paper for walking)
-%                      .useMarkers:   'GT' or 'ALL' (default: 'GT';
-%                                     GT markers sit on a firm bony
-%                                     prominence and have lower soft-
-%                                     tissue artifact than ASIS/PSIS)
-%                      .filterCutoff: low-pass cutoff frequency in Hz
-%                                     applied to pelvis position before
-%                                     double differentiation (default:
-%                                     6; conservative cutoff to limit
-%                                     ω² noise amplification from
-%                                     double differentiation; yields
-%                                     ~6 meaningful harmonics at a
-%                                     typical ~1 Hz stride frequency)
+% Inputs:
+%   strideEvents - struct of stride-level gait event times generated
+%                  by calcParameters, with fields tSHS and tSHS2
+%                  (N-by-1 vectors, in seconds)
+%   markerData   - orientedLabTimeSeries containing kinematic marker
+%                  data; must include 'RGT' and/or 'LGT' label
+%                  prefixes
+%   options      - (optional) struct with fields:
+%                    .numHarmonics: number of harmonics to include
+%                                   (default: 10; following Menz,
+%                                   Lord & Fitzpatrick 2003 J
+%                                   Gerontol A, the foundational HR
+%                                   paper for walking)
+%                    .useMarkers:   'GT' or 'ALL' (default: 'GT';
+%                                   GT markers sit on a firm bony
+%                                   prominence and have lower soft-
+%                                   tissue artifact than ASIS/PSIS)
+%                    .filterCutoff: low-pass cutoff frequency in Hz
+%                                   applied to pelvis position before
+%                                   double differentiation (default:
+%                                   6; conservative cutoff to limit
+%                                   ω² noise amplification from
+%                                   double differentiation; yields
+%                                   ~6 meaningful harmonics at a
+%                                   typical ~1 Hz stride frequency)
 %
-%   Outputs:
-%     out - parameterSeries object containing all harmonic ratio
-%           parameters
+% Outputs:
+%   out - parameterSeries object containing all harmonic ratio
+%         parameters
 %
-%   Toolbox Dependencies:
-%     Signal Processing Toolbox (butter, filtfilt — used in
-%     filterMarkerData local function)
+% Toolbox Dependencies:
+%   Signal Processing Toolbox (butter, filtfilt — used in
+%   filterMarkerData local function)
 %
-%   See also: computeSpatialParameters, computeTemporalParameters,
-%     computeForceParameters, parameterSeries, calcParameters
+% See also COMPUTESPATIALPARAMETERS, COMPUTETEMPORALPARAMETERS,
+%   COMPUTEFORCEPARAMETERS, PARAMETERSERIES, CALCPARAMETERS.
 
 % TODO:
 %   - store parameters as a structure if possible to convert to

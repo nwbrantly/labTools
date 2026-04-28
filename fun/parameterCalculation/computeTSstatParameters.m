@@ -1,32 +1,28 @@
 function out = computeTSstatParameters(tsData, strideEvents)
-% computeTSstatParameters  Compute summary statistics per stride.
-%
-%   Syntax:
-%     out = computeTSstatParameters(tsData, strideEvents)
+%COMPUTETSSTATPARAMETERS Compute summary statistics per stride.
 %
 %   Computes stride-by-stride summary statistics for each channel of a
 % labTimeSeries and returns a parameterSeries object that can be
 % concatenated with other parameter series objects (e.g., from
 % computeTemporalParameters).
 %
-%   Inputs:
-%     tsData       - labTimeSeries object containing channel data
-%     strideEvents - N-by-K matrix of stride event times (seconds),
-%                    where N is the number of strides; the first
-%                    column is used to slice tsData into strides
+% Inputs:
+%   tsData       - labTimeSeries object containing channel data
+%   strideEvents - N-by-K matrix of stride event times (seconds),
+%                  where N is the number of strides; the first
+%                  column is used to slice tsData into strides
 %
-%   Outputs:
-%     out - parameterSeries object containing, for each channel,
-%           the following statistics per stride: max, min, avg
-%           (mean), var (variance), med (median), snr
-%           (signal-to-noise ratio in dB), and bad (data-quality
-%           flag)
+% Outputs:
+%   out - parameterSeries object containing, for each channel, the
+%         following statistics per stride: max, min, avg (mean),
+%         var (variance), med (median), snr (signal-to-noise ratio
+%         in dB), and bad (data-quality flag)
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeSpatialParameters, computeTemporalParameters,
-%     computeForceParameters, parameterSeries, calcParameters
+% See also COMPUTESPATIALPARAMETERS, COMPUTETEMPORALPARAMETERS,
+%   COMPUTEFORCEPARAMETERS, PARAMETERSERIES, CALCPARAMETERS.
 
 arguments
     tsData       (1,1)

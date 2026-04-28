@@ -1,8 +1,5 @@
 function COP = computeCOP(grfDataSlow, grfDataFast, slowLeg, fastLeg)
-% computeCOP  Compute bilateral center of pressure in lab coordinates.
-%
-%   Syntax:
-%     COP = computeCOP(grfDataSlow, grfDataFast, slowLeg, fastLeg)
+%COMPUTECOP Compute bilateral center of pressure in lab coordinates.
 %
 %   Computes the instantaneous center of pressure (COP) from bilateral
 % ground reaction force (GRF) data. Each leg's COP is computed in
@@ -10,21 +7,21 @@ function COP = computeCOP(grfDataSlow, grfDataFast, slowLeg, fastLeg)
 % plate-specific calibration matrices. The combined COP is a vertical-
 % force-weighted average of the two leg COPs.
 %
-%   Inputs:
-%     grfDataSlow - N-by-5 matrix of GRF data for the slow-leg force
-%                   plate [Fx Fy Fz Mx My] in force plate coordinates
-%     grfDataFast - N-by-5 matrix of GRF data for the fast-leg force
-%                   plate [Fx Fy Fz Mx My] in force plate coordinates
-%     slowLeg     - Char 'L' or 'R' identifying the slow-leg plate
-%     fastLeg     - Char 'L' or 'R' identifying the fast-leg plate
+% Inputs:
+%   grfDataSlow - N-by-5 matrix of GRF data for the slow-leg force
+%                 plate [Fx Fy Fz Mx My] in force plate coordinates
+%   grfDataFast - N-by-5 matrix of GRF data for the fast-leg force
+%                 plate [Fx Fy Fz Mx My] in force plate coordinates
+%   slowLeg     - char 'L' or 'R' identifying the slow-leg plate
+%   fastLeg     - char 'L' or 'R' identifying the fast-leg plate
 %
-%   Outputs:
-%     COP - 3-by-N matrix of combined COP position in lab coordinates
+% Outputs:
+%   COP - 3-by-N matrix of combined COP position in lab coordinates
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeForceParameters, computeCOM
+% See also COMPUTEFORCEPARAMETERS, COMPUTECOM.
 
 arguments
     grfDataSlow (:,:) double

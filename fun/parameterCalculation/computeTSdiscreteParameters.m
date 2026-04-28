@@ -1,41 +1,34 @@
 function out = computeTSdiscreteParameters(tsData, gaitEvents, ...
     eventTypes, alignmentVector, summaryFun)
-% computeTSdiscreteParameters  Discretize time series into stride phases.
-%
-%   Syntax:
-%     out = computeTSdiscreteParameters(tsData, gaitEvents, eventTypes)
-%     out = computeTSdiscreteParameters(tsData, gaitEvents, eventTypes, ...
-%         alignmentVector)
-%     out = computeTSdiscreteParameters(tsData, gaitEvents, eventTypes, ...
-%         alignmentVector, summaryFun)
+%COMPUTETSDISCRETEPARAMETERS Discretize time series into stride phases.
 %
 %   Averages labTS data across given gait phases and returns a
 % parameterSeries object that can be concatenated with other parameter
 % series objects (e.g., from computeTemporalParameters).
 %
-%   Inputs:
-%     tsData          - labTimeSeries object to discretize
-%     gaitEvents      - labTimeSeries of gait events for the trial
-%     eventTypes      - Cell array of gait event type strings as
-%                       constructed in calcParameters (e.g.,
-%                       {'LHS','RTO','RHS','LTO'}), or a single char
-%                       specifying the slow leg ('L' or 'R')
-%     alignmentVector - (optional) Integer vector of the same length as
-%                       eventTypes specifying phase alignment; defaults
-%                       to [2, 4, 2, 4]
-%     summaryFun      - (optional) Summary function handle applied per
-%                       phase; defaults to [] (mean)
+% Inputs:
+%   tsData          - labTimeSeries object to discretize
+%   gaitEvents      - labTimeSeries of gait events for the trial
+%   eventTypes      - cell array of gait event type strings as
+%                     constructed in calcParameters (e.g.,
+%                     {'LHS','RTO','RHS','LTO'}), or a single char
+%                     specifying the slow leg ('L' or 'R')
+%   alignmentVector - (optional) integer vector of the same length as
+%                     eventTypes specifying phase alignment; defaults
+%                     to [2, 4, 2, 4]
+%   summaryFun      - (optional) summary function handle applied per
+%                     phase; defaults to [] (mean)
 %
-%   Outputs:
-%     out - parameterSeries object containing one parameter per channel
-%           per gait phase
+% Outputs:
+%   out - parameterSeries object containing one parameter per channel
+%         per gait phase
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeAngleParameters, computeEMGParameters,
-%     computeTemporalParameters, computeForceParameters,
-%     parameterSeries, calcParameters
+% See also COMPUTEANGLEPARAMETERS, COMPUTEEMGPARAMETERS,
+%   COMPUTETEMPORALPARAMETERS, COMPUTEFORCEPARAMETERS,
+%   PARAMETERSERIES, CALCPARAMETERS.
 
 % TODO: this should be a method of labTS
 

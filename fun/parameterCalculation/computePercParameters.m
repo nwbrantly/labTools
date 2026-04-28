@@ -1,9 +1,6 @@
 function out = computePercParameters(trialData, initTime, endTime, ...
     slaParam)
-% computePercParameters  Compute perceptual task parameters per stride.
-%
-%   Syntax:
-%     out = computePercParameters(trialData, initTime, endTime, slaParam)
+%COMPUTEPERCPARAMETERS Compute perceptual task parameters per stride.
 %
 %   Computes stride-by-stride parameters related to the perceptual
 % split-belt treadmill task and returns a parameterSeries object that
@@ -12,26 +9,26 @@ function out = computePercParameters(trialData, initTime, endTime, ...
 % information; all parameters will be NaN or zero if the relevant
 % events do not exist.
 %
-%   Inputs:
-%     trialData - processedTrialData object for the trial; must contain
-%                 gaitEvents with 'percStartCue', 'percEndCue', and
-%                 'percEndRamp' labels, and metaData with a datlog
-%     initTime  - N-by-1 vector of stride start times (in seconds)
-%     endTime   - N-by-1 vector of stride end times (in seconds)
-%     slaParam  - N-by-1 vector of step length asymmetry values
+% Inputs:
+%   trialData - processedTrialData object for the trial; must contain
+%               gaitEvents with 'percStartCue', 'percEndCue', and
+%               'percEndRamp' labels, and metaData with a datlog
+%   initTime  - N-by-1 vector of stride start times (in seconds)
+%   endTime   - N-by-1 vector of stride end times (in seconds)
+%   slaParam  - N-by-1 vector of step length asymmetry values
 %
-%   Outputs:
-%     out - parameterSeries object containing all perceptual task
-%           parameters
+% Outputs:
+%   out - parameterSeries object containing all perceptual task
+%         parameters
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeTemporalParameters, computeSpatialParameters,
-%     computeForceParameters, parameterSeries, calcParameters
+% See also COMPUTETEMPORALPARAMETERS, COMPUTESPATIALPARAMETERS,
+%   COMPUTEFORCEPARAMETERS, PARAMETERSERIES, CALCPARAMETERS.
 %
-%   Author: MGR
-%   Date: 06/12/24
+% Author: MGR
+% Date: 06/12/24
 
 arguments
     trialData (1,1)

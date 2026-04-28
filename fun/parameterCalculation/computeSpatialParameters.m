@@ -1,30 +1,30 @@
 function out = computeSpatialParameters(strideEvents, markerData, ...
     angleData, s)
-% computeSpatialParameters  Compute spatial parameters per stride.
+%COMPUTESPATIALPARAMETERS Compute spatial parameters per stride.
 %
 %   Computes stride-by-stride spatial gait parameters and returns a
 % parameterSeries object that can be concatenated with other parameter
 % series objects (e.g., from computeTemporalParameters).
 %
-%   Inputs:
-%     strideEvents - Struct of stride-level gait event times generated
-%                    by calcParameters, with fields tSHS, tFTO, tFHS,
-%                    tSTO, tSHS2, tFTO2, tFHS2, and tSTO2 (N-by-1
-%                    vectors, in seconds)
-%     markerData   - orientedLabTimeSeries containing kinematic marker
-%                    data for the trial
-%     angleData    - labTimeSeries containing limb angle data, or []
-%                    if angle data is not available
-%     s            - Char specifying the slow-belt leg ('L' or 'R')
+% Inputs:
+%   strideEvents - struct of stride-level gait event times generated
+%                  by calcParameters, with fields tSHS, tFTO, tFHS,
+%                  tSTO, tSHS2, tFTO2, tFHS2, and tSTO2 (N-by-1
+%                  vectors, in seconds)
+%   markerData   - orientedLabTimeSeries containing kinematic marker
+%                  data for the trial
+%   angleData    - labTimeSeries containing limb angle data, or []
+%                  if angle data is not available
+%   s            - char specifying the slow-belt leg ('L' or 'R')
 %
-%   Outputs:
-%     out - parameterSeries object containing all spatial parameters
+% Outputs:
+%   out - parameterSeries object containing all spatial parameters
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeTemporalParameters, computeForceParameters,
-%     computeHreflexParameters, parameterSeries, calcParameters
+% See also COMPUTETEMPORALPARAMETERS, COMPUTEFORCEPARAMETERS,
+%   COMPUTEHREFLEXPARAMETERS, PARAMETERSERIES, CALCPARAMETERS.
 
 arguments
     strideEvents (1,1) struct

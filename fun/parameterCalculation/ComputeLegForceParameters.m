@@ -1,46 +1,39 @@
 function [SB, SBsum, SP, SPsum, SBmax, SBmaxAbs, SBmaxQS, SPmax, ...
     SPmaxQS, ImpactMagS] = ComputeLegForceParameters( ...
     apForceTrace, forceBaseline, brakingSign, titleText)
-% ComputeLegForceParameters  Compute AP force parameters for one leg stride.
-%
-%   Syntax:
-%     [SB, SBsum, SP, SPsum, SBmax, SBmaxAbs, SBmaxQS, SPmax, ...
-%         SPmaxQS, ImpactMagS] = ComputeLegForceParameters( ...
-%         apForceTrace, forceBaseline, brakingSign)
-%     [...] = ComputeLegForceParameters( ...
-%         apForceTrace, forceBaseline, brakingSign, titleText)
+%COMPUTELEGFORCEPARAMETERS Compute AP force parameters for one leg stride.
 %
 %   Computes mean and peak anterior-posterior (AP) ground reaction force
 % parameters for one leg over a single stride. Parameters include mean
 % and summed braking and propulsion forces, absolute and quasi-static
 % peak braking and propulsion forces, and the AP impact peak magnitude.
 %
-%   Inputs:
-%     apForceTrace  - N-by-1 vector of normalized AP force data for
-%                     the stance phase of the stride
-%     forceBaseline - Scalar baseline offset to subtract before
-%                     classifying braking and propulsion phases
-%     brakingSign   - Sign multiplier (1 or -1) that makes the braking
-%                     force positive for the leg of interest
-%     titleText     - (optional) String used as a figure title in
-%                     debugging; defaults to ''
+% Inputs:
+%   apForceTrace  - N-by-1 vector of normalized AP force data for
+%                   the stance phase of the stride
+%   forceBaseline - scalar baseline offset to subtract before
+%                   classifying braking and propulsion phases
+%   brakingSign   - sign multiplier (1 or -1) that makes the braking
+%                   force positive for the leg of interest
+%   titleText     - (optional) string used as a figure title in
+%                   debugging; defaults to ''
 %
-%   Outputs:
-%     SB        - Mean braking force over the stride
-%     SBsum     - Total braking impulse (sum) over the stride
-%     SP        - Mean propulsion force over the stride
-%     SPsum     - Total propulsion impulse (sum) over the stride
-%     SBmax     - Peak braking force (sign-flipped minimum)
-%     SBmaxAbs  - Absolute peak braking force relative to baseline
-%     SBmaxQS   - Quasi-static peak braking force
-%     SPmax     - Peak propulsion force (maximum)
-%     SPmaxQS   - Quasi-static peak propulsion force
-%     ImpactMagS - Peak AP force in the first 15% of the stride
+% Outputs:
+%   SB         - mean braking force over the stride
+%   SBsum      - total braking impulse (sum) over the stride
+%   SP         - mean propulsion force over the stride
+%   SPsum      - total propulsion impulse (sum) over the stride
+%   SBmax      - peak braking force (sign-flipped minimum)
+%   SBmaxAbs   - absolute peak braking force relative to baseline
+%   SBmaxQS    - quasi-static peak braking force
+%   SPmax      - peak propulsion force (maximum)
+%   SPmaxQS    - quasi-static peak propulsion force
+%   ImpactMagS - peak AP force in the first 15% of the stride
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeForceParameters, parameterSeries
+% See also COMPUTEFORCEPARAMETERS, PARAMETERSERIES.
 
 arguments
     apForceTrace  (:,1) double

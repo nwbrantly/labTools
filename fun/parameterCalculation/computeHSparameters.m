@@ -1,32 +1,29 @@
 function out = computeHSparameters(tsData, gaitEvents, eventTypes)
-% computeHSparameters  Compute heel-strike-aligned parameters per stride.
-%
-%   Syntax:
-%     out = computeHSparameters(tsData, gaitEvents, eventTypes)
+%COMPUTEHSPARAMETERS Compute heel-strike-aligned parameters per stride.
 %
 %   Extracts the value of each channel in tsData at the slow and fast
 % heel strike events for each stride, and returns a parameterSeries
 % object that can be concatenated with other parameter series objects
 % (e.g., from computeTemporalParameters).
 %
-%   Inputs:
-%     tsData     - labTimeSeries object whose channels will be sampled
-%                  at each heel strike event
-%     gaitEvents - labTimeSeries of gait events for the trial
-%     eventTypes - Cell array of gait event type strings as constructed
-%                  in calcParameters (e.g., {'LHS','RTO','RHS','LTO'}),
-%                  or a single char specifying the slow leg ('L' or 'R')
+% Inputs:
+%   tsData     - labTimeSeries object whose channels will be sampled
+%                at each heel strike event
+%   gaitEvents - labTimeSeries of gait events for the trial
+%   eventTypes - cell array of gait event type strings as constructed
+%                in calcParameters (e.g., {'LHS','RTO','RHS','LTO'}),
+%                or a single char specifying the slow leg ('L' or 'R')
 %
-%   Outputs:
-%     out - parameterSeries object containing one parameter per channel
-%           per leg, sampled at each stride's heel strike
+% Outputs:
+%   out - parameterSeries object containing one parameter per channel
+%         per leg, sampled at each stride's heel strike
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeAngleParameters, computeTemporalParameters,
-%     computeSpatialParameters, computeForceParameters, parameterSeries,
-%     calcParameters
+% See also COMPUTEANGLEPARAMETERS, COMPUTETEMPORALPARAMETERS,
+%   COMPUTESPATIALPARAMETERS, COMPUTEFORCEPARAMETERS, PARAMETERSERIES,
+%   CALCPARAMETERS.
 
 % TODO: this should be a method of labTS
 

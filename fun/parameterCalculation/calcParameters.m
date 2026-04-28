@@ -1,6 +1,6 @@
 function out = calcParameters(trialData, subData, eventClass, ...
     initEventSide, parameterClasses)
-% calcParameters  Compute stride-by-stride parameters for analysis.
+%CALCPARAMETERS Compute stride-by-stride parameters for analysis.
 %
 %   Computes adaptation parameters on a stride-by-stride basis for a
 % single processed trial, including temporal, spatial, EMG, GRF, H-
@@ -17,41 +17,41 @@ function out = calcParameters(trialData, subData, eventClass, ...
 %   'Fast' and 'Slow' appear at the end of the respective parameter
 %   names. See existing parameter names as examples.
 %
-%   Inputs:
-%     trialData        - processedTrialData object containing gait
-%                        events, marker, EMG, and GRF data
-%     subData          - subjectData object containing subject weight
-%                        and other anthropometric information
-%     eventClass       - (optional) String specifying the gait event
-%                        detection method. Defaults to '' if omitted:
-%                          ''      - default (TM: forces, OG: kinematics)
-%                          'kin'   - strictly from kinematics
-%                          'force' - strictly from forces
-%     initEventSide    - (optional) 'L' or 'R'; side for the initial
-%                        gait event. Defaults to
-%                        trialData.metaData.refLeg if omitted or empty
-%     parameterClasses - (optional) String or cell array of strings
-%                        specifying which parameter classes to compute.
-%                        Defaults to all classes if omitted:
-%                          'basic'    - event type, bad/good flags, trial
-%                                       number, initial/final event times
-%                          'temporal' - temporal gait parameters
-%                          'spatial'  - spatial gait parameters
-%                          'rawEMG'   - raw EMG parameters
-%                          'procEMG'  - processed EMG parameters
-%                          'force'    - treadmill force parameters
+% Inputs:
+%   trialData        - processedTrialData object containing gait
+%                      events, marker, EMG, and GRF data
+%   subData          - subjectData object containing subject weight
+%                      and other anthropometric information
+%   eventClass       - (optional) string specifying the gait event
+%                      detection method. Defaults to '' if omitted:
+%                        ''      - default (TM: forces, OG: kinematics)
+%                        'kin'   - strictly from kinematics
+%                        'force' - strictly from forces
+%   initEventSide    - (optional) 'L' or 'R'; side for the initial
+%                      gait event. Defaults to
+%                      trialData.metaData.refLeg if omitted or empty
+%   parameterClasses - (optional) string or cell array of strings
+%                      specifying which parameter classes to compute.
+%                      Defaults to all classes if omitted:
+%                        'basic'    - event type, bad/good flags, trial
+%                                     number, initial/final event times
+%                        'temporal' - temporal gait parameters
+%                        'spatial'  - spatial gait parameters
+%                        'rawEMG'   - raw EMG parameters
+%                        'procEMG'  - processed EMG parameters
+%                        'force'    - treadmill force parameters
 %
-%   Outputs:
-%     out - parameterSeries object containing all stride-by-stride
-%           parameters with good/bad stride labels
+% Outputs:
+%   out - parameterSeries object containing all stride-by-stride
+%         parameters with good/bad stride labels
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: parameterSeries, processedTrialData, labData/process,
-%     computeTemporalParameters, computeSpatialParameters,
-%     computeEMGParameters, computeForceParameters,
-%     computeHreflexParameters, computePercParameters, getStrideInfo
+% See also PARAMETERSERIES, PROCESSEDTRIALDATA, LABDATA/PROCESS,
+%   COMPUTETEMPORALPARAMETERS, COMPUTESPATIALPARAMETERS,
+%   COMPUTEEMGPARAMETERS, COMPUTEFORCEPARAMETERS,
+%   COMPUTEHREFLEXPARAMETERS, COMPUTEPERCPARAMETERS, GETSTRIDEINFO.
 
 arguments
     trialData        (1,1)

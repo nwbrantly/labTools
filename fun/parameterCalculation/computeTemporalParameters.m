@@ -1,26 +1,23 @@
 function out = computeTemporalParameters(strideEvents)
-% computeTemporalParameters  Compute temporal parameters per stride.
-%
-%   Syntax:
-%     out = computeTemporalParameters(strideEvents)
+%COMPUTETEMPORALPARAMETERS Compute temporal parameters per stride.
 %
 %   Computes stride-by-stride temporal gait parameters and returns a
 % parameterSeries object that can be concatenated with other parameter
 % series objects (e.g., from computeSpatialParameters).
 %
-%   Inputs:
-%     strideEvents - Struct of stride-level gait event times generated
-%                    by calcParameters, with fields tSHS, tFTO, tFHS,
-%                    tSTO, tSHS2, and tFTO2 (N-by-1 vectors, seconds)
+% Inputs:
+%   strideEvents - struct of stride-level gait event times with fields
+%                  tSHS, tFTO, tFHS, tSTO, tSHS2, and tFTO2
+%                  (N-by-1 vectors, in seconds)
 %
-%   Outputs:
-%     out - parameterSeries object containing all temporal parameters
+% Outputs:
+%   out - parameterSeries object containing all temporal parameters
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeSpatialParameters, computeForceParameters,
-%     parameterSeries, calcParameters
+% See also COMPUTESPATIALPARAMETERS, COMPUTEFORCEPARAMETERS,
+%   PARAMETERSERIES, CALCPARAMETERS.
 
 arguments
     strideEvents (1,1) struct

@@ -1,8 +1,5 @@
 function expData = populateNewParamBackToExpData(expData, adaptData)
-% populateNewParamBackToExpData  Back-populate new parameters into expData.
-%
-%   Syntax:
-%     expData = populateNewParamBackToExpData(expData, adaptData)
+%POPULATENEWPARAMBACKTOEXPDATA Back-populate new parameters into expData.
 %
 %   Copies parameters that exist in adaptData but not yet in expData back
 % into each trial's adaptParams field. The primary use case is
@@ -15,24 +12,24 @@ function expData = populateNewParamBackToExpData(expData, adaptData)
 % (e.g., fakeParam is always in experimentalParams and must not be
 % duplicated).
 %
-%   Inputs:
-%     expData   - experimentData object; each trial's adaptParams will
-%                 be updated with new parameters from adaptData
-%     adaptData - adaptationData object containing the new parameters
-%                 to back-populate (e.g., after EMG normalization)
+% Inputs:
+%   expData   - experimentData object; each trial's adaptParams will
+%               be updated with new parameters from adaptData
+%   adaptData - adaptationData object containing the new parameters
+%               to back-populate (e.g., after EMG normalization)
 %
-%   Outputs:
-%     expData - Updated experimentData object with new parameters
-%               appended to each trial's adaptParams
+% Outputs:
+%   expData - updated experimentData object with new parameters
+%             appended to each trial's adaptParams
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: appendEMGNormParameters, loadSubject,
-%     experimentData.recomputeParameters,
-%     experimentData.flushAndRecomputeParameters
+% See also APPENDEMGNORMPARAMETERS, LOADSUBJECT,
+%   EXPERIMENTDATA.RECOMPUTEPARAMETERS,
+%   EXPERIMENTDATA.FLUSHANDRECOMPUTEPARAMETERS.
 %
-%   Author: Shuqi Liu, 2026-04-02
+% Author: Shuqi Liu, 2026-04-02
 
 arguments
     expData   (1,1)

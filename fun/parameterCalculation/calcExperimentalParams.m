@@ -1,38 +1,31 @@
 function out = calcExperimentalParams( ...
     trialData, subData, eventClass, initEventSide)
-% calcExperimentalParams  Compute experimental parameters per stride.
-%
-%   Syntax:
-%     out = calcExperimentalParams(trialData)
-%     out = calcExperimentalParams(trialData, subData)
-%     out = calcExperimentalParams(trialData, subData, eventClass)
-%     out = calcExperimentalParams( ...
-%         trialData, subData, eventClass, initEventSide)
+%CALCEXPERIMENTALPARAMS Compute experimental parameters per stride.
 %
 %   Computes stride-by-stride experimental parameters from a processed
 % trial. Currently returns a placeholder parameterSeries containing a
 % single NaN parameter; intended to be extended with study-specific
 % parameter calculations.
 %
-%   Inputs:
-%     trialData     - processedLabData object containing gait events,
-%                     parameters, and metadata for the trial
-%     subData       - (optional) subjectData object containing subject
-%                     information; reserved for study-specific use
-%     eventClass    - (optional) String specifying the gait event
-%                     detection method (e.g., 'kin' or 'force');
-%                     defaults to ''
-%     initEventSide - (optional) 'L' or 'R'; side for the initial
-%                     gait event; defaults to
-%                     trialData.metaData.refLeg if omitted or empty
+% Inputs:
+%   trialData     - processedLabData object containing gait events,
+%                   parameters, and metadata for the trial
+%   subData       - (optional) subjectData object containing subject
+%                   information; reserved for study-specific use
+%   eventClass    - (optional) string specifying the gait event
+%                   detection method (e.g., 'kin' or 'force');
+%                   defaults to ''
+%   initEventSide - (optional) 'L' or 'R'; side for the initial
+%                   gait event; defaults to
+%                   trialData.metaData.refLeg if omitted or empty
 %
-%   Outputs:
-%     out - parameterSeries object containing computed parameters
+% Outputs:
+%   out - parameterSeries object containing computed parameters
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: calcParameters, parameterSeries, getStrideInfo
+% See also CALCPARAMETERS, PARAMETERSERIES, GETSTRIDEINFO.
 
 arguments
     trialData     (1,1)

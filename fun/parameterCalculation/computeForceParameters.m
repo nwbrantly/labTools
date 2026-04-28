@@ -1,12 +1,6 @@
 function out = computeForceParameters(strideEvents, GRFData, slowleg, ...
     fastleg, BW, trialData, markerData, subData, FyPSat)
-% computeForceParameters  Compute kinetic treadmill parameters per stride.
-%
-%   Syntax:
-%     out = computeForceParameters(strideEvents, GRFData, slowleg, ...
-%         fastleg, BW, trialData, markerData, subData)
-%     out = computeForceParameters(strideEvents, GRFData, slowleg, ...
-%         fastleg, BW, trialData, markerData, subData, FyPSat)
+%COMPUTEFORCEPARAMETERS Compute kinetic treadmill parameters per stride.
 %
 %   Analyzes anterior-posterior ground reaction force (GRF) data on a
 % stride-by-stride basis, focused on braking and propulsion forces as
@@ -14,34 +8,34 @@ function out = computeForceParameters(strideEvents, GRFData, slowleg, ...
 % object that can be concatenated with other parameter series objects
 % (e.g., from computeTemporalParameters).
 %
-%   Inputs:
-%     strideEvents - Struct of stride-level gait event times generated
-%                    by calcParameters, with fields tSHS, tFTO, tFHS,
-%                    tSTO, tSHS2, and tFTO2 (N-by-1 vectors, in seconds)
-%     GRFData      - orientedLabTimeSeries containing ground reaction
-%                    force data for the trial
-%     slowleg      - Char specifying the slow-belt leg ('L' or 'R')
-%     fastleg      - Char specifying the fast-belt leg ('L' or 'R')
-%     BW           - Body weight of the subject (in kg)
-%     trialData    - processedTrialData object; used for trial type,
-%                    description, and inclination angle
-%     markerData   - orientedLabTimeSeries containing kinematic marker
-%                    data (used for optional COM/COP computations)
-%     subData      - subjectData object containing subject information,
-%                    including the ID used to detect decline trials
-%     FyPSat       - (optional) Saturation value for the slow-leg
-%                    propulsion force; passed to the commented-out
-%                    computeCOM call. Defaults to [] if omitted.
+% Inputs:
+%   strideEvents - struct of stride-level gait event times generated
+%                  by calcParameters, with fields tSHS, tFTO, tFHS,
+%                  tSTO, tSHS2, and tFTO2 (N-by-1 vectors, in seconds)
+%   GRFData      - orientedLabTimeSeries containing ground reaction
+%                  force data for the trial
+%   slowleg      - char specifying the slow-belt leg ('L' or 'R')
+%   fastleg      - char specifying the fast-belt leg ('L' or 'R')
+%   BW           - body weight of the subject (in kg)
+%   trialData    - processedTrialData object; used for trial type,
+%                  description, and inclination angle
+%   markerData   - orientedLabTimeSeries containing kinematic marker
+%                  data (used for optional COM/COP computations)
+%   subData      - subjectData object containing subject information,
+%                  including the ID used to detect decline trials
+%   FyPSat       - (optional) saturation value for the slow-leg
+%                  propulsion force; passed to the commented-out
+%                  computeCOM call. Defaults to [] if omitted.
 %
-%   Outputs:
-%     out - parameterSeries object containing all kinetic parameters
+% Outputs:
+%   out - parameterSeries object containing all kinetic parameters
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeTemporalParameters, computeSpatialParameters,
-%     ComputeLegForceParameters, DetermineTMAngle, parameterSeries,
-%     calcParameters
+% See also COMPUTETEMPORALPARAMETERS, COMPUTESPATIALPARAMETERS,
+%   COMPUTELEGFORCEPARAMETERS, DETERMINETMANGLE, PARAMETERSERIES,
+%   CALCPARAMETERS.
 
 arguments
     strideEvents (1,1) struct

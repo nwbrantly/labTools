@@ -1,8 +1,5 @@
 function markerDataOut = COMCalculator(markerData, BW)
-% COMCalculator  Approximate whole-body center of mass from marker data.
-%
-%   Syntax:
-%     markerDataOut = COMCalculator(markerData, BW)
+%COMCALCULATOR Approximate whole-body center of mass from marker data.
 %
 %   Estimates the whole-body center of mass (COM) from kinematic marker
 % data using segment inertial parameters. If a HAT (head-arms-trunk)
@@ -13,22 +10,22 @@ function markerDataOut = COMCalculator(markerData, BW)
 % (arms swing in opposite phase) and is excluded from the computation.
 % The computed body COM (BCOMx/y/z) is appended to the input dataset.
 %
-%   Inputs:
-%     markerData - orientedLabTimeSeries containing marker trajectories;
-%                  must include RHIP and LHIP; if HAT is present, RANK,
-%                  LANK, RKNE, LKNE, RTOE, and LTOE are also required
-%     BW         - Subject body weight (kg)
+% Inputs:
+%   markerData - orientedLabTimeSeries containing marker trajectories;
+%                must include RHIP and LHIP; if HAT is present, RANK,
+%                LANK, RKNE, LKNE, RTOE, and LTOE are also required
+%   BW         - subject body weight (kg)
 %
-%   Outputs:
-%     markerDataOut - Input markerData with channels BCOMx, BCOMy, and
-%                     BCOMz appended
+% Outputs:
+%   markerDataOut - input markerData with channels BCOMx, BCOMy, and
+%                   BCOMz appended
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: computeCOM, appendData, orientedLabTimeSeries
+% See also COMPUTECOM, APPENDDATA, ORIENTEDLABTIMESERIES.
 %
-%   Author: CJS 5/2017
+% Author: CJS 5/2017
 
 arguments
     markerData (1,1)

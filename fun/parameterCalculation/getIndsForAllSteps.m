@@ -1,8 +1,5 @@
 function indData = getIndsForAllSteps(gaitEvents, s, f)
-% getIndsForAllSteps  Return event indices and times for all strides.
-%
-%   Syntax:
-%     indData = getIndsForAllSteps(gaitEvents, s, f)
+%GETINDSFORALLSTEPS Return event indices and times for all strides.
 %
 %   Extracts the sample index and time of each gait event for every
 % stride in a trial. A stride spans two consecutive slow heel strikes
@@ -11,26 +8,26 @@ function indData = getIndsForAllSteps(gaitEvents, s, f)
 % STO2. The output is a struct with a data matrix and column labels
 % for use in downstream parameter computations.
 %
-%   Inputs:
-%     gaitEvents - labTimeSeries containing binary gait event columns
-%                  with labels [sHS, fTO, fHS, sTO] (where s and f
-%                  are the slow and fast leg identifiers)
-%     s          - Char ('L' or 'R') identifying the slow leg
-%     f          - Char ('L' or 'R') identifying the fast leg
+% Inputs:
+%   gaitEvents - labTimeSeries containing binary gait event columns
+%                with labels [sHS, fTO, fHS, sTO] (where s and f
+%                are the slow and fast leg identifiers)
+%   s          - char ('L' or 'R') identifying the slow leg
+%   f          - char ('L' or 'R') identifying the fast leg
 %
-%   Outputs:
-%     indData - Struct with fields:
-%                 .Data   - numStrides-by-16 matrix; columns 1-8 are
-%                           sample indices (SHS FTO FHS STO SHS2 FTO2
-%                           FHS2 STO2) and columns 9-16 are the
-%                           corresponding times
-%                 .labels - 16-element cell array of column names
-%                           (e.g., 'indsRHS', 'indsLTO2', 'timesRHS')
+% Outputs:
+%   indData - struct with fields:
+%               .Data   - numStrides-by-16 matrix; columns 1-8 are
+%                         sample indices (SHS FTO FHS STO SHS2 FTO2
+%                         FHS2 STO2) and columns 9-16 are the
+%                         corresponding times
+%               .labels - 16-element cell array of column names
+%                         (e.g., 'indsRHS', 'indsLTO2', 'timesRHS')
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: getIndsForThisStep, calcParameters
+% See also GETINDSFORTHISSTEP, CALCPARAMETERS.
 
 arguments
     gaitEvents (1,1)
