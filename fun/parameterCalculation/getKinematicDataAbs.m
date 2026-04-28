@@ -1,42 +1,3 @@
-% construct labels for markers (e.g., 'sHIP', 'fANK', etc.)
-for j = 1:length(markers)
-    for leg = 1:2
-        labels{end+1} = [legs{leg} markers{j}]; % odd indices: slow leg, even indices: fast leg
-    end
-end
-
-% check for missing markers
-[bool, idx] = isaLabelPrefix(markerData, labels);
-if ~all(bool)
-    warning(['Markers are missing: ' cell2mat(strcat(labels(~bool), ','))]);
-end
-
-% extract marker data at gait event times
-for j = 1:length(labels)    % assign each marker data to a x3 str
-    aux = markerData.getDataAsTS(markerData.addLabelSuffix(labels{j}));
-    if ~isempty(aux.Data)
-        % extract data by finding the closest available sample at each event time
-        newMarkerData = aux.getSample(eventTimes, 'closest');
-        relMarkerData = rotatedMarkerData.getDataAsTS(rotatedMarkerData.addLabelSuffix(labels{j}));
-        relMarkerData = relMarkerData.getSample(eventTimes, 'closest');
-    else    % otherwise, a marker is missing
-        warning(['Marker ' labels{j} ' is missing. All references to it will return NaN.']);
-        newMarkerData = nan([size(eventTimes) 3]);
-        relMarkerData = nan([size(eventTimes) 3]);
-    end
-
-    % assign extracted marker data to corresponding variables
-    if strcmp(labels{j}(1), s)       % if slow leg markers, ...
-        eval(['s' upper(labels{j}(2)) lower(labels{j}(3:4)) ' = newMarkerData;']);
-        eval(['s' upper(labels{j}(2)) lower(labels{j}(3:4)) 'Rel = relMarkerData;']);
-    elseif strcmp(labels{j}(1), f)   % if fast leg markers, ...
-        eval(['f' upper(labels{j}(2)) lower(labels{j}(3:4)) ' = newMarkerData;']);
-        eval(['f' upper(labels{j}(2)) lower(labels{j}(3:4)) 'Rel = relMarkerData;']);
-    else                            % otherwise, ...
-        error('Marker labels must begin with ''R'' or ''L''.');
-    end
-end
-
 %% Extract Angle Data at Gait Event Times
 if ~isempty(angleData)
     newAngleData = angleData.getDataAsTS({[s 'Limb'], [f 'Limb']});
@@ -247,4 +208,53 @@ markers = {'HIP', 'ANK', 'TOE'};
 labels  = {};
 legs    = {s, f};
 legs2   = {'s', 'f'};
+
+% construct labels for markers (e.g., 'sHIP', 'fANK', etc.)
+for iMarker = 1:length(markers)
+    for leg = 1:2
+        % odd indices: slow leg, even indices: fast leg
+        labels{end+1} = [legs{leg} markers{iMarker}];
+    end
+end
+
+% check for missing markers
+[bool, idx] = isaLabelPrefix(markerData, labels);
+if ~all(bool)
+    warning(['Markers are missing: ' ...
+        cell2mat(strcat(labels(~bool), ','))]);
+end
+
+% extract marker data at gait event times
+for iLabel = 1:length(labels) % assign each marker data to a x3 str
+    aux = markerData.getDataAsTS( ...
+        markerData.addLabelSuffix(labels{iLabel}));
+    if ~isempty(aux.Data)
+        % extract data by finding the closest available sample at each
+        % event time
+        newMarkerData = aux.getSample(eventTimes, 'closest');
+        relMarkerData = rotatedMarkerData.getDataAsTS( ...
+            rotatedMarkerData.addLabelSuffix(labels{iLabel}));
+        relMarkerData = relMarkerData.getSample(eventTimes, 'closest');
+    else    % otherwise, a marker is missing
+        warning(['Marker ' labels{iLabel} ...
+            ' is missing. All references to it will return NaN.']);
+        newMarkerData = nan([size(eventTimes), 3]);
+        relMarkerData = nan([size(eventTimes), 3]);
+    end
+
+    % assign extracted marker data to corresponding variables
+    if strcmp(labels{iLabel}(1), s)       % if slow leg markers, ...
+        eval(['s' upper(labels{iLabel}(2)) ...
+            lower(labels{iLabel}(3:4)) ' = newMarkerData;']);
+        eval(['s' upper(labels{iLabel}(2)) ...
+            lower(labels{iLabel}(3:4)) 'Rel = relMarkerData;']);
+    elseif strcmp(labels{iLabel}(1), f)   % if fast leg markers, ...
+        eval(['f' upper(labels{iLabel}(2)) ...
+            lower(labels{iLabel}(3:4)) ' = newMarkerData;']);
+        eval(['f' upper(labels{iLabel}(2)) ...
+            lower(labels{iLabel}(3:4)) 'Rel = relMarkerData;']);
+    else                            % otherwise, ...
+        error('Marker labels must begin with ''R'' or ''L''.');
+    end
+end
 
