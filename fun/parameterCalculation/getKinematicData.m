@@ -1,22 +1,3 @@
-%rotationMatrix = [cosd(avgRotation) -sind(avgRotation) 0; sind(avgRotation) cosd(avgRotation) 0; 0 0 1];
-%sAnk(indSHS:indFTO2,:) = (rotationMatrix*sAnk(indSHS:indFTO2,:)')';
-%fAnk(indSHS:indFTO2,:) = (rotationMatrix*fAnk(indSHS:indFTO2,:)')';
-%sHip(indSHS:indFTO2,:) = (rotationMatrix*sHip(indSHS:indFTO2,:)')';
-%fHip(indSHS:indFTO2,:) = (rotationMatrix*fHip(indSHS:indFTO2,:)')';
-
-% NEED TO ROTATE
-% compute ankle positions relative to average hip position
-sAnkFwd = sAnk(:, :, 2) - hipPosFwd;
-fAnkFwd = fAnk(:, :, 2) - hipPosFwd;
-sAnk2D = sAnk(:, :, 1:2) - hipPos3D(:, :, 1:2);
-fAnk2D = fAnk(:, :, 1:2) - hipPos3D(:, :, 1:2);
-sAnk_fromAvgHip = sAnk(:, :, 2) - hipPosAvg_forSlow; % y positon of slow ankle corrected by average hip postion
-fAnk_fromAvgHip = fAnk(:, :, 2) - hipPosAvg_forFast; % y positon of fast ankle corrected by average hip postion
-
-% set all steps to have the same slope (a negative slope during stance phase is assumed)
-%WHAT IS THIS FOR? WHAT PROBLEMS DOES IT SOLVE THAT THE PREVIOUS ROTATION
-%DOESN'T?
-
 % adjust stride data to ensure consistent slope during stance phase
 aux = sign(diff(sAnk(:, [3 5], 2), 1, 2));  % checks for: sAnk(indSHS2,2) < sAnk(indFHS,2) (doesn't use HIP to avoid HIP fluctuation issues)
 sAnkFwd = bsxfun(@times, sAnkFwd, aux);
@@ -261,4 +242,25 @@ hipPosAvg_forSlow = mean(mean(hipPosFwd(:, 3:8), 'omitnan'));
 %fRotation = calcangle(fAnk(indFHS,1:2),fAnk(indFTO,1:2),[fAnk(indFTO,1)-100*direction fAnk(indFTO,2)])-90;
 
 %avgRotation = (sRotation+fRotation)./2;
+
+%rotationMatrix = [cosd(avgRotation) -sind(avgRotation) 0; sind(avgRotation) cosd(avgRotation) 0; 0 0 1];
+%sAnk(indSHS:indFTO2,:) = (rotationMatrix*sAnk(indSHS:indFTO2,:)')';
+%fAnk(indSHS:indFTO2,:) = (rotationMatrix*fAnk(indSHS:indFTO2,:)')';
+%sHip(indSHS:indFTO2,:) = (rotationMatrix*sHip(indSHS:indFTO2,:)')';
+%fHip(indSHS:indFTO2,:) = (rotationMatrix*fHip(indSHS:indFTO2,:)')';
+
+% NEED TO ROTATE
+% compute ankle positions relative to average hip position
+sAnkFwd = sAnk(:, :, 2) - hipPosFwd;
+fAnkFwd = fAnk(:, :, 2) - hipPosFwd;
+sAnk2D  = sAnk(:, :, 1:2) - hipPos3D(:, :, 1:2);
+fAnk2D  = fAnk(:, :, 1:2) - hipPos3D(:, :, 1:2);
+% y position of slow/fast ankle corrected by average hip position
+sAnk_fromAvgHip = sAnk(:, :, 2) - hipPosAvg_forSlow;
+fAnk_fromAvgHip = fAnk(:, :, 2) - hipPosAvg_forFast;
+
+% set all steps to have the same slope (a negative slope during
+% stance phase is assumed)
+%WHAT IS THIS FOR? WHAT PROBLEMS DOES IT SOLVE THAT THE PREVIOUS ROTATION
+%DOESN'T?
 
