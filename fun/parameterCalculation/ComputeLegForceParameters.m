@@ -108,8 +108,8 @@ end
 % if propIdx(MaxWhereS) <= 0.1*length(apForceTrace)
 %     figure
 %     plot(apForceTrace, 'k'); hold on
-%     line([0.1*length(apForceTrace) 0.1*length(apForceTrace)], [-.2 .2])
-%     line([0.9*length(apForceTrace) 0.9*length(apForceTrace)], [-.2 .2])
+%     line([0.1*length(apForceTrace) 0.1*length(apForceTrace)], [-0.2 0.2])
+%     line([0.9*length(apForceTrace) 0.9*length(apForceTrace)], [-0.2 0.2])
 %     plot(propIdx(MaxWhereS), apForceTrace(propIdx(MaxWhereS)), 'r*')
 %     plot(brakingIdx(MinWhereS), apForceTrace(brakingIdx(MinWhereS)), 'b*')
 %     title(titleText)
