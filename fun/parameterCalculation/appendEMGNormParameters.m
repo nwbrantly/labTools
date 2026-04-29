@@ -106,28 +106,31 @@ if isempty(normalizationRefCond)
     end
 end
 
-if nargin < 4 || isempty(biasRemovalCond)
-    %biasRemovalCond not provided, look for it in the userdata
-    if isfield(adaptData.data.DataInfo.UserData, 'normalizationRefCond')
-        biasRemovalCond = adaptData.data.DataInfo.UserData.biasRemovalCond;
-        fprintf('No biasRemovalCond provided, will use what is available in the adaptData.data.DataInfo.UserData: %s\n', normalizationRefCond)
+%% Resolve biasRemovalCond
+if isempty(biasRemovalCond)
+    if isfield(adaptData.data.DataInfo.UserData, 'biasRemovalCond')
+        biasRemovalCond = ...
+            adaptData.data.DataInfo.UserData.biasRemovalCond;
+        fprintf(['No biasRemovalCond provided, will use what is ' ...
+            'available in adaptData.data.DataInfo.UserData: %s\n'], ...
+            biasRemovalCond)
     else
-        warning('No biasRemovalCond provided and also not found in the adaptData.data.DataInfo.UserData. Will use default bias removal method.')
-        biasRemovalCond = []; %not found, use default (will remove trial type specific baseline
-    end
-else
-    if isstr(biasRemovalCond)
-        biasRemovalCond = repmat({biasRemovalCond}, 1, 10); %repeat the same condition for arbitrary # of times to cover all trial types
-        %the trial types can be: TM, OG, TM, TR, NIM (that's what we know so
-        %far, and the code in removeBiasV4 will call
-        %removebias(biasCond{typeIdx})
-    elseif iscell(biasRemovalCond) %if it's cell will repeat the 1st entry multiple times
-        biasRemovalCond = repmat(biasRemovalCond(1), 1, 10);
-    else %if some odd type is given
-        warning('biasRemovalCond has to be a cell or string only. Unvalid input type. Will use default.')
+        warning(['No biasRemovalCond provided and also not found in ' ...
+            'adaptData.data.DataInfo.UserData. Will use default ' ...
+            'bias removal method.'])
         biasRemovalCond = [];
     end
-    %else it's alreayd a cell just use it
+else
+    if ischar(biasRemovalCond)
+        % Repeat for all trial types; removeBiasV4 indexes by type.
+        biasRemovalCond = repmat({biasRemovalCond}, 1, 10);
+    elseif iscell(biasRemovalCond)
+        biasRemovalCond = repmat(biasRemovalCond(1), 1, 10);
+    else
+        warning(['biasRemovalCond must be a char or cell. Invalid ' ...
+            'input type provided. Will use default.'])
+        biasRemovalCond = [];
+    end
 end
 
 %% Load data and normalize the data
