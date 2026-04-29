@@ -297,6 +297,12 @@ be replaced with `strfind`.
   ```
   Apply this within a logical group; do not force alignment across
   unrelated statements separated by blank lines.
+- Write decimal numbers with an explicit leading zero: use `0.5`
+  not `.5`.
+- Use modern NaN-omitting aggregation functions rather than the
+  deprecated `nan*` family: write `mean(x, 'omitnan')` instead of
+  `nanmean(x)`, and equivalently for `median`, `std`, `sum`,
+  `min`, and `max`.
 
 ## Documentation Comments
 Every function must include a standard MATLAB documentation block
