@@ -133,27 +133,25 @@ else
     end
 end
 
-%% Load data and normalize the data
-%get last 40 excluding the last 5, and average across strides by nanmean
-refEp = defineEpochs({normalizationRefCond}, {normalizationRefCond}, -40, 0, 5, 'nanmean');
+%% Normalize Data to Reference Condition
+% Last 40 strides excluding last 5, averaged by nanmean.
+refEp = defineEpochs({normalizationRefCond}, {normalizationRefCond}, ...
+    -40, 0, 5, 'nanmean');
 
-% In case there is already old parameters that
-%have normalized data, named as Normxx, remove them so that new clean normalized parameters can be created
-%as a replacement. This will happen whenever we save the normalized
-%data either individually or as a group
-ss = adaptData.data.getLabelsThatMatch('^Norm');
-s2 = adaptData.data.labels(~ismember(adaptData.data.labels, ss));
-adaptData = adaptData.reduce(s2);
+% Remove stale normalized labels before regenerating.
+staleNorm  = adaptData.data.getLabelsThatMatch('^Norm');
+keepLabels = adaptData.data.labels( ...
+    ~ismember(adaptData.data.labels, staleNorm));
+adaptData  = adaptData.reduce(keepLabels);
 
-%check for any labels that already contains the name L2norm (they had
-%norm generated already), throw them away and regenerate.
-%This would happen if we call recompute without calling flush and recompute
-ss =adaptData.data.getLabelsThatMatch('.*L2norm.*');
-s2 = adaptData.data.labels(~ismember(adaptData.data.labels, ss));
-adaptData = adaptData.reduce(s2);
+staleL2    = adaptData.data.getLabelsThatMatch('.*L2norm.*');
+keepLabels = adaptData.data.labels( ...
+    ~ismember(adaptData.data.labels, staleL2));
+adaptData  = adaptData.reduce(keepLabels);
 
-%build the label prefix for the EMG parameters.
-newLabelPrefix = adaptData.data.labels(startsWith(adaptData.data.labels, strcat('f', muscleLabels, '_s')) | ...
+% Build label prefixes for EMG parameters (e.g., 'fBF_s', 'sBF_s').
+newLabelPrefix = adaptData.data.labels( ...
+    startsWith(adaptData.data.labels, strcat('f', muscleLabels, '_s')) | ...
     startsWith(adaptData.data.labels, strcat('s', muscleLabels, '_s')));
 newLabelPrefix = unique(cellfun(@(x) x(1:end-2), newLabelPrefix, 'UniformOutput', false));
 
