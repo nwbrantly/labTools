@@ -198,47 +198,46 @@ for doRemoveBias = [false, true]
         descpSuffix = '';
     end
 
-    %% For each muscle, get L2 norm in original unit + in percentage unit
-    bothLegsColsIdx = nan(numel(normalizedDataLabelPrefix), numel(adaptData.data.labels)); %for each muscle, store the binary array of where the corresponding column of data is
-    bothLegsColsIdx_rawUnit = nan(numel(normalizedDataLabelPrefix), numel(adaptData.data.labels));
-    allnanMuslcesByStride = false(size(adaptData.data.Data, 1), numel(normalizedDataLabelPrefix)); %stride x muscles
-    for i = 1:numel(normalizedDataLabelPrefix)
-        %Finding the columns of the data
-        dataColIdx=(cellfun(@(x) ~isempty(x), regexp(adaptData.data.labels, ['^' normalizedDataLabelPrefix{i} '[ ]?\d+$'])));
-        bothLegsColsIdx(i, :) = dataColIdx;
+    %% Per-Muscle L2 Norm
+    nPrefixes = numel(normalizedDataLabelPrefix);
+    nLabels   = numel(adaptData.data.labels);
+    % bothLegsColsIdx(iMuscle, :): binary mask for that muscle's columns
+    bothLegsColsIdx         = nan(nPrefixes, nLabels);
+    bothLegsColsIdx_rawUnit = nan(nPrefixes, nLabels);
+    allnanMuslcesByStride   = false(nStrides, nPrefixes);
+
+    for iMuscle = 1:nPrefixes
+        dataColIdx = cellfun(@(x) ~isempty(x), regexp( ...
+            adaptData.data.labels, ...
+            ['^' normalizedDataLabelPrefix{iMuscle} '[ ]?\d+$']));
+        bothLegsColsIdx(iMuscle, :) = dataColIdx;
         curdata = adaptData.data.Data(:, dataColIdx);
         %record #of muscles that are all nan, compute it only once bc normalized vs raw should have the same nan content, will have 1
         %at a stride for a given muscle i that is all nan at that stride
-        allnanMuslcesByStride(:, i) = all(isnan(curdata), 2);
-        curdata(isnan(curdata))=0; %nan are made zero to computer the norm
+        allnanMuslcesByStride(:, iMuscle) = all(isnan(curdata), 2);
         %make nan zero to compute the norm, unless the whole 12 sub
         %interval is nan in which case the norm should also be nan.
         %now compute a by muscle norm, take L2 norm, over dim=2 (per rows)
+        curdata(isnan(curdata)) = 0;
         newData(:, newDataCol) = vecnorm(curdata, 2, 2);
-        %set the strides that had nans in all 12 subintervals to nan.
-        newData(allnanMuslcesByStride(:, i), newDataCol) = nan;
-        newLabels{newDataCol} = [normalizedDataLabelPrefix{i},'_L2normPercentUnit' labelSuffix];
-        newDescp{newDataCol} = ['L2norm of: ', normalizedDataLabelPrefix{i}, ' in the precentge unit '...
-            'after stretching each stride to have 100% = max of nanmean of last 40 strides of' normalizationRefCond ' and 0 = min of ' normalizationRefCond ...
-            'for every stride (specific OGBase 0-100% calculation see your refEp definition). Then the norm is' ...
-            'computed from the vecnorm of the 12 subintervasl of the current strides. nan values are treated as 0.' ...
-            descpSuffix];
+        newData(allnanMuslcesByStride(:, iMuscle), newDataCol) = nan;
+        newLabels{newDataCol} = [ ...
+            normalizedDataLabelPrefix{iMuscle} ...
+            '_L2normPercentUnit' labelSuffix];
+        newDescp{newDataCol} = ['L2norm of: ' normalizedDataLabelPrefix{iMuscle} ' in percentage unit after stretching each stride to 100%=max and 0%=min of nanmean of last 40 strides of ' normalizationRefCond '. NaN treated as 0. ' descpSuffix];
         newDataCol = newDataCol + 1;
 
-        %do the same for the raw unit
-        dataColIdx=(cellfun(@(x) ~isempty(x), regexp(adaptData.data.labels, ['^' rawDataLabelPrefix{i} '[ ]?\d+$'])));
-        bothLegsColsIdx_rawUnit(i, :) = dataColIdx;
+        dataColIdx = cellfun(@(x) ~isempty(x), regexp( ...
+            adaptData.data.labels, ...
+            ['^' rawDataLabelPrefix{iMuscle} '[ ]?\d+$']));
+        bothLegsColsIdx_rawUnit(iMuscle, :) = dataColIdx;
         curdata = adaptData.data.Data(:, dataColIdx);
-        curdata(isnan(curdata))=0; %nan are made zero to computer the norm
-        %now compute a by muscle norm
+        curdata(isnan(curdata)) = 0;
         newData(:, newDataCol) = vecnorm(curdata, 2, 2);
-        %set the strides that had nans in all 12 subintervals to nan,
-        %assume if it's nan in percentage unit will also be nan in the
-        %raw unit.
-        newData(allnanMuslcesByStride(:, i), newDataCol) = nan;
-        newLabels{newDataCol} =  [rawDataLabelPrefix{i},'_L2normRawUnit' labelSuffix];
-        newDescp{newDataCol} = ['L2norm of: ', rawDataLabelPrefix{i}, ' in the original voltage unit for every stride, the norm is' ...
-            'computed from the vecnorm of the 12 subintervasl of the current strides. nan values are treated as 0.' descpSuffix];
+        newData(allnanMuslcesByStride(:, iMuscle), newDataCol) = nan;
+        newLabels{newDataCol} = [ ...
+            rawDataLabelPrefix{iMuscle} '_L2normRawUnit' labelSuffix];
+        newDescp{newDataCol} = ['L2norm of: ' rawDataLabelPrefix{iMuscle} ' in original voltage unit. NaN treated as 0. ' descpSuffix];
         newDataCol = newDataCol + 1;
     end
 
