@@ -565,15 +565,15 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
             %             end
 
         end
-        %         SZ_align(i)=-1*nanmean(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'z']))/Normalizer;
-        %         SX_align(i)=nanmean(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'x']))/Normalizer;
-        %         SZmax_align(i)=-1*nanmin(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'z']))/Normalizer;
-        %         SXmax_align(i)=nanmin(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'x']))/Normalizer;
+        %         SZ_align(i)=-1*mean(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'z']), 'omitnan')/Normalizer;
+        %         SX_align(i)=mean(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'x']), 'omitnan')/Normalizer;
+        %         SZmax_align(i)=-1*min(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'z']), 'omitnan')/Normalizer;
+        %         SXmax_align(i)=min(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'x']), 'omitnan')/Normalizer;
 
-        SZ_align(i)=-1*nanmean(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'z']).Data(:, 1, i))/Normalizer;
-        SX_align(i)=nanmean(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'x']).Data(:, 1, i))/Normalizer;
-        SZmax_align(i)=-1*nanmin(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'z']).Data(:, 1, i))/Normalizer;
-        SXmax_align(i)=nanmin(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'x']).Data(:, 1, i))/Normalizer;
+        SZ_align(i)=-1*mean(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'z']).Data(:, 1, i), 'omitnan')/Normalizer;
+        SX_align(i)=mean(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'x']).Data(:, 1, i), 'omitnan')/Normalizer;
+        SZmax_align(i)=-1*min(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'z']).Data(:, 1, i), 'omitnan')/Normalizer;
+        SXmax_align(i)=min(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'x']).Data(:, 1, i), 'omitnan')/Normalizer;
 
 
 
@@ -669,15 +669,15 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
             %                 saveas(gcf,['FastOverlapped_' trialData.metaData.name],'png')
             %             end
         end
-        %         FZ_align(i)=-1*nanmean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']))/Normalizer; %%[OGFPy_fast(1:end-1) 'z']
-        %         FX_align(i)=nanmean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']))/Normalizer;
-        %         FZmax_align(i)=-1*nanmin(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']))/Normalizer;
-        %         FXmax_align(i)=nanmax(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']))/Normalizer;
+        %         FZ_align(i)=-1*mean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']), 'omitnan')/Normalizer; %%[OGFPy_fast(1:end-1) 'z']
+        %         FX_align(i)=mean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']), 'omitnan')/Normalizer;
+        %         FZmax_align(i)=-1*min(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']), 'omitnan')/Normalizer;
+        %         FXmax_align(i)=max(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']), 'omitnan')/Normalizer;
 
-        FZ_align(i)=-1*nanmean(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'z']).Data(:, 1, i))/Normalizer;
-        FX_align(i)=nanmean(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'x']).Data(:, 1, i))/Normalizer;
-        FZmax_align(i)=-1*nanmin(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'z']).Data(:, 1, i))/Normalizer;
-        FXmax_align(i)=nanmin(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'x']).Data(:, 1, i))/Normalizer;
+        FZ_align(i)=-1*mean(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'z']).Data(:, 1, i), 'omitnan')/Normalizer;
+        FX_align(i)=mean(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'x']).Data(:, 1, i), 'omitnan')/Normalizer;
+        FZmax_align(i)=-1*min(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'z']).Data(:, 1, i), 'omitnan')/Normalizer;
+        FXmax_align(i)=min(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'x']).Data(:, 1, i), 'omitnan')/Normalizer;
 
     end
 
@@ -832,10 +832,10 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                     end
                 end
             end
-            SZ_OGFP.(Ally{j})(i)=-1*nanmean(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'z']))/Normalizer;
-            SX_OGFP.(Ally{j})(i)=nanmean(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'x']))/Normalizer;
-            SZmax_OGFP.(Ally{j})(i)=-1*nanmin(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'z']))/Normalizer;
-            SXmax_OGFP.(Ally{j})(i)=nanmin(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'x']))/Normalizer;
+            SZ_OGFP.(Ally{j})(i)=-1*mean(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'z']), 'omitnan')/Normalizer;
+            SX_OGFP.(Ally{j})(i)=mean(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'x']), 'omitnan')/Normalizer;
+            SZmax_OGFP.(Ally{j})(i)=-1*min(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'z']), 'omitnan')/Normalizer;
+            SXmax_OGFP.(Ally{j})(i)=min(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'x']), 'omitnan')/Normalizer;
         end
 
         %%Now for the fast leg...
@@ -880,10 +880,10 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                     end
                 end
             end
-            FZ_OGFP.(Ally{j})(i)=-1*nanmean(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'z']))/Normalizer;
-            FX_OGFP.(Ally{j})(i)=nanmean(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'x']))/Normalizer;
-            FZmax_OGFP.(Ally{j})(i)=-1*nanmin(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'z']))/Normalizer;
-            FXmax_OGFP.(Ally{j})(i)=nanmax(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'x']))/Normalizer;
+            FZ_OGFP.(Ally{j})(i)=-1*mean(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'z']), 'omitnan')/Normalizer;
+            FX_OGFP.(Ally{j})(i)=mean(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'x']), 'omitnan')/Normalizer;
+            FZmax_OGFP.(Ally{j})(i)=-1*min(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'z']), 'omitnan')/Normalizer;
+            FXmax_OGFP.(Ally{j})(i)=max(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'x']), 'omitnan')/Normalizer;
         end
     end
 end
