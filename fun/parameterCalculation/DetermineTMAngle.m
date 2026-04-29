@@ -69,7 +69,8 @@ if ~isempty(strfind(trial, 'deg'))
     % NOTE: assumes angle digits precede 'deg' by at most 5 characters
     digitInds = regexp(degSubstr, '\d');
     if ~isempty(digitInds)
-        numVal        = str2double(degSubstr(digitInds));  % discards decimal points
+        % extracting only digit chars drops the decimal point from the value
+        numVal        = str2double(degSubstr(digitInds));
         firstDigitPos = digitInds(1);
         lastDigitPos  = digitInds(end);
         if firstDigitPos ~= lastDigitPos

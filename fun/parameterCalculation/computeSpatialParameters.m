@@ -296,7 +296,7 @@ alphaRatioSlow = alphaSlow ./ (alphaSlow + alphaFast);
 alphaRatioFast = alphaFast ./ (alphaSlow + alphaFast);
 
 % Delta alphas
-alphaDeltaSlow = sAngle(:, SHS2) - fAngle(:, FHS); % = alphaAngSlow-alphaAngFast
+alphaDeltaSlow = sAngle(:, SHS2) - fAngle(:, FHS);
 alphaDeltaFast = fAngle(:, FHS)  - sAngle(:, SHS);
 
 %% Compute Average Hip-Referenced Ankle Placements
