@@ -241,53 +241,40 @@ for doRemoveBias = [false, true]
         newDataCol = newDataCol + 1;
     end
 
-    %% compute the norm for the both legs and the avg norm (norm weighted by number of non-nan contributing muscles)
+    %% Both-Legs L2 Norm
     curdata = adaptData.data.Data(:, any(bothLegsColsIdx, 1));
-    %find strides where all muscle are nan.
-    allMsNanStride = all(isnan(curdata), 2); %all nans across a column, set that stride to nan.
-    curdata(isnan(curdata))=0; %nan are made zero to computer the norm
+    allMsNanStride = all(isnan(curdata), 2);
+    curdata(isnan(curdata)) = 0;
     newData(:, newDataCol) = vecnorm(curdata, 2, 2);
-    newData(allMsNanStride, newDataCol) = nan; %set strides that had all nans per muscles as nan.
+    newData(allMsNanStride, newDataCol) = nan;
     newLabels{newDataCol} = ['BothLegEMGL2normPercentUnit' labelSuffix];
-    newDescp{newDataCol} = ['L2norm of all muscles after they are flattend as a 1D vector.' ...
-        'in the percentage unit after stretching each stride to have 100% = max of nanmean of last 40 strides of ' normalizationRefCond ...
-        ' and 0 = min of ' normalizationRefCond '(specific OGBase 0-100% calculation see your refEp definition). Nan values are treated as 0.' descpSuffix];
+    newDescp{newDataCol}  = ['L2norm of all muscles flattened as a 1D vector in percentage unit (100%=max, 0%=min of nanmean of last 40 strides of ' normalizationRefCond '). NaN treated as 0. ' descpSuffix];
     newDataCol = newDataCol + 1;
 
-    %do the norm weight by non-nan muscles
-    newData(:, newDataCol) = newData(:, newDataCol-1)./sum(~allnanMuslcesByStride, 2);
+    newData(:, newDataCol) = newData(:, newDataCol-1) ./ ...
+        sum(~allnanMuslcesByStride, 2);
     newLabels{newDataCol} = ['BothLegEMGL2normPercentUnitAvg' labelSuffix];
-    newDescp{newDataCol}  = ['L2norm of all muscles after they are flattend as a 1D vector divided by number of muscles that contribute to the norm.' ...
-        'At any stride, if all data for a muscle is nan, the denominator will decrease by 1 (e.g., if only 19 muscles have non-nan entries, will take vecnom/19' ...
-        'This ignores muscles that contain some non-nan and some nan values, they are counted as countributing muscles (this is unlikely, we would often have nans for every sub-intervals of a strides)' ...
-        'The data is in the percentage unit after stretching each stride to have 100% = max of nanmean of last 40 strides of ' normalizationRefCond ...
-        ' and 0 = min of ' normalizationRefCond '(specific OGBase 0-100% calculation see your refEp definition). Nan values are treated as 0.' descpSuffix];
+    newDescp{newDataCol}  = ['L2norm of all muscles divided by number of non-NaN contributing muscles. A muscle is excluded from the denominator only if all its sub-intervals are NaN. In percentage unit. ' descpSuffix];
     newDataCol = newDataCol + 1;
 
     curdata = adaptData.data.Data(:, any(bothLegsColsIdx_rawUnit, 1));
-    allMsNanStride = all(isnan(curdata), 2); %all nans across a column, set that stride to nan.
-    curdata(isnan(curdata))=0; %nan are made zero to computer the norm
+    allMsNanStride = all(isnan(curdata), 2);
+    curdata(isnan(curdata)) = 0;
     newData(:, newDataCol) = vecnorm(curdata, 2, 2);
-    newData(allMsNanStride, newDataCol) = nan; %set strides that had all nans per muscles as nan.
-    newLabels{newDataCol}  = ['BothLegEMGL2normRawUnit' labelSuffix];
-    newDescp{newDataCol}  = ['L2norm of all muscles after they are flattend as a 1D vector.' ...
-        'in the raw voltage unit. Nan values are treated as 0.' descpSuffix];
+    newData(allMsNanStride, newDataCol) = nan;
+    newLabels{newDataCol} = ['BothLegEMGL2normRawUnit' labelSuffix];
+    newDescp{newDataCol}  = ['L2norm of all muscles flattened as a 1D vector in raw voltage unit. NaN treated as 0. ' descpSuffix];
     newDataCol = newDataCol + 1;
 
-    newData(:, newDataCol) = newData(:, newDataCol-1)./sum(~allnanMuslcesByStride, 2);
-    newLabels{newDataCol}  = ['BothLegEMGL2normRawUnitAvg' labelSuffix];
-    newDescp{newDataCol}  = ['L2norm of all muscles after they are flattend as a 1D vector divided by number of muscles that contribute to the norm.' ...
-        'At any stride, if all data for a muscle is nan, the denominator will decrease by 1 (e.g., if only 19 muscles have non-nan entries, will take vecnom/19' ...
-        'This ignores muscles that contain some non-nan and some nan values, they are counted as countributing muscles ' ...
-        '(this is unlikely, we would often have nans for every sub-intervals of a strides)' ...
-        'in the raw voltage unit. Nan values are treated as 0.' descpSuffix];
+    newData(:, newDataCol) = newData(:, newDataCol-1) ./ ...
+        sum(~allnanMuslcesByStride, 2);
+    newLabels{newDataCol} = ['BothLegEMGL2normRawUnitAvg' labelSuffix];
+    newDescp{newDataCol}  = ['L2norm of all muscles divided by number of non-NaN contributing muscles in raw voltage unit. ' descpSuffix];
     newDataCol = newDataCol + 1;
 
-    %record non-nans
     newData(:, newDataCol) = sum(~allnanMuslcesByStride, 2);
     newLabels{newDataCol} = ['BothLegEMGL2normNumMuscles' labelSuffix];
-    newDescp{newDataCol}  = ['number of non-nan muscles that contributed to the norm for both legs at a given stride. ',...
-        'A muscle is only counted as not countributed if the whole 12 subintervals were nan.' labelSuffix];
+    newDescp{newDataCol}  = ['Number of non-NaN muscles contributing to the both-legs norm. A muscle is excluded only if all its sub-intervals are NaN. ' labelSuffix];
     newDataCol = newDataCol + 1;
 
     %% Get the norm per leg
