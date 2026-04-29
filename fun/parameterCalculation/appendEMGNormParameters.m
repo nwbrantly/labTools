@@ -153,7 +153,8 @@ adaptData  = adaptData.reduce(keepLabels);
 newLabelPrefix = adaptData.data.labels( ...
     startsWith(adaptData.data.labels, strcat('f', muscleLabels, '_s')) | ...
     startsWith(adaptData.data.labels, strcat('s', muscleLabels, '_s')));
-newLabelPrefix = unique(cellfun(@(x) x(1:end-2), newLabelPrefix, 'UniformOutput', false));
+newLabelPrefix = unique(cellfun( ...
+    @(x) x(1:end-2), newLabelPrefix, 'UniformOutput', false));
 
 fprintf('\nNormalizing the data using %s\n', normalizationRefCond);
 %this function call will create new parameters as NormsTA_s 1 etc. for all
@@ -165,32 +166,34 @@ adaptData = adaptData.normalizeToBaselineEpoch(newLabelPrefix, refEp);
 
 %at this point, the raw data is in format sTA_s 1, the normalized data
 %is in NormsTA_s 1. A total of length(newLabelPrefix) x 12 new labels will be created.
-rawDataLabelPrefix = newLabelPrefix; %save the old prefix to extract the voltage data
+rawDataLabelPrefix        = newLabelPrefix;
 normalizedDataLabelPrefix = strcat('Norm', newLabelPrefix);
 
-clear l1 l2 newLabelPrefix s2 ss
+clear newLabelPrefix keepLabels staleNorm staleL2
 adaptDataOriginal = adaptData;
 
-%% Compute norm parameters
-% use an array to collect all other data that's not by muscle.
-newData = nan(size(adaptData.data.Data, 1), 200); %allocate an arbitrarily large array
-newLabels = cell(1, 200);
-newDescp = cell(1, 200);
+%% Compute Norm Parameters
+nStrides   = size(adaptData.data.Data, 1);
+nAlloc     = 200; % arbitrarily large pre-allocation
+newData    = nan(nStrides, nAlloc);
+newLabels  = cell(1, nAlloc);
+newDescp   = cell(1, nAlloc);
 newDataCol = 1;
 
-% Extract data for biased and non-biased data
-for rmBiase = [0, 1]
-    if rmBiase
+for doRemoveBias = [false, true]
+    if doRemoveBias
         %Bias removal can be done manually or by calling remove bias. They don't
         %get the same results, checked that the TMBase we get from calling the
         %getEpochData TMBase is not the same as the base we get rom callig
         %removeBiasV4. Some values are the same, some are not, didn't figure out
         %why. For now wil rely on calling removebias
-        adaptData = adaptDataOriginal.removeBias(biasRemovalCond);
+        adaptData   = adaptDataOriginal.removeBias(biasRemovalCond);
         labelSuffix = 'Unbiased';
-        descpSuffix = ['Before any parameter computation, the data is first unbiased by tasking current data - ' normalizationRefCond];
+        descpSuffix = ['Before any parameter computation, the data ' ...
+            'is first unbiased by subtracting the ' ...
+            normalizationRefCond ' baseline.'];
     else
-        adaptData = adaptDataOriginal;
+        adaptData   = adaptDataOriginal;
         labelSuffix = '';
         descpSuffix = '';
     end
