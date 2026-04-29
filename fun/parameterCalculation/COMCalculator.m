@@ -134,7 +134,7 @@ else
     % HAT COM: 30.3% from the HAT marker toward the mean hip position
     % (fraction 1 - 0.697 derived from Winter and USAARL-88-5 pilot data)
     hipMidpoint = (rHip + lHip) ./ 2;
-    hipMeanPos  = nanmean([rHip; lHip]);  % grand mean of all hip samples
+    hipMeanPos  = mean([rHip; lHip], 'omitnan');  % grand mean of all hip samples
     hatCOM = abs(hipMidpoint - hatPos) .* (1 - 0.697) + hipMeanPos;
 
     %% Compile Whole-Body Center of Mass
