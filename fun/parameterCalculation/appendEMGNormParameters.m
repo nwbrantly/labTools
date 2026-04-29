@@ -1,62 +1,50 @@
-%Compute and append EMGnorm parameters to the adaptationData object. The
-%following parameters will be added:
-%   - L2norm of 1) each muscle, 2) all msucles in 1 leg, 3) all muscles in both
-%   legs, 4) asymmetry per muscle, 5) asymmetry for the whole leg.
-%   6) an average norm parameter for the norm per leg or for both legs, and
-%   asym norm for the whole leg will also be computating by taking
-%   norm/#muscles. The # of muscles representing non-nan  contributing muscles
-%   (e.g., if 1 muscle is all nan for a stride, the
-%   average will = norm / (total #muscles - 1).
-%   - all the parameters above will be computed in the original voltage unit
-%   - in percentage unit after normalizing data to normalizationRefCond
-%   - after bias removal in original voltage unit
-%   - after bias removal in percentage unit.
 function adaptData = appendEMGNormParameters(adaptData, ...
     muscleLabels, normalizationRefCond, biasRemovalCond)
+%APPENDEMGNORMPARAMETERS Compute and append EMG norm parameters.
 %
-% Examples:
-% adaptData = appendEMGNormParameters(adaptData,{'BF','GLU','TA'},...
-%    'OGBase','TMBase');
+%   Computes L2-norm EMG parameters and appends them to an
+% adaptationData object. Parameter families are computed for each
+% muscle individually, per leg, and across both legs, in both
+% percentage and raw voltage units, with and without bias removal:
+%   - Per-muscle L2 norm
+%   - Per-leg and bilateral L2 norm and average norm (weighted by
+%     non-NaN muscle count)
+%   - Per-muscle asymmetry norm (fast minus slow)
+%   - Bilateral asymmetry L2 norm and average norm
 %
-% [Prerequisite]
-% This requires the normalization trial to be available
-%   with EMG parameters properly calculated such that we can run the linear
-%   stretchning properly by referencing the min/max from the reference trial
-%   (e.g., TMBase or OGBase).
+%   Existing 'Norm*' and '*L2norm*' labels are removed and regenerated
+% to avoid stale parameters from prior runs.
 %
-% [OUTPUTARGS]
-%   - adaptData: adaptataionData object with the new EMG norm parameters
-%       added. It's up to the caller fnction to save the file.
+% Inputs:
+%   adaptData            - adaptationData object to update
+%   muscleLabels         - cell array of unique muscle name strings
+%                          without the fast/slow prefix (e.g.,
+%                          {'BF','GLU','TA'}). If empty or omitted,
+%                          falls back to
+%                          adaptData.data.DataInfo.UserData.muscleLabels;
+%                          returns without change if neither is found.
+%   normalizationRefCond - condition name used to normalize EMG; 100%
+%                          is the max and 0% is the min of the nanmean
+%                          of the last 40 strides (excluding the last
+%                          5) of this condition. Falls back to UserData
+%                          or auto-detected baseline if empty or
+%                          omitted.
+%   biasRemovalCond      - condition name for bias removal. If
+%                          provided, overrides the default trial-type-
+%                          based bias removal in removeBiasV4. Pass []
+%                          or omit to use the default behavior.
+%                          Optional.
 %
-% [INPUTARGS]
-%   - adaptData: adaptData object to add parameters
-%   - muscleLabels: cell array of strings that represent the
-%       muscleLabels, contains unique muscle names only without f/s. e.g.,
-%       {'BF'	'GLU'	'LG'	'MG'	'PER'	'SEMT'	'SOL'	'TA'	'VL'
-%       'VM'}. OPTIONAL, if not provided, will look for one in
-%       adaptData.data.DataInfo.UserData, and if not provided and also not available
-%       in the metaData, will throw a warning and make no change.
-%       note only the muscles provided in the list will have norm per
-%       muscle calculated and the whole leg norm assumes these are all
-%       the muscles available
-%   - normalizationRefCond: string representing the conditon name that will
-%       be used to normalize the EMG data, i.e., all EMG data will be stretched
-%       in reference to the last 40 stirdes (excluding the last 5) of this refcondition such that 100%
-%       = max of the ref condition, 0 = min of the ref condition.
-%   - biasRemovalCond: OPTIONAL. string representing the condition name to
-%       use to compute bias removed EMG norm. if provided, will remove bias using the providec condition and
-%       ignore the trial type (e.g., if provided 'OGBase' will remove
-%       OGBase for all types of trials including TM, etc.)
-%       If not provided, will use default bias removal behavior which looks
-%       for trial type specific baseline (see
-%       labTools\classes\dataStructs\@adaptationData\removeBiasV4.m)
+% Outputs:
+%   adaptData - updated adaptationData object with new EMG norm
+%               parameters appended
 %
-% See also:
-%   labTools\classes\dataStructs\@adaptationData\removeBiasV4.m
-%   labTools\gui\importc3d\loadSubject.m
+% Toolbox Dependencies:
+%   None
 %
 % $Author: Shuqi Liu $	$Date: 2026/04/02 11:44:22 $	$Revision: 0.1 $
-% Copyright: Sensorimotor Learning Laboratory 2026
+% See also REMOVEBIAS, REMOVEBIASNV4, LOADSUBJECT,
+%   POPULATENEWPARAMBACKTOEXPDATA.
 
 arguments
     adaptData            (1,1)
