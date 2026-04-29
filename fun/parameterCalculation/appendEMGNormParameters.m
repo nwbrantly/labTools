@@ -57,6 +57,13 @@ function adaptData = appendEMGNormParameters(adaptData, muscleLabels, normalizat
 % $Author: Shuqi Liu $	$Date: 2026/04/02 11:44:22 $	$Revision: 0.1 $
 % Copyright: Sensorimotor Learning Laboratory 2026
 
+arguments
+    adaptData            (1,1)
+    muscleLabels                 = {}
+    normalizationRefCond (1,:) char = ''
+    biasRemovalCond              = []
+end
+
 % Set up muscle labels, use what's in the adaptData or the info file
 if nargin < 2 || isempty(muscleLabels)
     %muscelLabels not provided, look for it in the userdata. This is
