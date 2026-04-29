@@ -1,4 +1,3 @@
-function adaptData = appendEMGNormParameters(adaptData, muscleLabels, normalizationRefCond, biasRemovalCond)
 %Compute and append EMGnorm parameters to the adaptationData object. The
 %following parameters will be added:
 %   - L2norm of 1) each muscle, 2) all msucles in 1 leg, 3) all muscles in both
@@ -12,6 +11,8 @@ function adaptData = appendEMGNormParameters(adaptData, muscleLabels, normalizat
 %   - in percentage unit after normalizing data to normalizationRefCond
 %   - after bias removal in original voltage unit
 %   - after bias removal in percentage unit.
+function adaptData = appendEMGNormParameters(adaptData, ...
+    muscleLabels, normalizationRefCond, biasRemovalCond)
 %
 % Examples:
 % adaptData = appendEMGNormParameters(adaptData,{'BF','GLU','TA'},...
@@ -64,34 +65,42 @@ arguments
     biasRemovalCond              = []
 end
 
-% Set up muscle labels, use what's in the adaptData or the info file
-if nargin < 2 || isempty(muscleLabels)
-    %muscelLabels not provided, look for it in the userdata. This is
-    %required, if not found will return without doing anything.
+%% Resolve muscleLabels
+if isempty(muscleLabels)
     if ~isfield(adaptData.data.DataInfo.UserData, 'muscleLabels')
-        warning('muscleLabels was not provided and not available in the adaptData.data.DataInfo.UserData. EMGNorm calculation was not possible. Returning with no change made in params.')
+        warning(['muscleLabels was not provided and not available in ' ...
+            'adaptData.data.DataInfo.UserData. EMGNorm calculation ' ...
+            'was not possible. Returning with no change made in params.'])
         return
-    else %use the one from userdata
+    else
         muscleLabels = adaptData.data.DataInfo.UserData.muscleLabels;
-        fprintf('No muscleLabels provided, will use what is available in the adaptData.data.DataInfo.UserData: %s\n', strjoin(muscleLabels))
+        fprintf(['No muscleLabels provided, will use what is ' ...
+            'available in adaptData.data.DataInfo.UserData: %s\n'], ...
+            strjoin(muscleLabels))
     end
 end
 
-if nargin < 3 || isempty(normalizationRefCond)
-    %normalizationRefCond not provided, look for it in the userdata
+%% Resolve normalizationRefCond
+if isempty(normalizationRefCond)
     if isfield(adaptData.data.DataInfo.UserData, 'normalizationRefCond')
-        normalizationRefCond = adaptData.data.DataInfo.UserData.normalizationRefCond;
-        fprintf('No normalizationRefCond provided, will use what is available in the adaptData.data.DataInfo.UserData: %s\n', normalizationRefCond)
+        normalizationRefCond = ...
+            adaptData.data.DataInfo.UserData.normalizationRefCond;
+        fprintf(['No normalizationRefCond provided, will use what is ' ...
+            'available in adaptData.data.DataInfo.UserData: %s\n'], ...
+            normalizationRefCond)
     else
-        %if no normalizationRefCond provided, look for one now.
-        warning('No normalizationRefCond provided and could not find one the adaptData.data.Datainfo.UserData. Will look for OGBase, then TMBase, then NIMBase, then TRBase, then TSBase, if none present, will look for trial1 type base');
+        warning(['No normalizationRefCond provided and could not ' ...
+            'find one in adaptData.data.DataInfo.UserData. Will ' ...
+            'search for a baseline condition (OGBase, TMBase, ...).'])
         ordersToTry = {'OG', 'TM', 'NIM', 'TR', 'TS', ...
-            adaptData.trialTypes{find(~cellfun(@isempty, adaptData.trialTypes), 1)}};
-
-        for o = ordersToTry
-            normalizationRefCond = adaptData.metaData.getConditionsThatMatchV2('base', o{1});
+            adaptData.trialTypes{find( ...
+            ~cellfun(@isempty, adaptData.trialTypes), 1)}};
+        for iOrder = ordersToTry
+            normalizationRefCond = ...
+                adaptData.metaData.getConditionsThatMatchV2( ...
+                'base', iOrder{1});
             if ~isempty(normalizationRefCond)
-                break %found a match break
+                break
             end
         end
     end
