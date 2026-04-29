@@ -1,6 +1,37 @@
 function [out] = computeForceParameters_OGFP_aligned(strideEvents, GRFData, slowleg, fastleg, BW, trialData, markerData)
-% CJS 2017: Here I am including the code that I have been using for the incline decline analysis.
-% This code is a bit eccentric in the way that identifies the inclination for the TM.
+%COMPUTEFORCEPARAMETERS_OGFP_ALIGNED Compute AP GRF parameters using stride-aligned force traces.
+%
+%   Variant of COMPUTEFORCEPARAMETERS_OGFP that time-normalizes each
+% stance-phase GRF waveform to a fixed grid before extracting parameters.
+% Forces are low-pass filtered at 20 Hz. For each stride, the AP force
+% trace is aligned to 100 points across stance and braking/propulsion
+% parameters are derived from the aligned trace. TM incline angle is
+% used to apply a sign flip for decline trials. Handrail use is flagged
+% per stride via the HFy/HFz channels. NIM trials apply shoe-weight
+% correction to the body-weight normalizer.
+%
+% Inputs:
+%   strideEvents - struct of stride event times with fields tSHS, tFTO,
+%                  tFHS, tSTO, tSHS2, tFTO2, tFHS2, tSTO2
+%   GRFData      - labTimeSeries of ground reaction forces
+%   slowleg      - slow-leg identifier, 'L' or 'R' (char)
+%   fastleg      - fast-leg identifier, 'R' or 'L' (char)
+%   BW           - participant body weight (kg)
+%   trialData    - processedTrialData object supplying metaData and
+%                  gaitEvents
+%   markerData   - labTimeSeries of marker data (currently unused;
+%                  retained for call-site compatibility)
+%
+% Outputs:
+%   out - parameterSeries of stride-aligned AP GRF parameters per
+%         stride, including braking/propulsion averages for the best
+%         single force plate, summed across plates, and per-plate
+%
+% Toolbox Dependencies:
+%   None
+%
+% See also COMPUTEFORCEPARAMETERS_OGFP, COMPUTELEGFORCEPARAMETERS,
+%   DETERMINETMANGLE, PARAMETERSERIES.
 
 %~~~~~~~ Here is where I am putting real stuffs ~~~~~~~~
 trial=trialData.metaData.description;
