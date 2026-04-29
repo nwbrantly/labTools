@@ -1,4 +1,4 @@
-% createDependentParamRecipes  Build and save dependent parameter recipes.
+%CREATEDEPENDENTPARAMRECIPES Build and save dependent parameter recipes.
 %
 %   Creates a recipe table (fieldList) defining how derived EMG
 % parameters are computed from base stride-segment parameters. The
@@ -7,10 +7,10 @@
 % EMG muscle/side combination. The completed table is saved as
 % DependParamRecipes.mat in the same directory as this script.
 %
-%   Toolbox Dependencies:
-%     None
+% Toolbox Dependencies:
+%   None
 %
-%   See also: adaptationData, calcParameters
+% See also ADAPTATIONDATA, CALCPARAMETERS.
 
 %% Initialize Recipe List
 fieldList = {'hipContribution', '@(w,x,y,z) w-x-y-z', ...
