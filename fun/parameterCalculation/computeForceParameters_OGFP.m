@@ -1,23 +1,18 @@
 function out = computeForceParameters_OGFP(strideEvents, GRFData, ...
     slowleg, fastleg, BW, trialData, markerData)
-% Compute stride-by-stride AP GRF parameters from overground force plates
+%COMPUTEFORCEPARAMETERS_OGFP Compute AP GRF parameters from overground force plates.
 %
-% Syntax
-%   out = computeForceParameters_OGFP(strideEvents, GRFData, slowleg, ...
-%       fastleg, BW, trialData, markerData)
-%
-% Description
 %   Computes anterior-posterior (AP) ground reaction force parameters for
-%   trials recorded with overground force plates (OG/NIM). Forces are
-%   low-pass filtered at 20 Hz and AP offsets are estimated and removed
-%   per leg. For each stride, the function identifies which force plate
-%   contains a valid full-stance waveform (double-peaked vertical force
-%   exceeding a body-weight threshold) and extracts average braking and
-%   propulsion from that plate. The same parameters are also computed
-%   summed across all force plates and per-plate individually.
-%   Handrail use is flagged per stride via the HFy/HFz channels.
+% trials recorded with overground force plates (OG/NIM). Forces are
+% low-pass filtered at 20 Hz and AP offsets are estimated and removed
+% per leg. For each stride, the function identifies which force plate
+% contains a valid full-stance waveform (double-peaked vertical force
+% exceeding a body-weight threshold) and extracts average braking and
+% propulsion from that plate. The same parameters are also computed
+% summed across all force plates and per-plate individually.
+% Handrail use is flagged per stride via the HFy/HFz channels.
 %
-% Inputs
+% Inputs:
 %   strideEvents - struct of stride event times with fields tSHS, tFTO,
 %                  tFHS, tSTO, tSHS2, tFTO2, tFHS2, tSTO2
 %   GRFData      - labTimeSeries of ground reaction forces
@@ -28,18 +23,17 @@ function out = computeForceParameters_OGFP(strideEvents, GRFData, ...
 %   markerData   - labTimeSeries of marker data (used for optional COM
 %                  computation; pass empty if unavailable)
 %
-% Outputs
+% Outputs:
 %   out - parameterSeries of AP GRF parameters per stride, including
 %         braking/propulsion averages and peaks for the best single
 %         force plate, summed across plates, and per-plate, plus
 %         vertical and ML force means, and handrail use flag
 %
-% Toolbox Dependencies
+% Toolbox Dependencies:
 %   None
 %
-% See Also
-%   computeForceParameters, ComputeLegForceParameters,
-%   DetermineTMAngle, parameterSeries
+% See also COMPUTEFORCEPARAMETERS, COMPUTELEGFORCEPARAMETERS,
+%   DETERMINETMANGLE, PARAMETERSERIES.
 
 arguments
     strideEvents (1,1) struct

@@ -1,22 +1,17 @@
 function out = computeCOM(strideEvents, markerData, BW, slowleg, ...
     fastleg, impactS, expData, gaitEvents, flipIT)
-% Compute stride-by-stride COM kinematics relative to each ankle
+%COMPUTECOM Compute stride-by-stride COM kinematics relative to each ankle.
 %
-% Syntax
-%   out = computeCOM(strideEvents, markerData, BW, slowleg, fastleg, ...
-%       impactS, expData, gaitEvents, flipIT)
-%
-% Description
 %   Computes stride-by-stride COM position and velocity parameters in
-%   an ankle-centric reference frame. The body COM is estimated via
-%   COMCalculator if the BCOM marker is absent. The COM trajectory is
-%   rotated relative to each ankle, differentiated, low-pass filtered
-%   at 5 Hz, and time-normalized over the gait cycle. Per-stride
-%   values are extracted at heel strike and across mid-stance windows
-%   (indices 8-23 of the time-normalized trace). Symmetry parameters
-%   are computed as fast-minus-slow differences.
+% an ankle-centric reference frame. The body COM is estimated via
+% COMCalculator if the BCOM marker is absent. The COM trajectory is
+% rotated relative to each ankle, differentiated, low-pass filtered
+% at 5 Hz, and time-normalized over the gait cycle. Per-stride
+% values are extracted at heel strike and across mid-stance windows
+% (indices 8-23 of the time-normalized trace). Symmetry parameters
+% are computed as fast-minus-slow differences.
 %
-% Inputs
+% Inputs:
 %   strideEvents - struct of stride event times with fields tSHS,
 %                  tFTO, tFHS, tSTO, tSHS2, tFTO2, tFHS2, tSTO2
 %   markerData   - orientedLabTimeSeries of 3-D marker positions
@@ -31,15 +26,14 @@ function out = computeCOM(strideEvents, markerData, BW, slowleg, ...
 %   flipIT       - sign-flip scalar: +1 for level/incline,
 %                  -1 for decline
 %
-% Outputs
+% Outputs:
 %   out - parameterSeries of COM position and velocity parameters
 %         per stride (~72 parameters)
 %
-% Toolbox Dependencies
+% Toolbox Dependencies:
 %   None
 %
-% See Also
-%   COMCalculator, computeForceParameters_OGFP, parameterSeries
+% See also COMCALCULATOR, COMPUTEFORCEPARAMETERS_OGFP, PARAMETERSERIES.
 
 arguments
     strideEvents (1,1) struct

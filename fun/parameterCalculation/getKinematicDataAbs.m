@@ -4,26 +4,19 @@ function [rotatedMarkerData, sAnkFwd, fAnkFwd, sAnk2D, fAnk2D, ...
     getKinematicDataAbs(eventTimes, markerData, angleData, s)
 %GETKINEMATICDATAABS Extract marker data in absolute lab-frame coordinates.
 %
-% Syntax
-%   [rotatedMarkerData, sAnkFwd, fAnkFwd, sAnk2D, fAnk2D, sAngle, ...
-%    fAngle, direction, hipPosSHS, sAnk_fromAvgHip, ...
-%    fAnk_fromAvgHip] = ...
-%       getKinematicDataAbs(eventTimes, markerData, angleData, s)
+%   Like GETKINEMATICDATA but uses an absolute lab-frame reference
+% (origin) rather than a hip-centered coordinate frame. Ankle
+% positions in sAnkFwd and sAnk2D are therefore absolute rather than
+% relative to the hip. The reference axis for rotation is derived
+% from the ankle markers instead of the hip markers.
 %
-% Description
-%   Like getKinematicData but uses an absolute lab-frame reference
-%   (origin) rather than a hip-centered coordinate frame. Ankle
-%   positions in sAnkFwd and sAnk2D are therefore absolute rather than
-%   relative to the hip. The reference axis for rotation is derived
-%   from the ankle markers instead of the hip markers.
-%
-% Inputs
+% Inputs:
 %   eventTimes  - (numStrides x numEvents) array of gait event times
 %   markerData  - orientedLabTimeSeries of 3D marker trajectories
 %   angleData   - labTimeSeries of limb angles (or empty)
 %   s           - (char) slow-leg identifier: 'L' or 'R'
 %
-% Outputs
+% Outputs:
 %   rotatedMarkerData - markerData rotated to lab-frame orientation
 %   sAnkFwd           - (numStrides x numEvents) slow ankle fore-aft
 %                       position in absolute lab frame
@@ -43,11 +36,10 @@ function [rotatedMarkerData, sAnkFwd, fAnkFwd, sAnk2D, fAnk2D, ...
 %   fAnk_fromAvgHip   - fast ankle fore-aft position relative to mean
 %                       hip
 %
-% Toolbox Dependencies
+% Toolbox Dependencies:
 %   None
 %
-% See Also
-%   getKinematicData, computeSpatialParameters
+% See also GETKINEMATICDATA, COMPUTESPATIALPARAMETERS.
 
 arguments
     eventTimes  (:,:) double

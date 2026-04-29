@@ -1,22 +1,17 @@
 function out = computeHreflexParameters(strideEvents, HreflexData, ...
     EMGData, slowLeg)
-% Compute stride-by-stride H-reflex parameters across SOL, MG, and LG
+%COMPUTEHREFLEXPARAMETERS Compute stride-by-stride H-reflex parameters.
 %
-% Syntax
-%   out = computeHreflexParameters(strideEvents, HreflexData, ...
-%       EMGData, slowLeg)
-%
-% Description
 %   Computes per-stride H-reflex parameters for three muscles (SOL, MG,
-%   LG) on both legs. Stimulation artifact indices are localized from
-%   tibialis anterior EMG synchronized to trigger signals, then peak-to-
-%   peak amplitudes (H-wave, M-wave, noise) and RMS values are extracted
-%   per stride for each muscle. Background EMG RMS is computed for both
-%   stimulated strides (pre-artifact window) and non-stimulated strides
-%   (mid single-stance). Output is a parameterSeries that can be
-%   concatenated with other parameter series from the same trial.
+% LG) on both legs. Stimulation artifact indices are localized from
+% tibialis anterior EMG synchronized to trigger signals, then peak-to-
+% peak amplitudes (H-wave, M-wave, noise) and RMS values are extracted
+% per stride for each muscle. Background EMG RMS is computed for both
+% stimulated strides (pre-artifact window) and non-stimulated strides
+% (mid single-stance). Output is a parameterSeries that can be
+% concatenated with other parameter series from the same trial.
 %
-% Inputs
+% Inputs:
 %   strideEvents - struct of stride event times with fields tSHS, tFTO,
 %                  tFHS, tSTO, tSHS2, tFTO2, tFHS2, tSTO2
 %   HreflexData  - labTimeSeries containing stimulator trigger channels
@@ -24,17 +19,16 @@ function out = computeHreflexParameters(strideEvents, HreflexData, ...
 %                  RMG, LMG, RLG, LLG, RTAP, LTAP required)
 %   slowLeg      - slow-leg identifier, 'R' or 'L' (char)
 %
-% Outputs
+% Outputs:
 %   out - parameterSeries of H-reflex parameters per stride (68
 %         parameters: timing, amplitude, RMS, and background EMG for
 %         each combination of leg, muscle, and measure)
 %
-% Toolbox Dependencies
+% Toolbox Dependencies:
 %   None
 %
-% See Also
-%   computeSpatialParameters, computeTemporalParameters,
-%   computeForceParameters, Hreflex, parameterSeries
+% See also COMPUTESPATIALPARAMETERS, COMPUTETEMPORALPARAMETERS,
+%   COMPUTEFORCEPARAMETERS, PARAMETERSERIES.
 
 arguments
     strideEvents (1,1) struct
