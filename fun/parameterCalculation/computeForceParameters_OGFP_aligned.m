@@ -489,7 +489,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
             ps_align(find(ps_align>=0.95*length(striderSy_align)))=[]; % 2/14/2018 -- This is to prevent the impulse from being identified.
             %             end
 
-            ImpactMagS_align = find((striderSy_align-LevelofInterest)==max(striderSy_align(1:75)-LevelofInterest, 'omitnan'));%no longer percent of stride
+            ImpactMagS_align = find((striderSy_align-LevelofInterest)==max(striderSy_align(1:75)-LevelofInterest, [], 'omitnan'));%no longer percent of stride
             if isempty(ImpactMagS_align)%~=1
                 postImpactS_align = ns_align(find(ns_align>ImpactMagS_align(end), 1, 'first'));
                 if isempty(postImpactS_align)%~=1
@@ -502,14 +502,14 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
 
             else
                 SB_align(i) = FlipB.*(mean(striderSy_align(ns_align)-LevelofInterest, 'omitnan'));
-                SBmax_align(i) = FlipB.*(min(striderSy_align(ns_align)-LevelofInterest, 'omitnan'));
+                SBmax_align(i) = FlipB.*(min(striderSy_align(ns_align)-LevelofInterest, [], 'omitnan'));
             end
 
             if isempty(ps_align)
 
             else
                 SP_align(i)=mean(striderSy_align(ps_align)-LevelofInterest, 'omitnan');
-                SPmax_align(i)=max(striderSy_align(ps_align)-LevelofInterest, 'omitnan');
+                SPmax_align(i)=max(striderSy_align(ps_align)-LevelofInterest, [], 'omitnan');
             end
 
             if exist('postImpactS_align')==0 || isempty(postImpactS_align)==1
@@ -520,7 +520,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                 if isempty(striderSy_align(find((striderSy_align(SHS-SHS+1: postImpactS_align)-LevelofInterest)>0)))
                     %impactSmax(i)=NaN;
                 else
-                    impactSmax_align(i)=max(striderSy_align(find((striderSy_align(SHS-SHS+1: postImpactS_align)-LevelofInterest)>0)), 'omitnan')-LevelofInterest;
+                    impactSmax_align(i)=max(striderSy_align(find((striderSy_align(SHS-SHS+1: postImpactS_align)-LevelofInterest)>0)), [], 'omitnan')-LevelofInterest;
                 end
             end
 
@@ -567,13 +567,13 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
         end
         %         SZ_align(i)=-1*mean(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'z']), 'omitnan')/Normalizer;
         %         SX_align(i)=mean(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'x']), 'omitnan')/Normalizer;
-        %         SZmax_align(i)=-1*min(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'z']), 'omitnan')/Normalizer;
-        %         SXmax_align(i)=min(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'x']), 'omitnan')/Normalizer;
+        %         SZmax_align(i)=-1*min(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'z']), [], 'omitnan')/Normalizer;
+        %         SXmax_align(i)=min(filteredSlowStance.getDataAsVector([OGFPy_slow(1:end-1) 'x']), [], 'omitnan')/Normalizer;
 
         SZ_align(i)=-1*mean(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'z']).Data(:, 1, i), 'omitnan')/Normalizer;
         SX_align(i)=mean(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'x']).Data(:, 1, i), 'omitnan')/Normalizer;
-        SZmax_align(i)=-1*min(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'z']).Data(:, 1, i), 'omitnan')/Normalizer;
-        SXmax_align(i)=min(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'x']).Data(:, 1, i), 'omitnan')/Normalizer;
+        SZmax_align(i)=-1*min(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'z']).Data(:, 1, i), [], 'omitnan')/Normalizer;
+        SXmax_align(i)=min(filteredSlow_align.getPartialDataAsATS([OGFPy_slow(1:end-1) 'x']).Data(:, 1, i), [], 'omitnan')/Normalizer;
 
 
 
@@ -606,7 +606,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
             pf_align(find(pf_align>=0.95*length(striderFy_align)))=[]; % 2/14/2018 -- This is to prevent the impulse from being identified.
             %             end
 
-            ImpactMagF_align=find((striderFy_align-LevelofInterest)==max(striderFy_align(1:75)-LevelofInterest, 'omitnan'));%1:15
+            ImpactMagF_align=find((striderFy_align-LevelofInterest)==max(striderFy_align(1:75)-LevelofInterest, [], 'omitnan'));%1:15
             if isempty(ImpactMagF_align)%~=1
                 postImpactF_align=nf_align(find(nf_align>ImpactMagF_align(end), 1, 'first'));
                 if isempty(postImpactF_align)%~=1
@@ -619,13 +619,13 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
 
             else
                 FP_align(i)=mean(striderFy_align(pf_align)-LevelofInterest, 'omitnan');
-                FPmax_align(i)=max(striderFy_align(pf_align)-LevelofInterest, 'omitnan');
+                FPmax_align(i)=max(striderFy_align(pf_align)-LevelofInterest, [], 'omitnan');
             end
             if isempty(nf_align)
 
             else
                 FB_align(i)=FlipB.*(mean(striderFy_align(nf_align)-LevelofInterest, 'omitnan'));
-                FBmax_align(i)=FlipB.*(min(striderFy_align(nf_align)-LevelofInterest, 'omitnan'));
+                FBmax_align(i)=FlipB.*(min(striderFy_align(nf_align)-LevelofInterest, [], 'omitnan'));
             end
 
             if exist('postImpactF_align')==0 || isempty(postImpactF_align)==1
@@ -635,7 +635,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                 if isempty(striderFy_align(find((striderFy_align(FHS-FHS+1: postImpactF_align)-LevelofInterest)>0)))
 
                 else
-                    impactFmax_align(i)=max(striderFy_align(find((striderFy_align(FHS-FHS+1: postImpactF_align)-LevelofInterest)>0)), 'omitnan')-LevelofInterest;
+                    impactFmax_align(i)=max(striderFy_align(find((striderFy_align(FHS-FHS+1: postImpactF_align)-LevelofInterest)>0)), [], 'omitnan')-LevelofInterest;
                 end
             end
 
@@ -671,13 +671,13 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
         end
         %         FZ_align(i)=-1*mean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']), 'omitnan')/Normalizer; %%[OGFPy_fast(1:end-1) 'z']
         %         FX_align(i)=mean(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']), 'omitnan')/Normalizer;
-        %         FZmax_align(i)=-1*min(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']), 'omitnan')/Normalizer;
-        %         FXmax_align(i)=max(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']), 'omitnan')/Normalizer;
+        %         FZmax_align(i)=-1*min(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'z']), [], 'omitnan')/Normalizer;
+        %         FXmax_align(i)=max(filteredFastStance.getDataAsVector([OGFPy_fast(1:end-1) 'x']), [], 'omitnan')/Normalizer;
 
         FZ_align(i)=-1*mean(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'z']).Data(:, 1, i), 'omitnan')/Normalizer;
         FX_align(i)=mean(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'x']).Data(:, 1, i), 'omitnan')/Normalizer;
-        FZmax_align(i)=-1*min(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'z']).Data(:, 1, i), 'omitnan')/Normalizer;
-        FXmax_align(i)=min(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'x']).Data(:, 1, i), 'omitnan')/Normalizer;
+        FZmax_align(i)=-1*min(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'z']).Data(:, 1, i), [], 'omitnan')/Normalizer;
+        FXmax_align(i)=min(filteredFast_align.getPartialDataAsATS([OGFPy_fast(1:end-1) 'x']).Data(:, 1, i), [], 'omitnan')/Normalizer;
 
     end
 
@@ -694,7 +694,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
             ns_OGFP_sum = find((striderSy_OGFP_sum-LevelofInterest)<0);%1:65
             ps_OGFP_sum = find((striderSy_OGFP_sum-LevelofInterest)>0);
 
-            %             ImpactMagS_OGFP_sum = find((striderSy_OGFP_sum-LevelofInterest)==max(striderSy_OGFP_sum(1:75)-LevelofInterest, 'omitnan'));%no longer percent of stride
+            %             ImpactMagS_OGFP_sum = find((striderSy_OGFP_sum-LevelofInterest)==max(striderSy_OGFP_sum(1:75)-LevelofInterest, [], 'omitnan'));%no longer percent of stride
             %             if isempty(ImpactMagS_OGFP_sum)~=1
             %                 postImpactS_OGFP_sum = ns_OGFP_sum(find(ns_OGFP_sum>ImpactMagS_OGFP_sum(end), 1, 'first'));
             %                 if isempty(postImpactS_OGFP_sum)~=1
@@ -707,13 +707,13 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                 SBmax_OGFP_sum(i) = NaN;
             else
                 SB_OGFP_sum(i) = FlipB.*(mean(striderSy_OGFP_sum(ns_OGFP_sum)-LevelofInterest, 'omitnan'));
-                SBmax_OGFP_sum(i) = FlipB.*(min(striderSy_OGFP_sum(ns_OGFP_sum)-LevelofInterest, 'omitnan'));
+                SBmax_OGFP_sum(i) = FlipB.*(min(striderSy_OGFP_sum(ns_OGFP_sum)-LevelofInterest, [], 'omitnan'));
             end
             if isempty(ps_OGFP_sum)
                 SPmax_OGFP_sum(i)= NaN;
             else
                 SP_OGFP_sum(i)=mean(striderSy_OGFP_sum(ps_OGFP_sum)-LevelofInterest, 'omitnan');
-                SPmax_OGFP_sum(i)=max(striderSy_OGFP_sum(ps_OGFP_sum)-LevelofInterest, 'omitnan');
+                SPmax_OGFP_sum(i)=max(striderSy_OGFP_sum(ps_OGFP_sum)-LevelofInterest, [], 'omitnan');
             end
 
             if exist('postImpactS_OGFP_sum')==0 || isempty(postImpactS_OGFP_sum)==1 || isnan(SHS)
@@ -725,7 +725,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                 if isempty(striderSy_OGFP_sum(find((striderSy_OGFP_sum(SHS-SHS+1: postImpactS_OGFP_sum)-LevelofInterest)>0)))
                     %impactSmax(i)=NaN;
                 else
-                    impactSmax_OGFP_sum(i)=max(striderSy_OGFP_sum(find((striderSy_OGFP_sum(SHS-SHS+1: postImpactS_OGFP_sum)-LevelofInterest)>0)), 'omitnan')-LevelofInterest;
+                    impactSmax_OGFP_sum(i)=max(striderSy_OGFP_sum(find((striderSy_OGFP_sum(SHS-SHS+1: postImpactS_OGFP_sum)-LevelofInterest)>0)), [], 'omitnan')-LevelofInterest;
                 end
             end
 
@@ -749,7 +749,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
         else
             nf_OGFP_sum=find((striderFy_OGFP_sum-LevelofInterest)<0);%1:65
             pf_OGFP_sum=find((striderFy_OGFP_sum-LevelofInterest)>0);
-            %             ImpactMagF_OGFP_sum=find((striderFy_OGFP_sum-LevelofInterest)==max(striderFy_OGFP_sum(1:75)-LevelofInterest, 'omitnan'));%1:15
+            %             ImpactMagF_OGFP_sum=find((striderFy_OGFP_sum-LevelofInterest)==max(striderFy_OGFP_sum(1:75)-LevelofInterest, [], 'omitnan'));%1:15
             %             if isempty(ImpactMagF_OGFP_sum)~=1
             %                 postImpactF_OGFP_sum=nf_OGFP_sum(find(nf_OGFP_sum>ImpactMagF_OGFP_sum(end), 1, 'first'));
             %                 if isempty(postImpactF_OGFP_sum)~=1
@@ -762,13 +762,13 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                 FPmax_OGFP_sum(i)= NaN;
             else
                 FP_OGFP_sum(i)=mean(striderFy_OGFP_sum(pf_OGFP_sum)-LevelofInterest, 'omitnan');
-                FPmax_OGFP_sum(i)=max(striderFy_OGFP_sum(pf_OGFP_sum)-LevelofInterest, 'omitnan');
+                FPmax_OGFP_sum(i)=max(striderFy_OGFP_sum(pf_OGFP_sum)-LevelofInterest, [], 'omitnan');
             end
             if isempty(nf_OGFP_sum)
                 FBmax_OGFP_sum(i)= NaN;
             else
                 FB_OGFP_sum(i)=FlipB.*(mean(striderFy_OGFP_sum(nf_OGFP_sum)-LevelofInterest, 'omitnan'));
-                FBmax_OGFP_sum(i)=FlipB.*(min(striderFy_OGFP_sum(nf_OGFP_sum)-LevelofInterest, 'omitnan'));
+                FBmax_OGFP_sum(i)=FlipB.*(min(striderFy_OGFP_sum(nf_OGFP_sum)-LevelofInterest, [], 'omitnan'));
             end
 
             if exist('postImpactF_OGFP_sum')==0 || isempty(postImpactF_OGFP_sum)==1 || isnan(FHS)==1
@@ -778,7 +778,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                 if isempty(striderFy_OGFP_sum(find((striderFy_OGFP_sum(FHS-FHS+1: postImpactF_OGFP_sum)-LevelofInterest)>0)))
 
                 else
-                    impactFmax_OGFP_sum(i)=max(striderFy_OGFP_sum(find((striderFy_OGFP_sum(FHS-FHS+1: postImpactF_OGFP_sum)-LevelofInterest)>0)), 'omitnan')-LevelofInterest;
+                    impactFmax_OGFP_sum(i)=max(striderFy_OGFP_sum(find((striderFy_OGFP_sum(FHS-FHS+1: postImpactF_OGFP_sum)-LevelofInterest)>0)), [], 'omitnan')-LevelofInterest;
                 end
             end
 
@@ -798,7 +798,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                 ns_OGFP.(Ally{j}) = find((striderSy_OGFP.(Ally{j})-LevelofInterest)<0);%1:65
                 ps_OGFP.(Ally{j}) = find((striderSy_OGFP.(Ally{j})-LevelofInterest)>0);
 
-                ImpactMagS_OGFP.(Ally{j}) = find((striderSy_OGFP.(Ally{j})-LevelofInterest)==max(striderSy_OGFP.(Ally{j})(1:75)-LevelofInterest, 'omitnan'));%no longer percent of stride
+                ImpactMagS_OGFP.(Ally{j}) = find((striderSy_OGFP.(Ally{j})-LevelofInterest)==max(striderSy_OGFP.(Ally{j})(1:75)-LevelofInterest, [], 'omitnan'));%no longer percent of stride
                 if isempty(ImpactMagS_OGFP.(Ally{j})) ~= 1
                     postImpactS_OGFP.(Ally{j})=ns_OGFP.(Ally{j})(find(ns_OGFP.(Ally{j}) > ImpactMagS_OGFP.(Ally{j})(end), 1, 'first'));
                     if isempty(postImpactS_OGFP.(Ally{j}))~=1
@@ -811,13 +811,13 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
 
                 else
                     SB_OGFP.(Ally{j})(i)=FlipB.*(mean(striderSy_OGFP.(Ally{j})(ns_OGFP.(Ally{j}))-LevelofInterest, 'omitnan'));
-                    SBmax_OGFP.(Ally{j})(i)=FlipB.*(min(striderSy_OGFP.(Ally{j})(ns_OGFP.(Ally{j}))-LevelofInterest, 'omitnan'));
+                    SBmax_OGFP.(Ally{j})(i)=FlipB.*(min(striderSy_OGFP.(Ally{j})(ns_OGFP.(Ally{j}))-LevelofInterest, [], 'omitnan'));
                 end
                 if isempty(ps_OGFP.(Ally{j}))
 
                 else
                     SP_OGFP.(Ally{j})(i)=mean(striderSy_OGFP.(Ally{j})(ps_OGFP.(Ally{j}))-LevelofInterest, 'omitnan');
-                    SPmax_OGFP.(Ally{j})(i)=max(striderSy_OGFP.(Ally{j})(ps_OGFP.(Ally{j}))-LevelofInterest, 'omitnan');
+                    SPmax_OGFP.(Ally{j})(i)=max(striderSy_OGFP.(Ally{j})(ps_OGFP.(Ally{j}))-LevelofInterest, [], 'omitnan');
                 end
 
                 if exist(['postImpactS_OGFP.' Ally{j}])==0 || isempty(postImpactS_OGFP.(Ally{j}))==1
@@ -828,14 +828,14 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                     if isempty(striderSy_OGFP.(Ally{j})(find((striderSy_OGFP.(Ally{j})(SHS-SHS+1: postImpactS_OGFP.(Ally{j}))-LevelofInterest)>0)))
                         %impactSmax(i)=NaN;
                     else
-                        impactSmax_OGFP.(Ally{j})(i)=max(striderSy_OGFP.(Ally{j})(find((striderSy_OGFP.(Ally{j})(SHS-SHS+1: postImpactS_OGFP.(Ally{j}))-LevelofInterest)>0)), 'omitnan')-LevelofInterest;
+                        impactSmax_OGFP.(Ally{j})(i)=max(striderSy_OGFP.(Ally{j})(find((striderSy_OGFP.(Ally{j})(SHS-SHS+1: postImpactS_OGFP.(Ally{j}))-LevelofInterest)>0)), [], 'omitnan')-LevelofInterest;
                     end
                 end
             end
             SZ_OGFP.(Ally{j})(i)=-1*mean(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'z']), 'omitnan')/Normalizer;
             SX_OGFP.(Ally{j})(i)=mean(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'x']), 'omitnan')/Normalizer;
-            SZmax_OGFP.(Ally{j})(i)=-1*min(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'z']), 'omitnan')/Normalizer;
-            SXmax_OGFP.(Ally{j})(i)=min(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'x']), 'omitnan')/Normalizer;
+            SZmax_OGFP.(Ally{j})(i)=-1*min(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'z']), [], 'omitnan')/Normalizer;
+            SXmax_OGFP.(Ally{j})(i)=min(filteredSlowStance.getDataAsVector([Ally{j}(1:end-1) 'x']), [], 'omitnan')/Normalizer;
         end
 
         %%Now for the fast leg...
@@ -847,7 +847,7 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
             else
                 nf_OGFP.(Ally{j}) = find((striderFy_OGFP.(Ally{j})-LevelofInterest)<0);%1:65
                 pf_OGFP.(Ally{j}) = find((striderFy_OGFP.(Ally{j})-LevelofInterest)>0);
-                ImpactMagF_OGFP.(Ally{j}) = find((striderFy_OGFP.(Ally{j})-LevelofInterest)==max(striderFy_OGFP.(Ally{j})(1:75)-LevelofInterest, 'omitnan'));%1:15
+                ImpactMagF_OGFP.(Ally{j}) = find((striderFy_OGFP.(Ally{j})-LevelofInterest)==max(striderFy_OGFP.(Ally{j})(1:75)-LevelofInterest, [], 'omitnan'));%1:15
                 if isempty(ImpactMagF_OGFP.(Ally{j}))~=1
                     postImpactF_OGFP.(Ally{j}) = nf_OGFP.(Ally{j})(find(nf_OGFP.(Ally{j})>ImpactMagF_OGFP.(Ally{j})(end), 1, 'first'));
                     if isempty(postImpactF_OGFP.(Ally{j}))~=1
@@ -860,13 +860,13 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
 
                 else
                     FP_OGFP.(Ally{j})(i)=mean(striderFy_OGFP.(Ally{j})(pf_OGFP.(Ally{j}))-LevelofInterest, 'omitnan');
-                    FPmax_OGFP.(Ally{j})(i)=max(striderFy_OGFP.(Ally{j})(pf_OGFP.(Ally{j}))-LevelofInterest, 'omitnan');
+                    FPmax_OGFP.(Ally{j})(i)=max(striderFy_OGFP.(Ally{j})(pf_OGFP.(Ally{j}))-LevelofInterest, [], 'omitnan');
                 end
                 if isempty(nf_OGFP.(Ally{j}))
 
                 else
                     FB_OGFP.(Ally{j})(i)=FlipB.*(mean(striderFy_OGFP.(Ally{j})(nf_OGFP.(Ally{j}))-LevelofInterest, 'omitnan'));
-                    FBmax_OGFP.(Ally{j})(i)=FlipB.*(min(striderFy_OGFP.(Ally{j})(nf_OGFP.(Ally{j}))-LevelofInterest, 'omitnan'));
+                    FBmax_OGFP.(Ally{j})(i)=FlipB.*(min(striderFy_OGFP.(Ally{j})(nf_OGFP.(Ally{j}))-LevelofInterest, [], 'omitnan'));
                 end
 
                 if exist(['postImpactF_OGFP.' Ally{j}])==0 || isempty(postImpactF_OGFP.(Ally{j}))==1
@@ -876,14 +876,14 @@ for i=1:min([length(strideEvents.tSHS)-1, length(filteredSlow_align.Data(1, 1, :
                     if isempty(striderFy_OGFP.(Ally{j})(find((striderFy_OGFP.(Ally{j})(FHS-FHS+1: postImpactF_OGFP.(Ally{j}))-LevelofInterest)>0)))
 
                     else
-                        impactFmax_OGFP.(Ally{j})(i)=max(striderFy_OGFP.(Ally{j})(find((striderFy_OGFP.(Ally{j})(FHS-FHS+1: postImpactF_OGFP.(Ally{j}))-LevelofInterest)>0)), 'omitnan')-LevelofInterest;
+                        impactFmax_OGFP.(Ally{j})(i)=max(striderFy_OGFP.(Ally{j})(find((striderFy_OGFP.(Ally{j})(FHS-FHS+1: postImpactF_OGFP.(Ally{j}))-LevelofInterest)>0)), [], 'omitnan')-LevelofInterest;
                     end
                 end
             end
             FZ_OGFP.(Ally{j})(i)=-1*mean(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'z']), 'omitnan')/Normalizer;
             FX_OGFP.(Ally{j})(i)=mean(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'x']), 'omitnan')/Normalizer;
-            FZmax_OGFP.(Ally{j})(i)=-1*min(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'z']), 'omitnan')/Normalizer;
-            FXmax_OGFP.(Ally{j})(i)=max(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'x']), 'omitnan')/Normalizer;
+            FZmax_OGFP.(Ally{j})(i)=-1*min(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'z']), [], 'omitnan')/Normalizer;
+            FXmax_OGFP.(Ally{j})(i)=max(filteredFastStance.getDataAsVector([Ally{j}(1:end-1) 'x']), [], 'omitnan')/Normalizer;
         end
     end
 end

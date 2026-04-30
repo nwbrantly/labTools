@@ -49,7 +49,7 @@ propIdx    = find((apForceTrace - forceBaseline) > 0);
 
 % Identify the AP impact peak in the first 15% of the stride
 [ImpactMagS, impactIdx] = max( ...
-    apForceTrace(1:round(0.15*length(apForceTrace))), 'omitnan');
+    apForceTrace(1:round(0.15*length(apForceTrace))), [], 'omitnan');
 
 % Exclude pre-impact samples from braking and propulsion classification
 % (new method 2/25/2020)
@@ -91,17 +91,19 @@ if isempty(brakingIdx)
     SBmaxAbs = NaN;
     SBmaxQS  = NaN;
 else
-    SBmax    = min(apForceTrace(brakingIdx), 'omitnan');  %-forceBaseline
+    SBmax    = min( ...
+        apForceTrace(brakingIdx), [], 'omitnan');  %-forceBaseline
     SBmax    = brakingSign .* SBmax;
     SBmaxQS  = SBmax - 2 .* brakingSign .* forceBaseline;
-    SBmaxAbs = brakingSign .* min(apForceTrace - forceBaseline, 'omitnan');
+    SBmaxAbs = brakingSign .* ...
+        min(apForceTrace - forceBaseline, [], 'omitnan');
 end
 
 if isempty(propIdx)
     SPmax   = NaN;
     SPmaxQS = NaN;
 else
-    SPmax   = max(apForceTrace(propIdx), 'omitnan');  %-forceBaseline
+    SPmax   = max(apForceTrace(propIdx), [], 'omitnan');  %-forceBaseline
     SPmaxQS = SPmax - 2 .* forceBaseline;
 end
 
