@@ -295,8 +295,12 @@ be replaced with `strfind`.
   not `.5`.
 - Use modern NaN-omitting aggregation functions rather than the
   deprecated `nan*` family: write `mean(x, 'omitnan')` instead of
-  `nanmean(x)`, and equivalently for `median`, `std`, `sum`,
-  `min`, and `max`.
+  `nanmean(x)`, and equivalently for `median`, `std`, and `sum`.
+  For `min` and `max`, the `'omitnan'` flag requires an explicit
+  empty placeholder for the second argument:
+  `min(x, [], 'omitnan')` / `max(x, [], 'omitnan')`. Writing
+  `min(x, 'omitnan')` invokes the element-wise two-array form and
+  returns an array, not a scalar.
 
 ## Documentation Comments
 Every function must include a standard MATLAB documentation block
