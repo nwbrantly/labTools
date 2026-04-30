@@ -2,8 +2,8 @@
 %
 %   Loads a reference experimentData object, runs three recompute
 % pipeline variants, and compares each result against the reference
-% params.mat. Fill in the two file paths in the Configuration section
-% before running.
+% params.mat. Fill in the file paths and eventClass in the
+% Configuration section before running.
 %
 %   Requires compareAdaptationData (fun/misc/) and the labTools
 % directory on the MATLAB path.
@@ -14,8 +14,12 @@
 % Path to the reference *params.mat saved from known-good code
 refParamsFile = '';
 
-% Path to the *expData.mat for the same session
+% Path to the session MAT file containing the experimentData object
 expDataFile = '';
+
+% Event class for Variant B (flushAndRecomputeParameters).
+% Use '' for the session default, 'kin' for kinematics, 'force' for GRF.
+eventClass = '';
 
 if isempty(refParamsFile) || isempty(expDataFile)
     error('testPipelineRecompute:missingConfig', ...
@@ -27,25 +31,19 @@ end
 % Recalculates stride-by-stride parameters from existing processed data.
 load(expDataFile, 'expData');
 expData.recomputeParameters();
-expData.makeDataObj();
+newAdaptDataA = expData.makeDataObj();
 
-% makeDataObj saves the file to the session folder; adjust the path
-% below to match the actual output location.
-newParamsA = strrep(expDataFile, 'expData.mat', 'params.mat');
-
-compareAdaptationData(refParamsFile, newParamsA, ...
+compareAdaptationData(refParamsFile, newAdaptDataA, ...
     RefName='reference', NewName='recomputeParameters');
 
 %% Variant B: flushAndRecomputeParameters
 % Use after changes to raw-processing code (filters, torques, EMG) or
 % any step in labData.process. Fully reprocesses from the loaded data.
 load(expDataFile, 'expData');
-expData.flushAndRecomputeParameters();
-expData.makeDataObj();
+expData.flushAndRecomputeParameters(eventClass);
+newAdaptDataB = expData.makeDataObj();
 
-newParamsB = strrep(expDataFile, 'expData.mat', 'params.mat');
-
-compareAdaptationData(refParamsFile, newParamsB, ...
+compareAdaptationData(refParamsFile, newAdaptDataB, ...
     RefName='reference', NewName='flushAndRecomputeParameters');
 
 %% Variant C: recomputeParameters with a single parameter class
@@ -53,9 +51,7 @@ compareAdaptationData(refParamsFile, newParamsB, ...
 % 'spatial', 'EMG'). Faster than a full recompute.
 load(expDataFile, 'expData');
 expData.recomputeParameters('force');
-expData.makeDataObj();
+newAdaptDataC = expData.makeDataObj();
 
-newParamsC = strrep(expDataFile, 'expData.mat', 'params.mat');
-
-compareAdaptationData(refParamsFile, newParamsC, ...
+compareAdaptationData(refParamsFile, newAdaptDataC, ...
     RefName='reference', NewName='recomputeParameters(force)');

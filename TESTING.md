@@ -48,7 +48,7 @@ Choose the test based on what code was changed:
 | Parameter calculation (`fun/parameterCalculation/`) | `expData.recomputeParameters()` | Fastest; recalculates from existing processed data |
 | One parameter class only (e.g., force) | `expData.recomputeParameters('force')` | Scope-limited recompute |
 | Gait event detection (`fun/eventExtraction/`) | `expData.recomputeEvents()` then `expData.recomputeParameters()` | Events change → parameters change downstream |
-| Raw processing (filters, torques, EMG) | `expData.flushAndRecomputeParameters()` | Full reprocessing from existing loaded data |
+| Raw processing (filters, torques, EMG) | `expData.flushAndRecomputeParameters(eventClass)` | Full reprocessing; `eventClass`: `''` default, `'kin'`, or `'force'` |
 | Class definitions or full pipeline logic | Re-run `loadSubject` (or `c3d2mat` if `*info.mat` is absent) | Most complete test |
 | Multiple areas | Run the most comprehensive command for the deepest change | When in doubt, use `flushAndRecomputeParameters` |
 
@@ -77,18 +77,20 @@ expData.recomputeParameters()
 expData.flushAndRecomputeParameters()
 ```
 
-### Step 3: Save the new `adaptationData`
+### Step 3: Build the new `adaptationData`
 ```matlab
-expData.makeDataObj()
-% This auto-saves to the session folder as *params.mat.
-% Record the path, e.g., 'path/to/Sub01params.mat'
+newAdaptData = expData.makeDataObj()
+% Capture the return value — pass it directly to compareAdaptationData.
+% No filename argument means the object is not saved to disk; that is
+% intentional for regression testing. Pass a filename string to save:
+%   expData.makeDataObj('Sub01')  % saves Sub01params.mat
 ```
 
 ### Step 4: Compare against the reference
 ```matlab
 compareAdaptationData( ...
     'path/to/reference/Sub01params.mat', ...
-    'path/to/new/Sub01params.mat', ...
+    newAdaptData, ...
     RefName='reference', NewName='after change')
 ```
 
