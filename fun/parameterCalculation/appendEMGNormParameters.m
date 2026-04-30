@@ -413,10 +413,10 @@ for doRemoveBias = [false, true]
     newDataCol = newDataCol + 1;
 end
 
-%% Extracted all parameters, now remove the extra empty space and append the parameters
-newData(:, newDataCol:end) = [];
+%% Append Parameters to adaptData
+newData(:, newDataCol:end)   = [];
 newLabels(:, newDataCol:end) = [];
-newDescp(:, newDataCol:end) = [];
+newDescp(:, newDataCol:end)  = [];
 
 %set up the adaptData to return, make sure it's the original with only
 %additions of the norm parameters + normalized data per interval (e.g.,
@@ -424,13 +424,13 @@ newDescp(:, newDataCol:end) = [];
 % A totla of muscles x 12 + 208 (norm)
 %parameters will be created. (e.g., 28 muscle x 12 + 208 = 544). Or if
 %this is in a flushAndRecompute, then the net new parameters are 0.
-adaptData = adaptDataOriginal;
+adaptData      = adaptDataOriginal;
+adaptData.data = adaptData.data.appendData(newData, newLabels, newDescp);
 
-%popuate new data
-adaptData.data=adaptData.data.appendData(newData, newLabels, newDescp);
-
-adaptData.data.DataInfo.UserData = struct();
-adaptData.data.DataInfo.UserData.muscleLabels = muscleLabels;
+adaptData.data.DataInfo.UserData                      = struct();
+adaptData.data.DataInfo.UserData.muscleLabels         = muscleLabels;
 adaptData.data.DataInfo.UserData.normalizationRefCond = normalizationRefCond;
-adaptData.data.DataInfo.UserData.biasRemovalCond = biasRemovalCond;
+adaptData.data.DataInfo.UserData.biasRemovalCond      = biasRemovalCond;
+
 end
+
