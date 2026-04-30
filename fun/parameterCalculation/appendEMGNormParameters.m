@@ -378,56 +378,38 @@ for doRemoveBias = [false, true]
         iAsymMuscle = iAsymMuscle + 1;
     end
 
-    %% get the whole leg asym norm
-    allMsNanStride = all(isnan(allmusclesAsym), 2); %all nans across a column, set that stride to nan.
-    allmusclesAsym(isnan(allmusclesAsym))=0; %nan are made zero to computer the norm
-    newData(:, newDataCol) = vecnorm(allmusclesAsym, 2, 2); %l2 norm over columns
-    newData(allMsNanStride, newDataCol) = nan; %set strides that had all nans per muscles as nan.
+    %% Both-Legs Asymmetry Norm
+    allMsNanStride = all(isnan(allmusclesAsym), 2);
+    allmusclesAsym(isnan(allmusclesAsym)) = 0;
+    newData(:, newDataCol) = vecnorm(allmusclesAsym, 2, 2);
+    newData(allMsNanStride, newDataCol) = nan;
     newLabels{newDataCol} = ['BothLegsAsymL2normPercentUnit' labelSuffix];
-    newDescp{newDataCol} = ['L2 norm of Asymmetry of all muscles between fast-slow leg in the percentage unit'...
-        'fter they are flattend as a 1D vector.' ...
-        'The data is in the percentage unit by stretching each stride to have 100% = max of nanmean of last 40 strides of ' normalizationRefCond ...
-        ' and 0 = min of ' normalizationRefCond '(specific OGBase 0-100% calculation see your refEp definition). Nan values are treated as 0.' descpSuffix];
-    newDataCol = newDataCol+1;
-
-    %get the whole leg asym avg norm, weighted by # of contributing muscles
-    newData(:, newDataCol) = newData(:, newDataCol-1)./sum(~allnanAsymMuslcesByStride, 2); %get total non-nan muscles count per stride
-    newLabels{newDataCol}  = ['BothLegsAsymL2normPercentUnitAvg' labelSuffix];
-    newDescp{newDataCol}  = ['L2norm of Asymmetry of all muscles between fast-slow leg in the percentage unit, '...
-        'after they are flattend as a 1D vector, divided by number of muscles that contribute to the norm.' ...
-        'At any stride, if all data for a muscle is nan, the denominator will decrease by 1 (e.g., if only 8 muscles have non-nan entries, will take vecnom/8' ...
-        'This ignores muscles that contain some non-nan and some nan values, they are counted as countributing muscles ' ...
-        '(this is unlikely, we would often have nans for every sub-intervals of a strides)' ...
-        'The data is in the percentage unit by stretching each stride to have 100% = max of nanmean of last 40 strides of ' normalizationRefCond ...
-        ' and 0 = min of ' normalizationRefCond '(specific OGBase 0-100% calculation see your refEp definition). Nan values are treated as 0.' descpSuffix];
+    newDescp{newDataCol}  = ['L2norm of fast-slow asymmetry across all muscles in percentage unit. NaN treated as 0. ' descpSuffix];
     newDataCol = newDataCol + 1;
 
-    %get whole leg asym norm in raw unit
-    allMsNanStride = all(isnan(allmusclesAsym_rawUnit), 2); %all nans across a column, set that stride to nan.
-    allmusclesAsym_rawUnit(isnan(allmusclesAsym_rawUnit))=0; %nan are made zero to computer the norm
-    newData(:, newDataCol) = vecnorm(allmusclesAsym_rawUnit, 2, 2); %l2 norm over columns
-    newData(allMsNanStride, newDataCol) = nan; %set strides that had all nans per muscles as nan.
+    newData(:, newDataCol) = newData(:, newDataCol-1) ./ ...
+        sum(~allnanAsymMuslcesByStride, 2);
+    newLabels{newDataCol} = ['BothLegsAsymL2normPercentUnitAvg' labelSuffix];
+    newDescp{newDataCol}  = ['L2norm of fast-slow asymmetry across all muscles divided by number of non-NaN contributing muscles in percentage unit. ' descpSuffix];
+    newDataCol = newDataCol + 1;
+
+    allMsNanStride = all(isnan(allmusclesAsym_rawUnit), 2);
+    allmusclesAsym_rawUnit(isnan(allmusclesAsym_rawUnit)) = 0;
+    newData(:, newDataCol) = vecnorm(allmusclesAsym_rawUnit, 2, 2);
+    newData(allMsNanStride, newDataCol) = nan;
     newLabels{newDataCol} = ['BothLegsAsymL2normRawUnit' labelSuffix];
-    newDescp{newDataCol} = ['L2 norm of Asymmetry of all muscles between fast-slow leg in the raw voltage unit' descpSuffix];
-    newDataCol = newDataCol+1;
-
-    %get the whole leg avg norm, weighted by # of contributing muscles
-    newData(:, newDataCol) = newData(:, newDataCol-1)./sum(~allnanAsymMuslcesByStride, 2); %get total non-nan muscles count per stride
-    newLabels{newDataCol}  = ['BothLegsAsymL2normRawUnitAvg' labelSuffix];
-    newDescp{newDataCol}  = ['L2norm of Asymmetry of all muscles between fast-slow leg in the raw voltage unit, '...
-        'after they are flattend as a 1D vector, divided by number of muscles that contribute to the norm.' ...
-        'At any stride, if all data for a muscle is nan, the denominator will decrease by 1 (e.g., if only 8 muscles have non-nan entries, will take vecnom/8' ...
-        'This ignores muscles that contain some non-nan and some nan values, they are counted as countributing muscles ' ...
-        '(this is unlikely, we would often have nans for every sub-intervals of a strides)' ...
-        descpSuffix];
+    newDescp{newDataCol}  = ['L2norm of fast-slow asymmetry across all muscles in raw voltage unit. NaN treated as 0. ' descpSuffix];
     newDataCol = newDataCol + 1;
 
-    %record # of non-nan muscles for reproducibility
+    newData(:, newDataCol) = newData(:, newDataCol-1) ./ ...
+        sum(~allnanAsymMuslcesByStride, 2);
+    newLabels{newDataCol} = ['BothLegsAsymL2normRawUnitAvg' labelSuffix];
+    newDescp{newDataCol}  = ['L2norm of fast-slow asymmetry across all muscles divided by number of non-NaN contributing muscles in raw voltage unit. ' descpSuffix];
+    newDataCol = newDataCol + 1;
+
     newData(:, newDataCol) = sum(~allnanAsymMuslcesByStride, 2);
     newLabels{newDataCol} = ['BothLegsAsymL2normNumMuscle' labelSuffix];
-    newDescp{newDataCol}  = ['Number of non-nan muscles that contributed to the norm for the asym ',...
-        'for all muscles between 2 legs at a given stride. ',...
-        'A muscle is only counted as not countributed if the whole 12 subintervals were nan.' labelSuffix];
+    newDescp{newDataCol}  = ['Number of non-NaN muscles contributing to the bilateral asymmetry norm. A muscle is excluded only if all its sub-intervals are NaN. ' labelSuffix];
     newDataCol = newDataCol + 1;
 end
 
