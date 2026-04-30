@@ -203,19 +203,13 @@ force variance.
 ```
 c3d2mat
  ├── GetInfoGUI                    % Collect user session inputs
- │    └── errorProofInfo           % Validate GUI fields on OK
  └── loadSubject
       ├── determineRefLeg          % Resolve fast/slow leg from info
-      ├── getTrialMetaData         % Build per-trial metadata & file
-      │                            % lists
+      ├── getTrialMetaData         % Build per-trial metadata & file lists
       ├── loadTrials               % Load C3D data into rawTrialData
       │    ├── btkReadAcquisition  % Read C3D via BTK (external)
-      │    ├── [GRF processing]    % Parse & label force/moment
-      │    │                       % channels
+      │    ├── [GRF processing]    % Parse & label force/moment channels
       │    ├── [EMG processing]    % Sync channels across two PCs
-      │    │    ├── matchSignals
-      │    │    ├── resampleShiftAndScale
-      │    │    └── clipSignals / idealHPF
       │    ├── [ACC processing]    % Extract & downsample accel. data
       │    └── rawTrialData(...)   % Construct per-trial data object
       ├── SyncDatalog              % Sync data logs (if present)
