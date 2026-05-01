@@ -267,9 +267,14 @@ function accel = computeAcceleration(pos, fs)
 % Toolbox Dependencies:
 %   None
 
-% First derivative (velocity), then second derivative (acceleration)
-vel   = gradient(pos, 1/fs);
-accel = gradient(vel, 1/fs);
+% Compute time derivative of each column separately; gradient(M, h)
+% for a matrix M operates along the column dimension, not rows (time)
+vel   = zeros(size(pos));
+accel = zeros(size(pos));
+for xyzIdx = 1:size(pos, 2)
+    vel(:, xyzIdx)   = gradient(pos(:, xyzIdx), 1/fs);
+    accel(:, xyzIdx) = gradient(vel(:, xyzIdx), 1/fs);
+end
 end
 
 function HR = computeHR_singleStride(signal, strideFreq, numHarmonics)
