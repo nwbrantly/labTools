@@ -253,7 +253,7 @@ end
 % c3d2mat processing pipeline. If an error occurs, a warning is
 % issued and the trial proceeds without harmonic ratio parameters.
 if ~isempty(trialData.markerData) && ...
-        ~isempty(trialData.markerData.getLabelsThatMatch('GT'))
+        ~isempty(trialData.markerData.getLabelsThatMatch('HIP'))
     try
         harmonicRatios = computeHarmonicRatioParameters( ...
             strideEvents, trialData.markerData);

@@ -6,14 +6,14 @@ function out = computeHarmonicRatioParameters(strideEvents, markerData, ...
 % parameterSeries object that can be concatenated with other parameter
 % series objects (e.g., from computeTemporalParameters). Computes the
 % vertical, medial-lateral, anterior-posterior, and aggregate harmonic
-% ratios using the greater trochanter (GT) markers.
+% ratios using the hip (HIP) markers.
 %
 % Inputs:
 %   strideEvents - struct of stride-level gait event times generated
 %                  by calcParameters, with fields tSHS and tSHS2
 %                  (N-by-1 vectors, in seconds)
 %   markerData   - orientedLabTimeSeries containing kinematic marker
-%                  data; must include 'RGT' and/or 'LGT' label
+%                  data; must include 'RHIP' and/or 'LHIP' label
 %                  prefixes
 %   options      - (optional) struct with fields:
 %                    .numHarmonics: number of harmonics to include
@@ -21,10 +21,11 @@ function out = computeHarmonicRatioParameters(strideEvents, markerData, ...
 %                                   Lord & Fitzpatrick 2003 J
 %                                   Gerontol A, the foundational HR
 %                                   paper for walking)
-%                    .useMarkers:   'GT' or 'ALL' (default: 'GT';
-%                                   GT markers sit on a firm bony
-%                                   prominence and have lower soft-
-%                                   tissue artifact than ASIS/PSIS)
+%                    .useMarkers:   'HIP' or 'ALL' (default: 'HIP';
+%                                   HIP markers are placed at the
+%                                   greater trochanter and have lower
+%                                   soft-tissue artifact than
+%                                   ASIS/PSIS)
 %                    .filterCutoff: low-pass cutoff frequency in Hz
 %                                   applied to pelvis position before
 %                                   double differentiation (default:
@@ -60,7 +61,7 @@ if ~isfield(options, 'numHarmonics')    % if no field, ...
     options.numHarmonics = 10;          % set to default (10 harmonics)
 end
 if ~isfield(options, 'useMarkers')      % if no field, ...
-    options.useMarkers = 'GT';          % use only 'GT' markers (default)
+    options.useMarkers = 'HIP';         % use only 'HIP' markers (default)
 end
 if ~isfield(options, 'filterCutoff')    % if no field, ...
     options.filterCutoff = 6;           % set to default (6 Hz)
@@ -85,7 +86,7 @@ description = aux(:, 2);
 % Get sampling rate from marker data
 samplingRate = 1 / markerData.sampPeriod;
 
-% Compute pelvis position as centroid of GT markers; pelvisPos is
+% Compute pelvis position as centroid of HIP markers; pelvisPos is
 % a (T x 3) array where the columns correspond to x, y, z
 pelvisPos = computePelvisPosition(markerData, options.useMarkers);
 
@@ -162,25 +163,25 @@ function pelvisPos = computePelvisPosition(markerData, useMarkers)
 %
 % Inputs:
 %   markerData - orientedLabTimeSeries containing pelvis marker data
-%   useMarkers - 'GT' to use only greater trochanter markers, or
-%                any other value to use all available pelvis markers
+%   useMarkers - 'HIP' to use only hip (greater trochanter) markers,
+%                or any other value to use all available pelvis markers
 %
 % Outputs:
 %   pelvisPos - (T x 3) array of pelvis centroid position [x, y, z]
 %
 % Toolbox Dependencies:
 %   None
-if strcmpi(useMarkers, 'GT')
-    % Use only Greater Trochanter markers (most reliable)
-    gtData    = markerData.getOrientedData({'RGT', 'LGT'});
-    pelvisPos = squeeze(mean(gtData, 2, 'omitnan'));
+if strcmpi(useMarkers, 'HIP')
+    % Use only HIP (greater trochanter) markers (most reliable)
+    hipData   = markerData.getOrientedData({'RHIP', 'LHIP'});
+    pelvisPos = squeeze(mean(hipData, 2, 'omitnan'));
 else
     % Use all available pelvis markers; getOrientedData returns NaN
     % columns for any prefixes not present, which are then excluded
     % by the 'omitnan' flag in mean()
-    pelvisLabels = {'RGT', 'LGT', 'RASI', 'LASI', 'RPSI', 'LPSI'};
-    gtData    = markerData.getOrientedData(pelvisLabels);
-    pelvisPos = squeeze(mean(gtData, 2, 'omitnan'));
+    pelvisLabels = {'RHIP', 'LHIP', 'RASI', 'LASI', 'RPSI', 'LPSI'};
+    hipData   = markerData.getOrientedData(pelvisLabels);
+    pelvisPos = squeeze(mean(hipData, 2, 'omitnan'));
 end
 end
 
