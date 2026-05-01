@@ -103,6 +103,11 @@ using the following `experimentData` methods:
   from scratch (equivalent to re-running the processing pipeline on
   already-loaded data)
 
+**Important:** `experimentData` is a value class. All three methods
+return a modified copy; you must capture the return value or the
+recomputed parameters are silently discarded:
+`expData = expData.recomputeParameters()`
+
 ### Class Hierarchy
 
 **Data containers** (in `classes/dataStructs/`):

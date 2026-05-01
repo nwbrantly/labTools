@@ -63,18 +63,21 @@ load('path/to/Sub01expData.mat', 'expData')
 
 ### Step 2: Run the appropriate recompute command
 ```matlab
+% NOTE: experimentData is a value class — you must capture the return
+% value, or the recomputed parameters are silently discarded.
+
 % Option A — parameter calculation only:
-expData.recomputeParameters()
+expData = expData.recomputeParameters();
 
 % Option B — one parameter class only:
-expData.recomputeParameters('force')
+expData = expData.recomputeParameters('force');
 
 % Option C — events + parameters:
-expData.recomputeEvents()
-expData.recomputeParameters()
+expData = expData.recomputeEvents();
+expData = expData.recomputeParameters();
 
 % Option D — full flush:
-expData.flushAndRecomputeParameters()
+expData = expData.flushAndRecomputeParameters(eventClass);
 ```
 
 ### Step 3: Build the new `adaptationData`

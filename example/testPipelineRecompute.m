@@ -30,7 +30,7 @@ end
 % Use after changes to fun/parameterCalculation/ or fun/eventExtraction/.
 % Recalculates stride-by-stride parameters from existing processed data.
 load(expDataFile, 'expData');
-expData.recomputeParameters();
+expData = expData.recomputeParameters();
 newAdaptDataA = expData.makeDataObj();
 
 compareAdaptationData(refParamsFile, newAdaptDataA, ...
@@ -40,7 +40,7 @@ compareAdaptationData(refParamsFile, newAdaptDataA, ...
 % Use after changes to raw-processing code (filters, torques, EMG) or
 % any step in labData.process. Fully reprocesses from the loaded data.
 load(expDataFile, 'expData');
-expData.flushAndRecomputeParameters(eventClass);
+expData = expData.flushAndRecomputeParameters(eventClass);
 newAdaptDataB = expData.makeDataObj();
 
 compareAdaptationData(refParamsFile, newAdaptDataB, ...
@@ -50,7 +50,7 @@ compareAdaptationData(refParamsFile, newAdaptDataB, ...
 % Use to scope a test to one parameter class (e.g., 'force', 'temporal',
 % 'spatial', 'EMG'). Faster than a full recompute.
 load(expDataFile, 'expData');
-expData.recomputeParameters('force');
+expData = expData.recomputeParameters('force');
 newAdaptDataC = expData.makeDataObj();
 
 compareAdaptationData(refParamsFile, newAdaptDataC, ...

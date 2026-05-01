@@ -123,6 +123,9 @@ saved `*expData.mat` and recompute without re-parsing C3D files:
 | `recomputeParameters` | Recomputes parameters from existing processed data |
 | `flushAndRecomputeParameters` | Full reprocessing from already-loaded data |
 
+`experimentData` is a value class — always capture the return:
+`expData = expData.recomputeParameters()`
+
 ---
 
 ## Key Classes
