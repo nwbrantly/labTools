@@ -176,3 +176,4 @@ markerDataOut = appendData( ...
     markerData, bCOM, labelsBody, markerData.orientation);
 
 end
+
