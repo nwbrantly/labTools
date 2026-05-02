@@ -31,7 +31,8 @@ function COMTS = COMCalculator(markerData)
 %% Get Orientation
 if isempty(markerData.orientation)          % if no orientation data, ...
     warning('Assuming default orientation of axes for marker data.');
-    orientation = orientationInfo([0 0 0],'x','y','z',1,1,1);   % default
+    orientation = orientationInfo( ...
+        [0 0 0], 'x', 'y', 'z', 1, 1, 1);  % default
 else                                        % otherwise, ...
     orientation = markerData.orientation;   % use specified orientation
 end
@@ -39,21 +40,23 @@ end
 %% Retrieve Segment Marker Positions
 u = [orientation.sideSign orientation.foreaftSign orientation.updownSign];
 markerList = {'RHip','LHip','RAnk','LAnk','RKne','LKne','RToe','LToe'};
-for mrkr = 1:length(markerList)                 % for each marker, ...
-    % get marker name allowing for variations of type RKNEx and RKNEEx
-    name = ...
-        markerData.getLabelsThatMatch(['^' upper(markerList{mrkr}) '*x$']);
+for mrkr = markerList                           % for each marker, ...
+    % get marker name allowing for variants like RKNEx and RKNEEx
+    name = markerData.getLabelsThatMatch( ...
+        ['^' upper(mrkr{1}) '*x$']);
     if ~isempty(name)                           % if a match was found, ...
         name = name{1}(1:end-1);                % retrieve marker name
-        aux = markerData.getDataAsVector({[name orientation.sideAxis], ...
-            [name orientation.foreaftAxis],[name orientation.updownAxis]});
-        aux = aux .* u;                         % reorienting marker data??
+        aux = markerData.getDataAsVector({ ...
+            [name orientation.sideAxis], ...
+            [name orientation.foreaftAxis], ...
+            [name orientation.updownAxis]});
+        aux = aux .* u;                         % reorienting marker data
     else                                        % otherwise, ...
-        aux = nan(length(markerData.Time),3);   % marker missing from trial
-        warning(['Marker ' markerList{mrkr} ...   (it happens)
+        aux = nan(length(markerData.Time), 3);  % marker missing from trial
+        warning(['Marker ' mrkr{1} ...             (it happens)
             ' was missing from markerData.']);
     end
-    eval([markerList{mrkr} ' = aux;']);
+    eval([mrkr{1} ' = aux;']);
     % below is more elegant (and recommended) than 'eval' but does not work
     % assignin('base',markerList{i},aux);
 end
@@ -129,8 +132,8 @@ labels = {'RfCOM','LfCOM','RsCOM','LsCOM','RtCOM','LtCOM'};
 labels = [strcat(labels,'x'); strcat(labels,'y'); strcat(labels,'z')];
 
 % create 'orientedLabTS' object to output
-COMTS = orientedLabTimeSeries(COMData,markerData.Time(1), ...
-    markerData.sampPeriod,labels(:),markerData.orientation);
+COMTS = orientedLabTimeSeries(COMData, markerData.Time(1), ...
+    markerData.sampPeriod, labels(:), markerData.orientation);
 
 end
 
