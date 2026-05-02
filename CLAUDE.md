@@ -258,9 +258,13 @@ be replaced with `strfind`.
   `knotLocations` over `kl`. Abbreviations are acceptable when they are
   unambiguous in context (e.g., `tbl`, `fig`, `lme`, `pval`).
 - Do not use `i` or `j` as loop index variables (reserved for the
-  imaginary unit in MATLAB); use descriptive names. For stride loops
-  use `st`; for generic enumeration use `ii`; for loops over a named
-  collection use a prefixed name such as `iField` or `iMarker`
+  imaginary unit in MATLAB). For stride loops use `st`; for generic
+  enumeration use `ii`, `jj`, or `kk`. When iterating over a named
+  collection and a terse abbreviation adds unambiguous clarity, prefer
+  it over `ii`: `mscl` (muscles), `mrkr` (markers), `lbl` (labels),
+  `fld` (fields), `tr` (trials), `con` (conditions), `fp` (force
+  plates), `fi` (files). Use `ii` when no short name adds clarity or
+  when a terse name would introduce ambiguity.
 - Do not indent the base level of code inside functions, as the MATLAB
   IDE autoformatter removes this indentation
 - Align `=` signs within a group of closely related assignments to make
