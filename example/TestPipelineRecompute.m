@@ -22,7 +22,7 @@ expDataFile = '';
 eventClass = '';
 
 if isempty(refParamsFile) || isempty(expDataFile)
-    error('testPipelineRecompute:missingConfig', ...
+    error('TestPipelineRecompute:missingConfig', ...
         'Set refParamsFile and expDataFile before running.');
 end
 
