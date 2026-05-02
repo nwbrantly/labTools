@@ -83,10 +83,10 @@ if isempty(normalizationRefCond)
         ordersToTry = {'OG', 'TM', 'NIM', 'TR', 'TS', ...
             adaptData.trialTypes{find( ...
             ~cellfun(@isempty, adaptData.trialTypes), 1)}};
-        for iOrder = ordersToTry
+        for ord = ordersToTry
             normalizationRefCond = ...
                 adaptData.metaData.getConditionsThatMatchV2( ...
-                'base', iOrder{1});
+                'base', ord{1});
             if ~isempty(normalizationRefCond)
                 break
             end
@@ -189,43 +189,43 @@ for doRemoveBias = [false, true]
     %% Per-Muscle L2 Norm
     nPrefixes = numel(normalizedDataLabelPrefix);
     nLabels   = numel(adaptData.data.labels);
-    % bothLegsColsIdx(iMuscle, :): binary mask for that muscle's columns
+    % bothLegsColsIdx(mscl, :): binary mask for that muscle's columns
     bothLegsColsIdx         = nan(nPrefixes, nLabels);
     bothLegsColsIdx_rawUnit = nan(nPrefixes, nLabels);
     allnanMuslcesByStride   = false(nStrides, nPrefixes);
 
-    for iMuscle = 1:nPrefixes
+    for mscl = 1:nPrefixes
         dataColIdx = cellfun(@(x) ~isempty(x), regexp( ...
             adaptData.data.labels, ...
-            ['^' normalizedDataLabelPrefix{iMuscle} '[ ]?\d+$']));
-        bothLegsColsIdx(iMuscle, :) = dataColIdx;
+            ['^' normalizedDataLabelPrefix{mscl} '[ ]?\d+$']));
+        bothLegsColsIdx(mscl, :) = dataColIdx;
         curdata = adaptData.data.Data(:, dataColIdx);
         %record #of muscles that are all nan, compute it only once bc normalized vs raw should have the same nan content, will have 1
         %at a stride for a given muscle i that is all nan at that stride
-        allnanMuslcesByStride(:, iMuscle) = all(isnan(curdata), 2);
+        allnanMuslcesByStride(:, mscl) = all(isnan(curdata), 2);
         %make nan zero to compute the norm, unless the whole 12 sub
         %interval is nan in which case the norm should also be nan.
         %now compute a by muscle norm, take L2 norm, over dim=2 (per rows)
         curdata(isnan(curdata)) = 0;
         newData(:, newDataCol) = vecnorm(curdata, 2, 2);
-        newData(allnanMuslcesByStride(:, iMuscle), newDataCol) = nan;
+        newData(allnanMuslcesByStride(:, mscl), newDataCol) = nan;
         newLabels{newDataCol} = [ ...
-            normalizedDataLabelPrefix{iMuscle} ...
+            normalizedDataLabelPrefix{mscl} ...
             '_L2normPercentUnit' labelSuffix];
-        newDescp{newDataCol} = ['L2norm of: ' normalizedDataLabelPrefix{iMuscle} ' in percentage unit after stretching each stride to 100%=max and 0%=min of nanmean of last 40 strides of ' normalizationRefCond '. NaN treated as 0. ' descpSuffix];
+        newDescp{newDataCol} = ['L2norm of: ' normalizedDataLabelPrefix{mscl} ' in percentage unit after stretching each stride to 100%=max and 0%=min of nanmean of last 40 strides of ' normalizationRefCond '. NaN treated as 0. ' descpSuffix];
         newDataCol = newDataCol + 1;
 
         dataColIdx = cellfun(@(x) ~isempty(x), regexp( ...
             adaptData.data.labels, ...
-            ['^' rawDataLabelPrefix{iMuscle} '[ ]?\d+$']));
-        bothLegsColsIdx_rawUnit(iMuscle, :) = dataColIdx;
+            ['^' rawDataLabelPrefix{mscl} '[ ]?\d+$']));
+        bothLegsColsIdx_rawUnit(mscl, :) = dataColIdx;
         curdata = adaptData.data.Data(:, dataColIdx);
         curdata(isnan(curdata)) = 0;
         newData(:, newDataCol) = vecnorm(curdata, 2, 2);
-        newData(allnanMuslcesByStride(:, iMuscle), newDataCol) = nan;
+        newData(allnanMuslcesByStride(:, mscl), newDataCol) = nan;
         newLabels{newDataCol} = [ ...
-            rawDataLabelPrefix{iMuscle} '_L2normRawUnit' labelSuffix];
-        newDescp{newDataCol} = ['L2norm of: ' rawDataLabelPrefix{iMuscle} ' in original voltage unit. NaN treated as 0. ' descpSuffix];
+            rawDataLabelPrefix{mscl} '_L2normRawUnit' labelSuffix];
+        newDescp{newDataCol} = ['L2norm of: ' rawDataLabelPrefix{mscl} ' in original voltage unit. NaN treated as 0. ' descpSuffix];
         newDataCol = newDataCol + 1;
     end
 
@@ -266,9 +266,9 @@ for doRemoveBias = [false, true]
     newDataCol = newDataCol + 1;
 
     %% Per-Leg L2 Norm
-    for iLeg = {'slow', 'fast'}
-        legChar  = iLeg{1}(1);    % 's' or 'f'
-        legName  = iLeg{1};       % 'slow' or 'fast'
+    for lg = {'slow', 'fast'}
+        legChar  = lg{1}(1);    % 's' or 'f'
+        legName  = lg{1};       % 'slow' or 'fast'
         normMask = startsWith(normalizedDataLabelPrefix, ['Norm' legChar]);
         rawMask  = startsWith(rawDataLabelPrefix, legChar);
 
@@ -316,9 +316,9 @@ for doRemoveBias = [false, true]
     allmusclesAsym_rawUnit    = [];
     allnanAsymMuslcesByStride = false(nStrides, numel(muscleLabels));
 
-    iAsymMuscle = 1;
-    for iMuscleName = muscleLabels
-        muscleName = iMuscleName{1};
+    kk = 1;
+    for mscl = muscleLabels
+        muscleName = mscl{1};
 
         %first identify the prefix for this muscle, then look for match in
         %all labels that start with the prefix and ends with digits
@@ -337,12 +337,12 @@ for doRemoveBias = [false, true]
 
         if ~isempty(fastdata) && ~isempty(slowdata)
             asymdata = fastdata - slowdata;
-            allnanAsymMuslcesByStride(:, iAsymMuscle) = ...
+            allnanAsymMuslcesByStride(:, kk) = ...
                 all(isnan(asymdata), 2);
             allmusclesAsym = [allmusclesAsym, asymdata]; %#ok<AGROW>
             asymdata(isnan(asymdata)) = 0;
             newData(:, newDataCol) = vecnorm(asymdata, 2, 2);
-            newData(allnanAsymMuslcesByStride(:, iAsymMuscle), ...
+            newData(allnanAsymMuslcesByStride(:, kk), ...
                 newDataCol) = nan;
             newLabels{newDataCol} = [muscleName 'AsymL2normPercentUnit' labelSuffix];
             newDescp{newDataCol}  = ['L2norm of fast-slow asymmetry of ' muscleName ' in percentage unit. NaN treated as 0. ' descpSuffix];
@@ -368,14 +368,14 @@ for doRemoveBias = [false, true]
                 [allmusclesAsym_rawUnit, asymdata]; %#ok<AGROW>
             asymdata(isnan(asymdata)) = 0;
             newData(:, newDataCol) = vecnorm(asymdata, 2, 2);
-            newData(allnanAsymMuslcesByStride(:, iAsymMuscle), ...
+            newData(allnanAsymMuslcesByStride(:, kk), ...
                 newDataCol) = nan;
             newLabels{newDataCol} = [muscleName 'AsymL2normRawUnit' labelSuffix];
             newDescp{newDataCol}  = ['L2norm of fast-slow asymmetry of ' muscleName ' in raw voltage unit. ' descpSuffix];
             newDataCol = newDataCol + 1;
         end
 
-        iAsymMuscle = iAsymMuscle + 1;
+        kk = kk + 1;
     end
 
     %% Both-Legs Asymmetry Norm

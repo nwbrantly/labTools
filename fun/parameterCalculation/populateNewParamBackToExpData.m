@@ -41,15 +41,15 @@ trials   = find(~cellfun(@isempty, expData.data));
 trialCol = ismember(adaptData.data.labels, 'trial');
 
 %% Populate New Parameters Per Trial
-for iTrial = trials
-    trialAdapt     = expData.data{iTrial}.adaptParams;
-    trialExpParams = expData.data{iTrial}.experimentalParams;
+for tr = trials
+    trialAdapt     = expData.data{tr}.adaptParams;
+    trialExpParams = expData.data{tr}.experimentalParams;
 
     % Identify parameters in adaptData not already in this trial
     newDataCol = ~ismember(adaptData.data.labels, ...
         [trialAdapt.labels; trialExpParams.labels]);
     newData         = adaptData.data.Data( ...
-        adaptData.data.Data(:, trialCol) == iTrial, newDataCol);
+        adaptData.data.Data(:, trialCol) == tr, newDataCol);
     newLabels       = adaptData.data.labels(newDataCol);
     newDescriptions = adaptData.data.description(newDataCol);
     trialAdapt = trialAdapt.appendData( ...
@@ -67,9 +67,9 @@ for iTrial = trials
             uniqueFields = setdiff( ...
                 fieldnames(trialAdapt.DataInfo.UserData), ...
                 fieldnames(newUserData));
-            for iField = uniqueFields'
-                newUserData.(iField{1}) = ...
-                    trialAdapt.DataInfo.UserData.(iField{1});
+            for fld = uniqueFields'
+                newUserData.(fld{1}) = ...
+                    trialAdapt.DataInfo.UserData.(fld{1});
             end
         else
             % Not a struct: preserve old info in a single field
@@ -78,7 +78,7 @@ for iTrial = trials
         trialAdapt.DataInfo.UserData = newUserData;
     end
 
-    expData.data{iTrial}.adaptParams = trialAdapt;
+    expData.data{tr}.adaptParams = trialAdapt;
 end
 
 end
