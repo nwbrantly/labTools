@@ -4,7 +4,7 @@ function out = computeCOM(strideEvents, markerData, BW, slowleg, ...
 %
 %   Computes stride-by-stride COM position and velocity parameters in
 % an ankle-centric reference frame. The body COM is estimated via
-% COMCalculator if the BCOM marker is absent. The COM trajectory is
+% appendBodyCOM if the BCOM marker is absent. The COM trajectory is
 % rotated relative to each ankle, differentiated, low-pass filtered
 % at 5 Hz, and time-normalized over the gait cycle. Per-stride
 % values are extracted at heel strike and across mid-stance windows
@@ -33,7 +33,7 @@ function out = computeCOM(strideEvents, markerData, BW, slowleg, ...
 % Toolbox Dependencies:
 %   None
 %
-% See also COMCALCULATOR, COMPUTEFORCEPARAMETERS_OGFP, PARAMETERSERIES.
+% See also APPENDBODYCOM, COMPUTEFORCEPARAMETERS_OGFP, PARAMETERSERIES.
 
 arguments
     strideEvents (1,1) struct
@@ -67,7 +67,7 @@ SHS2 = 5; FTO2 = 6; FHS2 = 7; STO2 = 8;
 % "getKinematicData" as a template as this converts everything into hip
 % centered.
 if isempty(markerData.getLabelsThatMatch('BCOM'))
-    markerData = COMCalculator(markerData, 9.81*BW);
+    markerData = appendBodyCOM(markerData, 9.81*BW);
 end
 % animate(markerData);
 
