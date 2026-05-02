@@ -227,8 +227,8 @@ switch coordMapping
 end
 
 % Apply transformation to all marker fields
-for iField = 1:length(fields)
-    fieldName = fields{iField};
+for fld = 1:length(fields)
+    fieldName = fields{fld};
     markerDataOut.(fieldName) = markerDataIn.(fieldName)(:, colOrder);
 end
 
@@ -271,9 +271,9 @@ function accel = computeAcceleration(pos, fs)
 % for a matrix M operates along the column dimension, not rows (time)
 vel   = zeros(size(pos));
 accel = zeros(size(pos));
-for xyzIdx = 1:size(pos, 2)
-    vel(:, xyzIdx)   = gradient(pos(:, xyzIdx), 1/fs);
-    accel(:, xyzIdx) = gradient(vel(:, xyzIdx), 1/fs);
+for ii = 1:size(pos, 2)
+    vel(:, ii)   = gradient(pos(:, ii), 1/fs);
+    accel(:, ii) = gradient(vel(:, ii), 1/fs);
 end
 end
 
@@ -310,12 +310,12 @@ f = fsLocal * (0:(floor(n/2))) / n;
 evenSum = 0;
 oddSum  = 0;
 
-for h = 1:numHarmonics
-    harmonicFreq = h * strideFreq;
+for hrm = 1:numHarmonics
+    harmonicFreq = hrm * strideFreq;
     [~, freqIdx] = min(abs(f - harmonicFreq));
 
     if freqIdx <= length(P)
-        if mod(h, 2) == 0
+        if mod(hrm, 2) == 0
             evenSum = evenSum + P(freqIdx);
         else
             oddSum = oddSum + P(freqIdx);

@@ -108,25 +108,25 @@ if ~isempty(timePercInit) && ~isempty(timePercEnd)
     percTaskInitStride(indsInitStride) = 1;
     percTaskEndStride(indsEndStride)   = 1;
 
-    for iPerc = 1:length(indsInitStride)
+    for ii = 1:length(indsInitStride)
         % Here I am not currently considering the changes in the belt
         % speed when going back to tied; sometimes it takes a couple of
         % strides to reach this fully.
-        % Previously used indsEndStride(iPerc)+3 to account for the
+        % Previously used indsEndStride(ii)+3 to account for the
         % delay before belt speed reaches the tied condition.
-        percTask(indsInitStride(iPerc):indsEndStride(iPerc)) = 1;
+        percTask(indsInitStride(ii):indsEndStride(ii)) = 1;
 
         % No +3 buffer here: use the true perceptual task end for SLA.
-        SLAinPercTask(indsInitStride(iPerc):indsEndStride(iPerc)) = ...
-            slaParam(indsInitStride(iPerc):indsEndStride(iPerc));
+        SLAinPercTask(indsInitStride(ii):indsEndStride(ii)) = ...
+            slaParam(indsInitStride(ii):indsEndStride(ii));
 
-        % Previously used indsEndStride(iPerc)+3 here as well.
-        SLAnotPercTask(indsInitStride(iPerc):indsEndStride(iPerc)) = nan;
+        % Previously used indsEndStride(ii)+3 here as well.
+        SLAnotPercTask(indsInitStride(ii):indsEndStride(ii)) = nan;
 
-        if length(speedDiffPercTask) >= iPerc
+        if length(speedDiffPercTask) >= ii
             pertSizePercTask( ...
-                indsInitStride(iPerc):indsEndStride(iPerc)) = ...
-                speedDiffPercTask(iPerc);
+                indsInitStride(ii):indsEndStride(ii)) = ...
+                speedDiffPercTask(ii);
         end
     end
 end

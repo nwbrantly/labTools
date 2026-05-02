@@ -100,10 +100,10 @@ legs    = {s, f};
 legs2   = {'s', 'f'};
 
 % construct labels for markers (e.g., 'sHIP', 'fANK', etc.)
-for iMarker = 1:length(markers)
-    for leg = 1:2
+for mrkr = 1:length(markers)
+    for ii = 1:2
         % odd indices: slow leg, even indices: fast leg
-        labels{end+1} = [legs{leg} markers{iMarker}];
+        labels{end+1} = [legs{ii} markers{mrkr}];
     end
 end
 
@@ -115,34 +115,34 @@ if ~all(bool)
 end
 
 % extract marker data at gait event times
-for iLabel = 1:length(labels) % assign each marker data to a x3 str
+for lbl = 1:length(labels) % assign each marker data to a x3 str
     aux = markerData.getDataAsTS( ...
-        markerData.addLabelSuffix(labels{iLabel}));
+        markerData.addLabelSuffix(labels{lbl}));
     if ~isempty(aux.Data)
         % extract data by finding the closest available sample at each
         % event time
         newMarkerData = aux.getSample(eventTimes, 'closest');
         relMarkerData = rotatedMarkerData.getDataAsTS( ...
-            rotatedMarkerData.addLabelSuffix(labels{iLabel}));
+            rotatedMarkerData.addLabelSuffix(labels{lbl}));
         relMarkerData = relMarkerData.getSample(eventTimes, 'closest');
     else    % otherwise, a marker is missing
-        warning(['Marker ' labels{iLabel} ...
+        warning(['Marker ' labels{lbl} ...
             ' is missing. All references to it will return NaN.']);
         newMarkerData = nan([size(eventTimes), 3]);
         relMarkerData = nan([size(eventTimes), 3]);
     end
 
     % assign extracted marker data to corresponding variables
-    if strcmp(labels{iLabel}(1), s)       % if slow leg markers, ...
-        eval(['s' upper(labels{iLabel}(2)) ...
-            lower(labels{iLabel}(3:4)) ' = newMarkerData;']);
-        eval(['s' upper(labels{iLabel}(2)) ...
-            lower(labels{iLabel}(3:4)) 'Rel = relMarkerData;']);
-    elseif strcmp(labels{iLabel}(1), f)   % if fast leg markers, ...
-        eval(['f' upper(labels{iLabel}(2)) ...
-            lower(labels{iLabel}(3:4)) ' = newMarkerData;']);
-        eval(['f' upper(labels{iLabel}(2)) ...
-            lower(labels{iLabel}(3:4)) 'Rel = relMarkerData;']);
+    if strcmp(labels{lbl}(1), s)       % if slow leg markers, ...
+        eval(['s' upper(labels{lbl}(2)) ...
+            lower(labels{lbl}(3:4)) ' = newMarkerData;']);
+        eval(['s' upper(labels{lbl}(2)) ...
+            lower(labels{lbl}(3:4)) 'Rel = relMarkerData;']);
+    elseif strcmp(labels{lbl}(1), f)   % if fast leg markers, ...
+        eval(['f' upper(labels{lbl}(2)) ...
+            lower(labels{lbl}(3:4)) ' = newMarkerData;']);
+        eval(['f' upper(labels{lbl}(2)) ...
+            lower(labels{lbl}(3:4)) 'Rel = relMarkerData;']);
     else                            % otherwise, ...
         error('Marker labels must begin with ''R'' or ''L''.');
     end
@@ -182,12 +182,12 @@ end
 % handle invalid direction values (where only one valid y-value exists)
 indsDirZeros = find(direction == 0);
 numZeros     = length(indsDirZeros);
-for inv = 1:numZeros                    % for each invalid measure, ...
-    if indsDirZeros(inv) == 1           % if first stride is invalid, ...
+for ii = 1:numZeros                     % for each invalid measure, ...
+    if indsDirZeros(ii) == 1            % if first stride is invalid, ...
         direction(1) = direction(2);    % set to be same as stride 2
     else                                % otherwise, ...
         % set invalid direction value to be previous stride direction value
-        direction(indsDirZeros(inv)) = direction(indsDirZeros(inv)-1);
+        direction(indsDirZeros(ii)) = direction(indsDirZeros(ii)-1);
     end
 end
 

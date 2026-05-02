@@ -52,44 +52,44 @@ eventInds(:, 1)  = shsInds(1:numStrides);
 eventTimes(:, 1) = eventsTime(shsInds(1:numStrides));
 
 %% Fill Events for All Steps Except Last
-for iStep = 1:numStrides - 1
+for stp = 1:numStrides - 1
     for ii = 2:numEvents
-        eventInds(iStep, ii)  = find( ...
-            (eventsTime > eventTimes(iStep, ii - 1)) & ...
+        eventInds(stp, ii)  = find( ...
+            (eventsTime > eventTimes(stp, ii - 1)) & ...
             eventData(:, ii), 1);
-        eventTimes(iStep, ii) = eventsTime(eventInds(iStep, ii));
+        eventTimes(stp, ii) = eventsTime(eventInds(stp, ii));
     end
-    eventInds(iStep, numEvents + 1)  = eventInds(iStep + 1, 1);
-    eventTimes(iStep, numEvents + 1) = ...
-        eventsTime(eventInds(iStep, numEvents + 1));
+    eventInds(stp, numEvents + 1)  = eventInds(stp + 1, 1);
+    eventTimes(stp, numEvents + 1) = ...
+        eventsTime(eventInds(stp, numEvents + 1));
     for ii = numEvents + 2 : 2 * numEvents
-        eventInds(iStep, ii)  = find( ...
-            (eventsTime > eventTimes(iStep, ii - 1)) & ...
+        eventInds(stp, ii)  = find( ...
+            (eventsTime > eventTimes(stp, ii - 1)) & ...
             eventData(:, ii - numEvents), 1);
-        eventTimes(iStep, ii) = eventsTime(eventInds(iStep, ii));
+        eventTimes(stp, ii) = eventsTime(eventInds(stp, ii));
     end
 end
 
 %% Fill Events for Last Step
-iStep = numStrides;
+stp = numStrides;
 for ii = 2:numEvents
-    eventInds(iStep, ii)  = find( ...
-        (eventsTime > eventTimes(iStep, ii - 1)) & ...
+    eventInds(stp, ii)  = find( ...
+        (eventsTime > eventTimes(stp, ii - 1)) & ...
         eventData(:, ii), 1);
-    eventTimes(iStep, ii) = eventsTime(eventInds(iStep, ii));
+    eventTimes(stp, ii) = eventsTime(eventInds(stp, ii));
 end
-eventInds(iStep, numEvents + 1)  = shsInds(numStrides + 1);
-eventTimes(iStep, numEvents + 1) = ...
-    eventsTime(eventInds(iStep, numEvents + 1));
+eventInds(stp, numEvents + 1)  = shsInds(numStrides + 1);
+eventTimes(stp, numEvents + 1) = ...
+    eventsTime(eventInds(stp, numEvents + 1));
 % NOTE: trailing second-stride events (FTO2, FHS2, STO2) may not
 % exist for the last step — only M+1 SHS events are guaranteed
 for ii = numEvents + 2 : 2 * numEvents
     foundIdx = find( ...
-        (eventsTime > eventTimes(iStep, ii - 1)) & ...
+        (eventsTime > eventTimes(stp, ii - 1)) & ...
         eventData(:, ii - numEvents), 1);
     if ~isempty(foundIdx)  % leave NaN in place if event not found
-        eventInds(iStep, ii)  = foundIdx;
-        eventTimes(iStep, ii) = eventsTime(eventInds(iStep, ii));
+        eventInds(stp, ii)  = foundIdx;
+        eventTimes(stp, ii) = eventsTime(eventInds(stp, ii));
     end
 end
 
