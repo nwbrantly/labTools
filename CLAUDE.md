@@ -246,25 +246,34 @@ be replaced with `strfind`.
 - Include a MATLAB `arguments` block immediately after the documentation
   comment for all functions that accept inputs; declare input sizes,
   types, and default values there rather than using `nargin` checks.
-  Place multiline validators on the line(s) following the argument name,
-  indented to align with the argument name:
+  When adding an `arguments` block to an existing function, verify all
+  callers supply the now-required arguments. Place multiline validators
+  on the line(s) following the argument name, indented to align with
+  the argument name:
   ```matlab
   options.Colors (:,3) double ...
       {mustBeInRange(options.Colors, 0, 1)} = []
   ```
-- Use camelCase or PascalCase for all variable, function, and script
-  file names (not underscore-separated). Choose names that make their
-  purpose clear without a comment — prefer `participantCount` over `n`,
-  `knotLocations` over `kl`. Abbreviations are acceptable when they are
-  unambiguous in context (e.g., `tbl`, `fig`, `lme`, `pval`).
+- Use camelCase for function file names and PascalCase for script
+  file names (not underscore-separated). Do not rename existing files
+  unless explicitly instructed — file renaming can complicate git
+  version history. Use camelCase or PascalCase for variable names.
+  Choose names that make their purpose clear without a comment —
+  prefer `participantCount` over `n`, `knotLocations` over `kl`.
+  Abbreviations are acceptable when they are unambiguous in context
+  (e.g., `tbl`, `fig`, `lme`, `pval`).
 - Do not use `i` or `j` as loop index variables (reserved for the
   imaginary unit in MATLAB). For stride loops use `st`; for generic
   enumeration use `ii`, `jj`, or `kk`. When iterating over a named
   collection and a terse abbreviation adds unambiguous clarity, prefer
   it over `ii`: `mscl` (muscles), `mrkr` (markers), `lbl` (labels),
   `fld` (fields), `tr` (trials), `con` (conditions), `fp` (force
-  plates), `fi` (files). Use `ii` when no short name adds clarity or
-  when a terse name would introduce ambiguity.
+  plates), `fi` (files), `stp` (steps), `lg` (legs), `sd` (sides),
+  `ord` (order), `ch` (channels), `stat` (statistics), `hrm`
+  (harmonics). Use `ii` when no short name adds clarity or when a
+  terse name would introduce ambiguity. Never use verbose `i`-prefix
+  names (e.g., `iMuscle`, `iMarker`) — these conflict with the
+  imaginary-unit prohibition.
 - Do not indent the base level of code inside functions, as the MATLAB
   IDE autoformatter removes this indentation
 - Align `=` signs within a group of closely related assignments to make
