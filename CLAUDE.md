@@ -95,31 +95,22 @@ recomputed parameters are silently discarded:
 
 ### Class Hierarchy
 
-**Data containers** (in `classes/dataStructs/`):
-- `experimentData` — top-level session container; holds `metaData`
-  (experimentMetaData), `subData` (subjectData or
-  strokeSubjectData), and `data` (cell array of labData objects)
-- `adaptationData` — stride-indexed parameters; holds `metaData`,
-  `subData`, and a `parameterSeries`. Key methods include
-  `removeBias` / `removeBiasV4` (baseline subtraction by trial type:
-  TM, OG, IN, NIM), `getParamInCond`, `getParamInTrial`,
-  `getEarlyLateData_v2`, `getEpochData`, `addNewParameter`,
-  `removeBadStrides`, and static methods for group-level plotting
-  (`plotAvgTimeCourse`, `plotGroupedSubjectsBars`,
-  `createGroupAdaptData`)
+**Data containers** (`classes/dataStructs/`):
+- `experimentData` — session container; `metaData`, `subData`, `data`
+  (cell array of labData). Value class — recompute methods return a
+  copy: `expData = expData.recomputeParameters()`
+- `adaptationData` — stride-indexed params; key methods: `removeBias`,
+  `getParamInCond`, `getEarlyLateData_v2`, `getEpochData`,
+  `addNewParameter`, `removeBadStrides`, `plotAvgTimeCourse`
 - `groupAdaptationData` / `studyData` — group/study-level analysis
 
-**Time series** (in `classes/labTS/`):
-- `labTimeSeries` — extends MATLAB's `timeseries`; enforces uniform
-  sampling, adds label-based access
-- `orientedLabTimeSeries` — extends `labTimeSeries` for 3D vector
-  data (markers, forces); adds an `orientationInfo` object and 3D
-  transformation methods
-- `parameterSeries` — stride-indexed parameter storage (one scalar
-  per stride), produced by `calcParameters`
+**Time series** (`classes/labTS/`):
+- `labTimeSeries` — extends `timeseries`; uniform sampling, label access
+- `orientedLabTimeSeries` — 3D vector data; adds `orientationInfo`
+- `parameterSeries` — one scalar per stride, from `calcParameters`
 - `processedEMGTimeSeries` — filtered EMG with envelopes
 
-**Synergy analysis** (in `classes/synergies/`):
+**Synergy analysis** (`classes/synergies/`):
 `Synergy` → `SynergySet` → `SynergySetCollection` →
 `ClusteredSynergySetCollection`
 
@@ -145,13 +136,13 @@ recomputed parameters are silently discarded:
 
 | Directory | Purpose |
 |---|---|
-| `parameterCalculation/` | Stride-level biomechanical parameters (force, EMG, angle, COM, harmonic ratio, H-reflex) |
-| `eventExtraction/` | Gait event detection (heel strike, toe-off) from forces or angles |
-| `biomechAnalysis/` | Center of mass/pressure, joint torques |
-| `EMGanalysis/` | EMG signal filtering and envelope extraction |
-| `plotting/` | Visualization utilities and figure styling |
+| `parameterCalculation/` | Stride-level biomechanical parameters |
+| `eventExtraction/` | Gait event detection (HS, TO) |
+| `biomechAnalysis/` | COM/COP, joint torques |
+| `EMGanalysis/` | EMG filtering and envelope extraction |
+| `plotting/` | Visualization utilities |
 | `eventReview/` | Event validation helpers |
-| `+dataMotion/`, `+Hreflex/`, `+utils/` | MATLAB namespace packages for specialized domains |
+| `+dataMotion/`, `+Hreflex/`, `+utils/` | Namespace packages |
 
 ### Key Functions
 
@@ -293,8 +284,7 @@ be replaced with `strfind`.
   returns an array, not a scalar.
 
 ## Documentation Comments
-Every function must include a standard MATLAB documentation block
-immediately following the function definition line.
+Every function requires a standard doc block after the definition line.
 
 **H1 line** — the first comment line, on the line immediately after
 `function`. No space between `%` and the function name; the name is
