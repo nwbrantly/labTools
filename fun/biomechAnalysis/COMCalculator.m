@@ -27,6 +27,9 @@ function COMTS = COMCalculator(markerData)
 %
 % See also TORQUECALCULATOR, APPENDBODYCOM, ORIENTEDLABTIMESERIES.
 
+arguments
+    markerData (1,1)
+end
 
 %% Get Orientation
 if isempty(markerData.orientation)          % if no orientation data, ...
