@@ -170,7 +170,7 @@ Computes stride-by-stride anterior-posterior (AP) GRF parameters for
 treadmill trials from low-pass-filtered (20 Hz) GRF data. Before
 computing parameters, AP force offsets are estimated per leg (median
 force during contralateral swing) and subtracted. The core per-stride
-computation is performed by `ComputeLegForceParameters` for each leg
+computation is performed by `computeLegForceParameters` for each leg
 separately over its stance phase window (SHS→STO for slow leg,
 FHS→FTO2 for fast leg). Output parameters (~43 labels) include average
 and peak braking/propulsion forces, bilateral symmetry and ratio
