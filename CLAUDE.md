@@ -32,48 +32,13 @@ Raw files (C3D / datalog)
   → studyData            (multi-group comparisons)
 ```
 
-### Entry Point & User Input
-The primary entry point is the `c3d2mat` script. It first calls
-`GetInfoGUI` (paired with `GetInfoGUI.fig`) to present the user with a
-GUI for specifying all experimental session parameters before any data
-processing begins. `GetInfoGUI` collects participant demographics,
-experiment metadata, C3D file locations, trial/condition assignments,
-and EMG channel labels. Experiment description files stored in the
-`ExpDetails/` directory are used to auto-populate condition fields.
-
-### Data Loading Pipeline
-After collecting user inputs, `c3d2mat` calls `loadSubject`, which
-calls `getTrialMetaData` to build per-trial metadata and file path
-lists, then calls `loadTrials` to read each C3D file via the
-Biomechanics Toolkit (BTK). `loadTrials` processes ground reaction
-forces (GRF), synchronizes and sorts EMG channels across one or two
-acquisition PCs, processes accelerometer data, and packages everything
-into a `rawTrialData` object (a subclass of `labData`) for each trial.
-
 ### Processing Pipeline
-`loadSubject` instantiates a `rawExpData` (`experimentData`) object
-from the loaded trials, saves it as `*RAW.mat`, then calls
-`rawExpData.process()`, which iterates over each trial and calls
-`labData.process()` on it. `labData.process()` performs the following
-steps for each trial in order:
-
-1. Process raw EMG (amplitude extraction, optional spike removal)
-2. Interpolate missing marker data (placeholder — not yet implemented)
-3. Compute limb angles (`calcLimbAngles`)
-4. Detect gait events from kinematics or forces (`getEvents`)
-5. Estimate belt speeds from foot markers if `beltSpeedReadData` is
-   absent (`getBeltSpeedsFromFootMarkers`)
-6. Compute COP, COM, and joint torques (`computeTorques`,
-   `computeCOPAlt`)
-7. Construct a `processedTrialData` object
-8. Compute stride-by-stride adaptation parameters (`calcParameters`),
-   including temporal, spatial, raw EMG, processed EMG, and force
-   parameter classes
-
-After processing, `loadSubject` calls `experimentData.makeDataObj()`
-to create and save an `adaptationData` object (`*params.mat`). If EMG
-data is present, EMG normalization parameters are also appended before
-the final save.
+`c3d2mat` calls `GetInfoGUI` to collect session parameters, then
+`loadSubject`. `loadSubject` instantiates a `rawExpData`
+(`experimentData`) object, saves it as `*RAW.mat`, calls
+`rawExpData.process()` (which calls `labData.process()` per trial —
+see Full Call Chain), then calls `experimentData.makeDataObj()` to
+create and save an `adaptationData` object (`*params.mat`).
 
 ### Post-Processing (Recompute Workflows)
 After the initial `c3d2mat` run, users can load the saved
@@ -164,20 +129,6 @@ used by `calcParameters`), plus `forceLHS/RHS/LTO/RTO` and
 `perceptualFlag == 1`, three additional columns are appended:
 `percStartCue`, `percEndCue`, and `percEndRamp`, derived by aligning
 audio cue times from the synchronized datlog to RTO events.
-
-#### `computeForceParameters` (called from `calcParameters`)
-Computes stride-by-stride anterior-posterior (AP) GRF parameters for
-treadmill trials from low-pass-filtered (20 Hz) GRF data. Before
-computing parameters, AP force offsets are estimated per leg (median
-force during contralateral swing) and subtracted. The core per-stride
-computation is performed by `computeLegForceParameters` for each leg
-separately over its stance phase window (SHS→STO for slow leg,
-FHS→FTO2 for fast leg). Output parameters (~43 labels) include average
-and peak braking/propulsion forces, bilateral symmetry and ratio
-metrics, summed impulses, vertical and medial-lateral force means and
-peaks, and treadmill incline angle. Parameters are skipped (NaN) for
-OG/NIM trials and for strides with missing event times or near-zero
-force variance.
 
 ### Full Call Chain
 
@@ -365,40 +316,23 @@ function definition and adds no information.
   the 76-character line-wrap rule
 
 ### Writing Comments
-Write comments to help a future reader (including yourself) understand
-purposes and decisions that are not obvious from the code itself.
+Write comments to help a future reader understand purposes and
+decisions not obvious from the code itself.
 
 **Write a comment when:**
-- Starting a new `%%` section — the header *is* the comment; make it
-  descriptive (see section header guidance above).
-- A group of statements implements a non-obvious algorithm or
-  multi-step procedure — add a short block comment above the group
-  summarizing what it does and, if non-obvious, why that approach
-  was chosen.
-- A single line encodes a domain-specific rule, constraint, or
-  formula — add an end-of-line comment explaining its meaning:
-  ```matlab
-  bias = mean(stepAsym(end-39:end));  % mean of last 40 non-bad strides
-  pval = results.pValue(2);           % LRT p-value (second row = complex model)
-  ```
+- Starting a new `%%` section — make the header descriptive.
+- A group of statements implements a non-obvious algorithm — add a
+  short block comment summarizing what it does and why.
+- A single line encodes a domain-specific rule or formula — add an
+  end-of-line comment explaining its meaning.
 - A value is a magic number whose meaning would not be obvious to
-  a reader unfamiliar with the study protocol:
-  ```matlab
-  numBase = 40;   % strides used to estimate baseline bias
-  alpha   = 0.05; % significance threshold for likelihood ratio test
-  ```
+  a reader unfamiliar with the study protocol.
 - A decision could reasonably have been made differently — explain
-  why this choice was made:
-  ```matlab
-  % must use ML (not REML) for valid likelihood ratio test
-  lme = fitlme(tbl, formula, 'FitMethod', 'ML');
-  ```
+  why this choice was made.
 
-**Omit a comment when:**
-- The identifier names already make the purpose completely clear.
-  `participantIDs = unique(tbl.Participant)` needs no comment.
-- The comment would merely restate the code in English
-  (`% increment counter` above `ii = ii + 1`).
+**Omit a comment when** the identifier names already make the purpose
+completely clear, or the comment would merely restate the code in
+English.
 
 **Special prefixes:**
 - `% TODO:` — known incomplete work or a known limitation to
@@ -409,21 +343,9 @@ purposes and decisions that are not obvious from the code itself.
 
 ### Comment Preservation
 
-When editing existing files, preserve all of the following:
-
-- **Step-labeling comments** — short inline or block comments that
-  label distinct steps in a multi-step algorithm (e.g., `% round to
-  integer and canonicalize by sorting for the cache key`). These are
-  navigation aids for readers of complex code.
-- **WHY comments** — comments explaining a non-obvious decision, a
-  hidden constraint, or a subtle invariant (e.g., `% must use ML for
-  valid likelihood ratio test`).
-- **Commented-out code** — alternative implementations or temporarily
-  disabled code that the author hasn't decided to delete (e.g., an
-  `% alternatively:` block). These represent work in progress.
-- **End-of-line clarifications** — inline comments on assignment lines
-  that clarify units, roles, or non-obvious behavior (e.g.,
-  `% Lower bound`, `% safety limit to prevent infinite loops`).
-
-Remove only comments that redundantly restate what the adjacent code
-already makes obvious from its identifier names alone.
+When editing existing files, preserve: step-labeling comments (navigation
+aids for multi-step algorithms), WHY comments (non-obvious decisions or
+constraints), commented-out code (alternative implementations or
+work-in-progress), and end-of-line clarifications (units, roles, or
+non-obvious behavior). Remove only comments that redundantly restate what
+the adjacent code already makes obvious from its identifier names alone.
