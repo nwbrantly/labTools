@@ -51,9 +51,9 @@ angleData = angleData.renameLabels( ...
 warning('on', 'labTS:renameLabels:dont');
 
 %% Compute and Output Angle Parameters
-Angles_alt = computeTSdiscreteParameters( ...
+Angles_alt = computeTSDiscreteParameters( ...
     angleData, gaitEvents, eventTypes);
-Angles_HS  = computeHSparameters(angleData, gaitEvents, eventTypes);
+Angles_HS  = computeHSParameters(angleData, gaitEvents, eventTypes);
 out = cat(Angles_alt, Angles_HS);
 
 end

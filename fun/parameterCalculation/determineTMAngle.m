@@ -1,4 +1,4 @@
-function ang = DetermineTMAngle(trialData)
+function ang = determineTMAngle(trialData)
 %DETERMINETMANGLE Extract treadmill incline angle from trial description.
 %
 %   Parses the trial description string to extract a numeric treadmill

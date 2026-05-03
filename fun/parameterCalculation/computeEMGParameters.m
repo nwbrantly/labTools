@@ -62,12 +62,12 @@ else
 end
 
 % Statistical parameters for raw EMG (mean-aggregated)
-statEMG = computeTSstatParameters(EMGData, arrayedEvents);
+statEMG = computeTSStatParameters(EMGData, arrayedEvents);
 
 % Discrete stride-level parameters for rectified EMG (mean and median)
-EMG_alt  = computeTSdiscreteParameters(rectEMG, gaitEvents, ...
+EMG_alt  = computeTSDiscreteParameters(rectEMG, gaitEvents, ...
     eventTypes, []);
-EMG_alt2 = computeTSdiscreteParameters(rectEMG, gaitEvents, ...
+EMG_alt2 = computeTSDiscreteParameters(rectEMG, gaitEvents, ...
     eventTypes, [], 'nanmedian');
 
 % Prefix median-aggregated parameter labels with 'med' to distinguish

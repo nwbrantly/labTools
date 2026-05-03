@@ -56,7 +56,7 @@ if iscell(trial)
 end
 
 
-[ ang ] = DetermineTMAngle( trialData.metaData );
+[ ang ] = determineTMAngle( trialData.metaData );
 if strcmpi(trialData.metaData.type, 'IN')
     ang = 8.5;
 end

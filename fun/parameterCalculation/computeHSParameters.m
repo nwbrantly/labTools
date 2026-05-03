@@ -1,4 +1,4 @@
-function out = computeHSparameters(tsData, gaitEvents, eventTypes)
+function out = computeHSParameters(tsData, gaitEvents, eventTypes)
 %COMPUTEHSPARAMETERS Compute heel-strike-aligned parameters per stride.
 %
 %   Extracts the value of each channel in tsData at the slow and fast

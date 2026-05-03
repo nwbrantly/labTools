@@ -1,4 +1,4 @@
-function out = computeTSstatParameters(tsData, strideEvents)
+function out = computeTSStatParameters(tsData, strideEvents)
 %COMPUTETSSTATPARAMETERS Compute summary statistics per stride.
 %
 %   Computes stride-by-stride summary statistics for each channel of a
