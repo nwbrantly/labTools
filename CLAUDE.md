@@ -182,9 +182,7 @@ experimentData.flushAndRecomputeParameters
 All code must be compatible with MATLAB R2021a through the current
 release. Do not use language features, functions, or syntaxes
 introduced after R2021a without an explicit compatibility note.
-Similarly, do not use functions removed before R2021a. A common
-example in older lab code: `findstr` was removed in R2014b and must
-be replaced with `strfind`.
+Similarly, do not use functions removed before R2021a.
 
 ## Code Style Requirements
 - Wrap lines at 76 characters (the MATLAB editor default)
@@ -342,7 +340,6 @@ English.
   remove.
 
 ### Comment Preservation
-
 When editing existing files, preserve: step-labeling comments (navigation
 aids for multi-step algorithms), WHY comments (non-obvious decisions or
 constraints), commented-out code (alternative implementations or
