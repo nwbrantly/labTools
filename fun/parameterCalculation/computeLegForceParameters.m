@@ -42,6 +42,9 @@ arguments
     titleText     (1,:) char = ''
 end
 
+impactWinFrac = 0.15;  % impact-peak search window: first 15% of stance
+peakTrimFrac  = 0.1;   % trim 10% from each end when searching for peak
+
 %% Identify Braking and Propulsion Indices
 % Braking: samples below baseline; propulsion: samples above baseline
 brakingIdx = find((apForceTrace - forceBaseline) < 0);
@@ -49,7 +52,7 @@ propIdx    = find((apForceTrace - forceBaseline) > 0);
 
 % Identify the AP impact peak in the first 15% of the stride
 [ImpactMagS, impactIdx] = max( ...
-    apForceTrace(1:round(0.15*length(apForceTrace))), [], 'omitnan');
+    apForceTrace(1:round(impactWinFrac*length(apForceTrace))), [], 'omitnan');
 
 % Exclude pre-impact samples from braking and propulsion classification
 % (new method 2/25/2020)
@@ -83,8 +86,8 @@ end
 % as the true braking or propulsion peak; 2/14/2018 (4/11/2017 CJS)
 brakingIdxAll = brakingIdx;
 propIdxAll    = propIdx;
-brakingIdx(find(brakingIdx >= 0.9*length(apForceTrace))) = [];
-propIdx(find(propIdx <= 0.1*length(apForceTrace)))       = [];
+brakingIdx(find(brakingIdx >= (1 - peakTrimFrac)*length(apForceTrace))) = [];
+propIdx(find(propIdx <= peakTrimFrac*length(apForceTrace)))              = [];
 
 if isempty(brakingIdx)
     SBmax    = NaN;

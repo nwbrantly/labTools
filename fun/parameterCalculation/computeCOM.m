@@ -66,8 +66,9 @@ SHS2 = 5; FTO2 = 6; FHS2 = 7; STO2 = 8;
 % 2.) Convert to ankle centric reference frame.  (can use
 % "getKinematicData" as a template as this converts everything into hip
 % centered.
+gravityAcc = 9.81;  % gravitational acceleration (m/s^2)
 if isempty(markerData.getLabelsThatMatch('BCOM'))
-    markerData = appendBodyCOM(markerData, 9.81*BW);
+    markerData = appendBodyCOM(markerData, gravityAcc * BW);
 end
 % animate(markerData);
 

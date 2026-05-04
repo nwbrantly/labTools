@@ -106,12 +106,16 @@ trialDesc   = trialData.description; %#ok<NASGU>
 tmAngle     = determineTMAngle(trialData);
 numStrides  = length(strideEvents.tSHS);
 
+shoeWeightKg   = 3.4;   % Nimbus shoe pair mass (two shoes; update if shoes change)
+gravityAcc     = 9.81;  % gravitational acceleration (m/s^2)
+noiseThreshold = 0.01;  % min GRF std/mean to skip near-zero strides
+
 % Normalize forces to body weight (add Nimbus shoe mass for those trials)
 if strcmpi(trialData.type, 'NIM')   % if Nimbus shoe trial, ...
     % TODO: update this block to account for weight of new Moonwalkers
-    normalizer = 9.81 * (BW + 3.4);    % two Nimbus shoes weigh 3.4 kg
+    normalizer = gravityAcc * (BW + shoeWeightKg);
 else                                % otherwise, ...
-    normalizer = 9.81 * BW;
+    normalizer = gravityAcc * BW;
 end
 % NOTE: may want to change if desire braking magnitudes
 flipB = 1;
@@ -180,8 +184,9 @@ filteredGRF.Data(:, slowFyIdx) = ...
 % hold on; plot(filteredGRF.getDataAsTS([fastleg 'Fy']).Data, 'r');
 % line([0 5*10^5], [0, 0]);
 
-% Incline-specific gravity component along the walking direction (mm/s^2)
-levelOfInterest = 0.5 .* flipSign .* cosd(90 - abs(tmAngle));
+% Gravity component projected onto walking direction for inclined treadmill
+inclineAPFactor = 0.5;  % scales gravity to the AP direction for inclined trials
+levelOfInterest = inclineAPFactor .* flipSign .* cosd(90 - abs(tmAngle));
 
 %% Initialize Output Arrays
 TMAngle          = repmat(tmAngle,   1, numStrides);
@@ -248,8 +253,8 @@ if ~isempty(regexp(trialData.type, 'TM')) %#ok<RGXP1>
         if ~isempty(striderS) && ~all(striderS == striderS(1)) && ...
                 ~isempty(FTO)  && ~isempty(STO)
             % Skip strides where signal is only noise or near-zero
-            if std(striderS, 'omitnan') > 0.01 && ...
-                    mean(striderS, 'omitnan') > 0.01
+            if std(striderS, 'omitnan') > noiseThreshold && ...
+                    mean(striderS, 'omitnan') > noiseThreshold
                 [FyBS(st), FyBSsum(st), FyPS(st), FyPSsum(st), ...
                     FyBSmax(st), FyBSmax_ABS(st), ~, FyPSmax(st), ~, ...
                     ImpactMagS(st)] = computeLegForceParameters( ...
@@ -274,8 +279,8 @@ if ~isempty(regexp(trialData.type, 'TM')) %#ok<RGXP1>
         if ~isempty(striderF) && ~all(striderF == striderF(1)) && ...
                 ~isempty(FTO)  && ~isempty(STO)
             % Skip strides where signal is only noise or near-zero
-            if std(striderF, 'omitnan') > 0.01 || ...
-                    mean(striderF, 'omitnan') > 0.01
+            if std(striderF, 'omitnan') > noiseThreshold || ...
+                    mean(striderF, 'omitnan') > noiseThreshold
                 [FyBF(st), FyBFsum(st), FyPF(st), FyPFsum(st), ...
                     FyBFmax(st), FyBFmax_ABS(st), ~, FyPFmax(st), ...
                     ~, ImpactMagF(st)] = computeLegForceParameters( ...

@@ -122,28 +122,36 @@ else
         orientation.foreaftSign * hatPos(:, 2), ...
         orientation.updownSign  * hatPos(:, 3)];
 
-    % Compute each segment COM as a fraction of the distal-to-proximal
-    % distance. Foot fraction = 0.5; shank/thigh = 0.567 (Winter tables).
-    % TODO: verify shank and thigh fractions; 0.567 may need recalculation
-    rFootCOM  = abs(rAnk  - rToe)  .* 0.5   + rToe;
-    lFootCOM  = abs(lAnk  - lToe)  .* 0.5   + lToe;
-    rShankCOM = abs(rKnee - rAnk)  .* 0.567 + rAnk;
-    lShankCOM = abs(lKnee - lAnk)  .* 0.567 + lAnk;
-    rThighCOM = abs(rHip  - rKnee) .* 0.567 + rKnee;
-    lThighCOM = abs(lHip  - lKnee) .* 0.567 + lKnee;
+    % Segment COM fractions from distal to proximal endpoint (Winter 1990)
+    footCOMFrac  = 0.5;       % foot COM: midpoint between ankle and toe
+    shankCOMFrac = 0.567;     % shank COM: 56.7% from ankle toward knee
+    thighCOMFrac = 0.567;     % thigh COM: 56.7% from knee toward hip
+    % NOTE: verify shank and thigh fractions; 0.567 may need recalculation
+    hatCOMFrac   = 1 - 0.697; % HAT COM: 30.3% from HAT marker toward hip
+    % (fraction derived from Winter and USAARL-88-5 pilot data)
 
-    % HAT COM: 30.3% from the HAT marker toward the mean hip position
-    % (fraction 1 - 0.697 derived from Winter and USAARL-88-5 pilot data)
+    rFootCOM  = abs(rAnk  - rToe)  .* footCOMFrac  + rToe;
+    lFootCOM  = abs(lAnk  - lToe)  .* footCOMFrac  + lToe;
+    rShankCOM = abs(rKnee - rAnk)  .* shankCOMFrac + rAnk;
+    lShankCOM = abs(lKnee - lAnk)  .* shankCOMFrac + lAnk;
+    rThighCOM = abs(rHip  - rKnee) .* thighCOMFrac + rKnee;
+    lThighCOM = abs(lHip  - lKnee) .* thighCOMFrac + lKnee;
+
     hipMidpoint = (rHip + lHip) ./ 2;
     hipMeanPos  = mean([rHip; lHip], 'omitnan');  % grand mean of all hip samples
-    hatCOM = abs(hipMidpoint - hatPos) .* (1 - 0.697) + hipMeanPos;
+    hatCOM = abs(hipMidpoint - hatPos) .* hatCOMFrac + hipMeanPos;
 
     %% Compile Whole-Body Center of Mass
-    % Segment mass fractions from Winter anthropometric tables
-    footWeight  = 0.0145 .* BW;
-    shankWeight = 0.0465 .* BW;
-    thighWeight = 0.1    .* BW;
-    hatWeight   = 0.71   .* BW;
+    % Segment mass fractions (Winter 1990 anthropometric tables)
+    footMassFrac  = 0.0145;  % foot mass as fraction of BW
+    shankMassFrac = 0.0465;  % shank mass as fraction of BW
+    thighMassFrac = 0.1;     % thigh mass as fraction of BW
+    hatMassFrac   = 0.71;    % HAT mass as fraction of BW
+
+    footWeight  = footMassFrac  .* BW;
+    shankWeight = shankMassFrac .* BW;
+    thighWeight = thighMassFrac .* BW;
+    hatWeight   = hatMassFrac   .* BW;
 
     rightLegCOM = rFootCOM*footWeight + rShankCOM*shankWeight + ...
         rThighCOM*thighWeight;
