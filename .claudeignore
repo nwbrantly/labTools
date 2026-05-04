@@ -15,6 +15,3 @@ doc/
 *.html
 *.css
 *.php
-
-# Compiled / external
-fun/ext/
