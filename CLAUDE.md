@@ -108,14 +108,16 @@ recomputed parameters are silently discarded:
 | `plotting/` | Visualization utilities |
 | `eventReview/` | Event validation helpers |
 | `+dataMotion/`, `+Hreflex/`, `+utils/` | Namespace packages |
-| `ext/` | Vendored third-party libraries (BTK, pitools, markerDataCleaning) |
+| `ext/` | External libraries: BTK (unmodified), pitools and markerDataCleaning (maintained as part of labTools) |
 
-**Vendored code in `fun/ext/`:** Files under `fun/ext/pitools/` and
-`fun/ext/markerDataCleaning/` are vendored copies of upstream
-libraries — do not reformat or apply labTools code style to them. To
-update a vendored dependency, copy only the used function files from
-the upstream repository (commit hashes in ATTRIBUTION files); do not
-wholesale copy the entire repo.
+**Code in `fun/ext/pitools/` and `fun/ext/markerDataCleaning/`:** These
+are signal processing and marker analysis functions originally from the
+pi-tools and markerDataCleaning repositories, both authored by members
+of the SML Laboratory. They are maintained as part of labTools and
+should be updated and reformatted to conform to labTools code style as
+needed. The ATTRIBUTION files record the original upstream commit hashes
+for provenance. Unlike `fun/ext/BTK/`, these files are not expected to
+track an external upstream — treat them as first-party labTools code.
 
 ### Key Functions
 

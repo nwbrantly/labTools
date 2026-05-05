@@ -65,11 +65,11 @@ through stride-indexed adaptation metrics and group statistics.
 
 ---
 
-## Third-Party Libraries
+## External Libraries
 
-labTools vendors several open-source libraries directly in `fun/ext/`.
-No submodule initialization is needed — a plain `git clone` is
-sufficient to get a fully functional copy of the repository.
+labTools includes several external libraries in `fun/ext/`. No submodule
+initialization is needed — a plain `git clone` is sufficient to get a
+fully functional copy of the repository.
 
 | Library | Path | License | Purpose |
 |---|---|---|---|
@@ -77,10 +77,12 @@ sufficient to get a fully functional copy of the repository.
 | [pi-tools][pitools] | `fun/ext/pitools/` | GPL v2 | Signal processing, utilities |
 | [markerDataCleaning][mdc] | `fun/ext/markerDataCleaning/` | See ATTRIBUTION | Marker outlier detection |
 
-Only the subset of pi-tools and markerDataCleaning functions referenced
-by the labTools pipeline has been vendored. See
-`fun/ext/pitools/LICENSE` and
-`fun/ext/markerDataCleaning/ATTRIBUTION.md` for attribution details.
+BTK is included unmodified. The pi-tools and markerDataCleaning
+functions were originally authored by members of the SML Laboratory and
+are maintained as part of labTools; they may diverge from the original
+repositories over time. The ATTRIBUTION files record the upstream commit
+hashes at the time of initial incorporation. See
+`fun/ext/pitools/LICENSE` for the pi-tools GPL v2 license.
 
 [pitools]: https://github.com/pabloi/pi-tools
 [mdc]: https://github.com/pabloi/markerDataCleaning
