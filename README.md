@@ -15,13 +15,14 @@ through stride-indexed adaptation metrics and group statistics.
 
 1. [Requirements](#requirements)
 2. [Getting Started](#getting-started)
-3. [Repository Layout](#repository-layout)
-4. [Data Pipeline Overview](#data-pipeline-overview)
-5. [Key Classes](#key-classes)
-6. [Working with Your Data](#working-with-your-data)
-7. [Example Scripts](#example-scripts)
-8. [Generating Documentation](#generating-documentation)
-9. [Reporting Bugs](#reporting-bugs)
+3. [Third-Party Libraries](#third-party-libraries)
+4. [Repository Layout](#repository-layout)
+5. [Data Pipeline Overview](#data-pipeline-overview)
+6. [Key Classes](#key-classes)
+7. [Working with Your Data](#working-with-your-data)
+8. [Example Scripts](#example-scripts)
+9. [Generating Documentation](#generating-documentation)
+10. [Reporting Bugs](#reporting-bugs)
 
 ---
 
@@ -64,6 +65,28 @@ through stride-indexed adaptation metrics and group statistics.
 
 ---
 
+## Third-Party Libraries
+
+labTools vendors several open-source libraries directly in `fun/ext/`.
+No submodule initialization is needed — a plain `git clone` is
+sufficient to get a fully functional copy of the repository.
+
+| Library | Path | License | Purpose |
+|---|---|---|---|
+| [BTK][btk] | `fun/ext/BTK/` | LGPLv3 | C3D file I/O |
+| [pi-tools][pitools] | `fun/ext/pitools/` | GPL v2 | Signal processing, utilities |
+| [markerDataCleaning][mdc] | `fun/ext/markerDataCleaning/` | See ATTRIBUTION | Marker outlier detection |
+
+Only the subset of pi-tools and markerDataCleaning functions referenced
+by the labTools pipeline has been vendored. See
+`fun/ext/pitools/LICENSE` and
+`fun/ext/markerDataCleaning/ATTRIBUTION.md` for attribution details.
+
+[pitools]: https://github.com/pabloi/pi-tools
+[mdc]: https://github.com/pabloi/markerDataCleaning
+
+---
+
 ## Repository Layout
 
 ```
@@ -89,7 +112,8 @@ labTools/
 │   ├── eventReview/           % Event validation helpers
 │   ├── +dataMotion/           % Namespace: marker/segment utilities
 │   ├── +Hreflex/              % Namespace: H-reflex analysis
-│   └── +utils/                % Namespace: general utilities
+│   ├── +utils/                % Namespace: general utilities
+│   └── ext/                   % Vendored third-party libraries (BTK, pitools, etc.)
 ├── gui/
 │   ├── importc3d/             % c3d2mat and GetInfoGUI (primary entry point)
 │   ├── createStudy/           % uiCreateStudy — experiment setup

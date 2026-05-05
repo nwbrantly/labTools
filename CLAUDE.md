@@ -108,6 +108,14 @@ recomputed parameters are silently discarded:
 | `plotting/` | Visualization utilities |
 | `eventReview/` | Event validation helpers |
 | `+dataMotion/`, `+Hreflex/`, `+utils/` | Namespace packages |
+| `ext/` | Vendored third-party libraries (BTK, pitools, markerDataCleaning) |
+
+**Vendored code in `fun/ext/`:** Files under `fun/ext/pitools/` and
+`fun/ext/markerDataCleaning/` are vendored copies of upstream
+libraries — do not reformat or apply labTools code style to them. To
+update a vendored dependency, copy only the used function files from
+the upstream repository (commit hashes in ATTRIBUTION files); do not
+wholesale copy the entire repo.
 
 ### Key Functions
 
