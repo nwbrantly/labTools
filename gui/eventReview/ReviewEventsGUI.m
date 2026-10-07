@@ -47,8 +47,6 @@ function ReviewEventsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Toolbox Dependencies:
 %   None
 
-%initialize values
-% Update handles structure
 handles.output          = hObject;
 handles.changed         = false;
 handles.saved           = false;
@@ -76,7 +74,6 @@ function varargout = ReviewEventsGUI_OutputFcn(hObject, eventdata, handles)
 
 % Center GUI on screen (must run here, not in OpeningFcn)
 % left, bottom, width, height
-% Get default command line output from handles structure
 scrsz  = get(0, 'ScreenSize');
 set(gcf(), 'Units', 'pixels');
 guiPos = get(gcf(), 'Position');
@@ -117,7 +114,6 @@ end
 if handles.filename ~= 0
     global expData
 
-    %Disable everything
     handles = disableFields(handles, 'plot_button', 'next_button', ...
         'back_button', 'delete_button', 'deleteNbutton', 'save_button', ...
         'add_button', 'BPdataType', 'BPfield', 'TPdataType', 'TPfield', ...
@@ -128,7 +124,6 @@ if handles.filename ~= 0
 
     aux=load([handles.Dir handles.filename]); %.mat file can only contain 1 variable, of the experimentData type
     if isa(expData,'experimentData') && expData.isProcessed %if not processed, there will be no events to review
-        %Enable things
     fieldNames = fieldnames(loaded);
     handles.varName = fieldNames{1};
 
@@ -144,9 +139,10 @@ if handles.filename ~= 0
             set(handles.forceRadio,     'Enable', 'On');
         end
 
-        %initialize condition menu:
         condDes = expData.metaData.conditionName;
-        set(handles.condMenu, 'String',condDes(~cellfun('isempty',condDes))); %this is for the case when a condition number was skipped
+        % Filter empty entries for sessions where a condition number was skipped
+        set(handles.condMenu, 'String', ...
+            condDes(~cellfun('isempty', condDes)));
         set(handles.condMenu,  'Value', 1);
         set(handles.trialMenu, 'Value', 1);
         guidata(hObject, handles);
@@ -166,7 +162,6 @@ end
 % --- Executes on selection change in condMenu.
 function condMenu_Callback(hObject, eventdata, handles)
 
-% check back button ability
 if get(hObject, 'Value') > 1
     set(handles.back_button, 'Enable', 'On')
 else
@@ -187,7 +182,6 @@ end
 if isempty(trialStr)
     cla(handles.axes1)
     cla(handles.axes2)
-    %Disable everything (besides condMenu)
     handles = disableFields(handles, 'plot_button', 'next_button', ...
         'back_button', 'delete_button', 'deleteNbutton', 'save_button', ...
         'add_button', 'BPdataType', 'BPfield', 'TPdataType', 'TPfield', ...
@@ -196,7 +190,6 @@ if isempty(trialStr)
         'showBadCheck');
     drawnow
 else
-    %enable everything
     handles = enableFields(handles, 'plot_button', 'next_button', ...
         'delete_button', 'deleteNbutton', 'save_button', 'add_button', ...
         'BPdataType', 'BPfield', 'TPdataType', 'TPfield', 'trialMenu', ...
@@ -226,7 +219,6 @@ end
 
 function trialMenu_Callback(hObject, eventdata, handles)
 
-% check back button ability
 if get(handles.condMenu, 'Value') == 1 && get(hObject, 'Value') == 1
     set(handles.back_button, 'Enable', 'Off')
 else
@@ -234,7 +226,6 @@ else
 end
 
 global expData
-%determine reference leg
 handles.idx = expData.metaData.trialsInCondition{handles.Condition}( ...
     get(hObject, 'Value'));
 handles.TSlist      = {};
@@ -247,7 +238,6 @@ else
     handles.slow = 'L';
     handles.fast = 'R';
 end
-% get condition description and any observations
 
 set(handles.condDescripText, 'String', ...
     expData.data{handles.idx}.metaData.description)
@@ -263,7 +253,6 @@ for ii = 1:length(fieldList)
     end
 end
 clear curField fieldList
-%initialize start/stop times to plot
 
 set(handles.BPdataType, 'String', handles.TSlist);
 set(handles.TPdataType, 'String', handles.TSlist);
@@ -634,17 +623,13 @@ function delete_button_Callback(hObject, eventdata, handles)
 
 global expData
 
-%Select event
 axes(handles.axes1)
 [x, ~] = ginput;
 
-%Find closest event(s)
 allEventsIndexes = find(sum(handles.trialEvents.Data, 2) > 0);
 minDeltaTThresh  = 1;     % events within 1 s of click are candidates (s)
 paddingT         = 0.05;  % pad to also catch simultaneous alt-class event (s)
 for ii = 1:length(x)
-        %pad min value to delete events in same region from alt calcualtion
-        %Eliminate it from handles.trialEvents
     deltaT    = handles.trialEvents.Time(allEventsIndexes) - x(ii);
     minDeltaT = min(abs(deltaT));
     if minDeltaT < minDeltaTThresh
@@ -671,7 +656,6 @@ global expData
 
 [x, ~] = ginput(2);
 
-%Find two closest events
 allEventsIndexes = find(sum(handles.trialEvents.Data, 2) > 0);
 
 deltaTstart = handles.trialEvents.Time(allEventsIndexes) - x(1);
@@ -682,7 +666,6 @@ deltaTend = handles.trialEvents.Time(allEventsIndexes) - x(2);
 [~, selectedEventTimeIndexEnd] = min(deltaTend .^ 2);
 selectedEventIndexEnd = allEventsIndexes(selectedEventTimeIndexEnd);
 
-%Eliminate all events between two indexes from handles.trialEvents
 handles.trialEvents.Data(selectedEventIndexStart:selectedEventIndexEnd, :) = false;
 
 expData.data{handles.idx}.gaitEvents  = handles.trialEvents;
@@ -695,9 +678,7 @@ end
 
 % --- Executes on button press in add_button.
 function add_button_Callback(hObject, eventdata, handles)
-%Should this add a TO/HS for all event classes?
 
-%Ask subject to select event type: SHS, FHS, STO, FTO
 % Replace leg-specific prefixes ('R'/'L') with 'F'/'S' in event labels
 events = handles.trialEvents.getLabels();
 events = strrep(events, handles.fast, 'F');
@@ -705,8 +686,7 @@ events = strrep(events, handles.slow, 'S');
 set(handles.eventType, 'String', events)
 set(handles.eventType, 'Enable', 'On')
 
-%Now the subject should select an event Type, so the function continues on
-%eventType_callback
+% Execution continues in eventType_Callback after the user selects a type
 guidata(hObject, handles)
 
 end
@@ -715,10 +695,8 @@ end
 function eventType_Callback(hObject, eventdata, handles)
 global expData
 
-%Select location
 [x, ~] = ginput(1);
 
-%create new event in handles.trialEvents
 [~, closestTimeIdx] = min(abs(handles.trialEvents.Time - x));
 handles.trialEvents.Data(closestTimeIdx, get(handles.eventType, 'Value')) = true;
 
@@ -726,7 +704,6 @@ expData.data{handles.idx}.gaitEvents  = handles.trialEvents;
 expData.data{handles.idx}.adaptParams = calcParameters( ...
     expData.data{handles.idx}, expData.subData, handles.type);
 
-%Disable this
 set(hObject, 'Enable', 'Off');
 guidata(hObject, handles)
 
@@ -740,7 +717,6 @@ function labelBadButton_Callback(hObject, eventdata, handles)
 
 global expData
 
-%Select stride
 axes(handles.axes1)
 [boolFlag,idxs]=expData.data{handles.idx}.adaptParams.isaLabel({'bad','good'});
 [x, ~] = ginput;
@@ -765,13 +741,11 @@ function labelGoodButton_Callback(hObject, eventdata, handles)
 
 global expData
 
-%Select stride
 axes(handles.axes1)
 [x, ~] = ginput;
 [~, idxs] = expData.data{handles.idx}.adaptParams.isaLabel({'bad', 'good'});
 
 for ii = 1:length(x)
-    %update 'bad' and 'good'
     deltaT   = expData.data{handles.idx}.adaptParams.hiddenTime - x(ii);
     [~, loc] = min(abs(deltaT));
     expData.data{handles.idx}.adaptParams.Data(loc, idxs) = [false, true];
@@ -792,12 +766,9 @@ end
 function save_button_Callback(hObject, eventdata, handles)
 
 global expData
-% Possibly in the future we could force user to hit save if he/she wants changes to be saved.
-
-% HH: I think the next two lines are unneccesary since any changes to events would have already been saved to expData.
-% expData.data{handles.idx}.gaitEvents=handles.trialEvents;
-% expData.data{handles.idx}.adaptParams=calcParameters(expData.data{handles.idx});
-handles.changed=true; %% HH: this forces the changes to be saved, even if GUI is closed.
+% NOTE: HH - event changes are already saved to expData incrementally; this
+% button just marks the session dirty so write_Callback will run on close.
+handles.changed = true;
 set(handles.write, 'Enable', 'On');
 guidata(hObject, handles)
 end
@@ -810,7 +781,6 @@ end
 function write_Callback(hObject, eventdata, handles)
 global expData
 
-%Disable everything
 handles = disableFields(handles, 'plot_button', 'next_button', 'back_button', ...
     'delete_button', 'deleteNbutton', 'save_button', 'add_button', 'BPdataType', ...
     'BPfield', 'TPdataType', 'TPfield', 'condMenu', 'trialMenu', 'timeSlider', ...
@@ -852,7 +822,6 @@ end
 % --- Executes when user attempts to close GUI_window.
 function GUI_window_CloseRequestFcn(hObject, eventdata, handles)
 
-%See if subject file should be saved before closing
 if ~handles.changed && isfield(handles, 'filename') && ~handles.saved
     choice = questdlg( ...
         ['Do you want to save changes made to ', handles.filename, '?'], ...

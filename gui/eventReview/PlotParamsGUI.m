@@ -37,7 +37,6 @@ end
 
 function PlotParamsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
-% Choose default command line output for PlotParamsGUI
 handles.output = hObject;
 
 % Position GUI window at the bottom center of the screen
@@ -90,7 +89,6 @@ function plotTypePanel_SelectionChangeFcn(hObject, eventdata, handles)
 %	NewValue: handle of the currently selected object
 % handles    structure with handles and user data (see GUIDATA)
 
-%first, disable everything
 handles = disableFields(handles, 'groupList', 'subjectList', 'parameterList', ...
     'conditionList', 'plotButton', 'binEdit', 'conditionSubList', 'indivSubs', ...
     'samePlotCheck', 'regExpBox', 'maxPerturbCheck', 'earlyNumPts', 'lateNumPts', ...
@@ -168,14 +166,12 @@ function groupList_Callback(hObject, eventdata, handles)
 % When groups are selected, populate condition and parameter lists with
 % options common to all subjects in those groups.
 
+if ~isempty(get(hObject, 'Value'))
 
-if ~isempty(get(hObject,'Value')) %if at least one group is selected
-
-    % contents=cellstr(get(hObject,'String')); <-- this returns groups with html formatting. Not good!
+    % Use fieldnames — get(...,'String') returns HTML-formatted strings
     contents = fieldnames(handles.Study);
     groups   = contents(get(hObject, 'Value'));
 
-    %create groupAdaptationData with all subjects
     allGroups = handles.Study.(groups{1});
     for gg = 2:length(groups)
         allGroups = cat(allGroups, handles.Study.(groups{gg}));
@@ -190,8 +186,7 @@ if ~isempty(get(hObject,'Value')) %if at least one group is selected
     %     set(handles.conditionList,'String',conds')
 
 
-    if strcmpi(get(handles.conditionText,'String'),'conditions') %only if conditionList is filled with conditions (and not epochs)
-        %get current state of condition/parameter lists
+    if strcmpi(get(handles.conditionText, 'String'), 'conditions')
         conditionContents    = get(handles.conditionList,    'String');
         selectedConds        = conditionContents(get(handles.conditionList, 'Value'));
         conditionSubContents = get(handles.conditionSubList, 'String');
@@ -200,7 +195,6 @@ if ~isempty(get(hObject,'Value')) %if at least one group is selected
         conditions = allGroups.getCommonConditions();
         set(handles.conditionList, 'String', conditions');
 
-        %re-select conditions/parameters previously selected
         condInds  = find(ismember(conditions, selectedConds));
         set(handles.conditionList,    'Value',  condInds);
         subConds  = conditions(condInds);
@@ -233,7 +227,6 @@ function subjectList_Callback(hObject, eventdata, handles)
     if ~isempty(get(hObject,'Value')) %only enter if no groups are selected but at least one subjects is
 if isempty(get(handles.groupList, 'Value'))
 
-        %get current state of condition lists
         conditionContents    = get(handles.conditionList,    'String');
         selectedConds        = conditionContents(get(handles.conditionList, 'Value'));
         conditionSubContents = get(handles.conditionSubList, 'String');
@@ -244,7 +237,6 @@ if isempty(get(handles.groupList, 'Value'))
         selectedSubs = handles.subjects(get(hObject, 'Value'));
         groups       = fieldnames(handles.Study);
 
-        %determine which groups subjects belong to
         boolFlag = false(1, length(groups));
         for gg = 1:length(groups)
             for jj = 1:length(selectedSubs)
@@ -264,7 +256,6 @@ if isempty(get(handles.groupList, 'Value'))
         set(handles.conditionList, 'String', conditions');
         set(handles.parameterList, 'String', parameters);
 
-        %re-select conditions previously selected
         condInds  = find(ismember(conditions, selectedConds));
         set(handles.conditionList,    'Value',  condInds);
         subConds  = conditions(condInds);
@@ -274,7 +265,6 @@ if isempty(get(handles.groupList, 'Value'))
         paramInds = find(ismember(parameters, selectedParams));
         set(handles.parameterList,    'Value',  paramInds);
     else
-        %reset condition/parameter values
         set(handles.conditionList,    'Value',  []);
         set(handles.conditionList,    'String', '');
         set(handles.conditionSubList, 'Value',  []);
@@ -370,7 +360,6 @@ function conditionSubList_Callback(hObject, eventdata, handles)
 end
 
 function regExpBox_Callback(hObject, eventdata, handles)
-%Get labels that match:
 
 expression = get(hObject, 'String');
 paramList  = cellstr(get(handles.parameterList, 'String'));
@@ -455,8 +444,6 @@ if handles.filename ~= 0
     delete(child(1));   % remove the OK button so the dialog is non-interactive
     drawnow
     aux=load([handles.dir handles.filename]); %.mat file can only contain 1 variable: structure with groupAdaptationData objects
-    %Inititalize handle fields
-    %Populate subject list
                 auxSubs{s}= ['<html><b>' auxSubs{s} '</b></html>']; %html tags allow for formating font
 
     close(msgHandle)
@@ -482,7 +469,6 @@ if handles.filename ~= 0
     end
     set(handles.subjectList, 'String', subEntries);
 
-    %populate group list
     for ii = 1:2:length(groupNames)
         groupNames{ii} = ['<html><b>' groupNames{ii} '</b></html>'];
     end
@@ -494,7 +480,6 @@ end
 %% -------------------- Do the actual plotting ------------------------%%
 
 function plotButton_Callback(hObject, eventdata, handles)
-% groupContents=cellstr(get(handles.groupList,'String'));
 %PLOTBUTTON_CALLBACK  Executes the selected plot type with current settings.
 %
 %   Inputs:
@@ -507,13 +492,12 @@ function plotButton_Callback(hObject, eventdata, handles)
 
 colorOrder = zeros(17, 3);
 for ii = 1:17
-indivSubList={};%cell(1,length(get(handles.subjectList,'Value')));
-            %adaptDataList{g}=subFileList(handles.Study.(groups{g})); %%HH 6/17
     colorOrder(ii, :) = get(handles.(['color' num2str(ii)]), 'BackgroundColor');
 end
 
 groupContents = fieldnames(handles.Study);
 adaptDataList = {};
+indivSubList  = {};
 indivSubStr   = '[]';
 
 if handles.plotType == 2
@@ -524,23 +508,23 @@ if handles.plotType == 2
         end
     end
 else
-            %adaptDataList{g}=subFileList(handles.Study.(groups{g})); %%HH 6/17
     if ~isempty(get(handles.groupList, 'Value'))
         groups = groupContents(get(handles.groupList, 'Value'));
         for gg = 1:length(groups)
             adaptDataList{gg} = handles.Study.(groups{gg}).adaptData;
         end
-        adaptDataStr=['{' strjoin(strcat([handles.varName '.'],groups,'.adaptData')',',') '}'];
-        if ~isempty(get(handles.subjectList,'Value'))
-            indivSubList=cell(1,length(get(handles.groupList,'Value')));
-            indivSubStr=adaptDataStr;
-            %need to segregate individual subjects by group
-            indivSubs=handles.subjects(get(handles.subjectList,'Value'));
-            for g=1:length(groups)
-                [isAinB,locAinB]=ismember(indivSubs,handles.Study.(groups{g}).ID);
-                for s=1:length(indivSubs)
-                    if isAinB(s)
-                        indivSubList{g}{end+1}=handles.Study.(groups{g}).adaptData{locAinB(s)};
+        adaptDataStr = ['{' strjoin( ...
+            strcat([handles.varName '.'], groups, '.adaptData')', ',') '}'];
+        if ~isempty(get(handles.subjectList, 'Value'))
+            indivSubList = cell(1, length(get(handles.groupList, 'Value')));
+            indivSubStr  = adaptDataStr;
+            indivSubs    = handles.subjects(get(handles.subjectList, 'Value'));
+            for gg = 1:length(groups)
+                [isAinB, locAinB] = ismember(indivSubs, handles.Study.(groups{gg}).ID);
+                for jj = 1:length(indivSubs)
+                    if isAinB(jj)
+                        indivSubList{gg}{end + 1} = ...
+                            handles.Study.(groups{gg}).adaptData{locAinB(jj)};
                     end
                 end
                 indivSubStr = strrep(indivSubStr, ...
@@ -549,7 +533,6 @@ else
             end
         end
     else
-                %adaptDataList{end+1}={[indivSubs{s} 'params.mat']};
         if ~isempty(get(handles.subjectList, 'Value'))
             indivSubs = handles.subjects(get(handles.subjectList, 'Value'));
             for jj = 1:length(indivSubs)
@@ -587,14 +570,15 @@ biofeedbackFlag = get(handles.biofeedback,     'Value');
 removeBias      = get(handles.removeBiasCheck, 'Value');
 
 switch handles.plotType
-    case 1 %time course
-        trialMarkerFlag=ismember(conds,conds(get(handles.conditionSubList,'Value')));
-        binwidth=str2double(get(handles.binEdit,'String'));
-        alignEndFlag=str2double(get(handles.AlignEnd2,'String'));
-        initiAligFlat=str2double(get(handles.InitiAlig,'String'));
-        adaptationData.plotAvgTimeCourse(adaptDataList,params,conds,binwidth,trialMarkerFlag',indivSubFlag,indivSubList,colorOrder,biofeedbackFlag,removeBias,groups,[],[],alignEndFlag,initiAligFlat);
-        %to print code previous line to command window:
-        if get(handles.printCodeCheck,'Value')
+    case 1  % time course
+        trialMarkerFlag = ismember(conds, conds(get(handles.conditionSubList, 'Value')));
+        binwidth        = str2double(get(handles.binEdit,   'String'));
+        alignEndFlag    = str2double(get(handles.AlignEnd2, 'String'));
+        initiAligFlag   = str2double(get(handles.InitiAlig, 'String'));
+        adaptationData.plotAvgTimeCourse(adaptDataList, params, conds, ...
+            binwidth, trialMarkerFlag', indivSubFlag, indivSubList, colorOrder, ...
+            biofeedbackFlag, removeBias, groups, [], [], alignEndFlag, initiAligFlag);
+        if get(handles.printCodeCheck, 'Value')
             disp(['load(''' handles.dir handles.filename ''')'])
             disp(['adaptDataList = ' adaptDataStr ';'])
             disp(['params = ' paramStr ';'])
@@ -607,15 +591,17 @@ switch handles.plotType
             disp(['groups = ' groups ';'])
             disp(['adaptationData.plotAvgTimeCourse(adaptDataList,params,conds,binWidth,trialMarkerFlag,indivSubFlag,IndivSubList,' num2str(biofeedbackFlag) ')','removeBias','groups'])
         end
-    case 2 % early/late bars
-        removeBiasFlag=get(handles.removeBiasCheck,'Value');
-        earlyNumber=[str2double(get(handles.earlyNumPts,'String')) str2double(get(handles.lateNumPts,'String'))];
-        lateNumber=[];
-        exemptLast=str2double(get(handles.exptLastNumPts,'String'));
-        legendNames=[];
-        significanceThreshold=0.01;
-        adaptationData.plotGroupedSubjectsBarsv2(adaptDataList,params,removeBiasFlag,indivSubFlag,conds,earlyNumber,lateNumber,exemptLast,legendNames,significanceThreshold)
-        %         removeBias=1;
+    case 2  % early/late bars
+        removeBiasFlag      = get(handles.removeBiasCheck, 'Value');
+        earlyNumber         = [str2double(get(handles.earlyNumPts, 'String')) ...
+                               str2double(get(handles.lateNumPts,  'String'))];
+        lateNumber          = [];
+        exemptLast          = str2double(get(handles.exptLastNumPts, 'String'));
+        legendNames         = [];
+        significanceThresh  = 0.01;  % default significance threshold
+        adaptationData.plotGroupedSubjectsBarsv2(adaptDataList, params, ...
+            removeBiasFlag, indivSubFlag, conds, earlyNumber, lateNumber, ...
+            exemptLast, legendNames, significanceThresh)
     case 3  % scatter plot
         binSize = str2double(get(handles.binEdit, 'String'));
         adaptationData.scatterPlotLab(adaptDataList, params, conds, ...
@@ -660,7 +646,6 @@ colorPath  = strrep(colorPath, 'PlotParamsGUI.m', 'Plotting Colors');
 contents   = cellstr(get(hObject, 'String'));
 colorFile  = contents{get(hObject, 'Value')};
 
-%initialize drop down list with different color orders
 if exist([colorPath filesep colorFile '.mat'], 'file') > 0
     colorData  = load([colorPath filesep colorFile]);
     fieldNames = fieldnames(colorData);
@@ -795,11 +780,9 @@ function handles = colorButtonCallback(hObject, handles)
 %COLORBUTTONCALLBACK  Open color picker and update button appearance.
 clr = uisetcolor(get(hObject, 'BackgroundColor'), 'Set Color');
 rgb = round(clr .* 255);
-%change background,foreground, and string of button
 set(hObject, 'BackgroundColor', clr);
 set(hObject, 'ForegroundColor', contrastColor(clr));
 set(hObject, 'String', ['[' num2str(rgb) ']']);
-%update color order?
 end
 
 %% ------------- CREATE FUNCTIONS - DO NOT EDIT ------------------------%%
